@@ -1,5 +1,8 @@
+using EscaleReport.Web.Application.Cargo.Dtos;
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Dispatch.Dtos;
+using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt;
 using EscaleReport.Web.Application.Escales.Dtos;
 using EscaleReport.Web.Application.VesselPlanning.Dtos;
 using EscaleReport.Web.Domain.Common;
@@ -73,6 +76,66 @@ public class GetEscaleDetailQueryHandler(
             .OrderByDescending(c => c.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
+        // CDC §14.2 : consommations Cargo, ressources STS/TT et incidents STS de l'escale —
+        // repris tels quels depuis leurs modules respectifs, sans ressaisie.
+        var cargo = await dbContext.CargoConsommations
+            .AsNoTracking()
+            .Where(c => c.EscaleId == request.EscaleId)
+            .Select(c => CargoConsommationDto.FromEntity(c))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var ressourcesSts = await (
+            from a in dbContext.GantryAssignments.AsNoTracking()
+            join g in dbContext.Gantries.AsNoTracking() on a.GantryId equals g.Id
+            where a.EscaleId == request.EscaleId
+            orderby a.HeureDebut descending
+            select new GantryAssignmentDto
+            {
+                Id = a.Id,
+                GantryId = a.GantryId,
+                GantryCode = g.Code,
+                EscaleId = a.EscaleId,
+                Navire = escale.Navire,
+                HeureDebut = a.HeureDebut,
+                HeureFin = a.HeureFin,
+                TacheOuZone = a.TacheOuZone,
+                Statut = a.Statut
+            }).ToListAsync(cancellationToken);
+
+        var ressourcesTt = await dbContext.TtVesselAssignments
+            .AsNoTracking()
+            .Where(a => a.EscaleId == request.EscaleId)
+            .Select(a => new TtVesselAssignmentDto
+            {
+                Id = a.Id,
+                Navire = escale.Navire,
+                NombrePrevu = a.NombrePrevu,
+                NombreAffecte = a.NombreAffecte,
+                NombreOperationnel = a.NombreOperationnel,
+                Ecart = a.NombreAffecte - a.NombrePrevu,
+                Observations = a.Observations
+            }).ToListAsync(cancellationToken);
+
+        var gantryCodes = await dbContext.Gantries.AsNoTracking().ToDictionaryAsync(g => g.Id, g => g.Code, cancellationToken);
+        var incidentsSts = await dbContext.StsIncidents
+            .AsNoTracking()
+            .Where(i => i.EscaleId == request.EscaleId)
+            .OrderByDescending(i => i.DateDebutUtc)
+            .Select(i => new StsIncidentDto
+            {
+                Id = i.Id,
+                Navire = escale.Navire,
+                GantryCode = i.GantryId.HasValue && gantryCodes.ContainsKey(i.GantryId.Value) ? gantryCodes[i.GantryId.Value] : null,
+                TypeIncident = i.TypeIncident,
+                DateDebutUtc = i.DateDebutUtc,
+                DateFinUtc = i.DateFinUtc,
+                Duree = i.Duree,
+                Cause = i.Cause,
+                ConditionsReprise = i.ConditionsReprise,
+                RetirePortiqueEffectif = i.RetirePortiqueEffectif,
+                EstResolu = i.EstResolu
+            }).ToListAsync(cancellationToken);
+
         return new EscaleDetailDto
         {
             Escale = EscaleDto.FromEntity(escale),
@@ -82,7 +145,11 @@ public class GetEscaleDetailQueryHandler(
             Incidents = incidents.Select(OperationalIncidentDto.FromEntity).ToList(),
             CategoriesIncidentDisponibles = categoriesIncident,
             ConteneursAdditionnels = additionnels.Select(AdditionalContainerDto.FromEntity).ToList(),
-            ConteneursDangereux = dangereux.Select(DangerousContainerDto.FromEntity).ToList()
+            ConteneursDangereux = dangereux.Select(DangerousContainerDto.FromEntity).ToList(),
+            Cargo = cargo,
+            RessourcesSts = ressourcesSts,
+            RessourcesTt = ressourcesTt,
+            IncidentsSts = incidentsSts
         };
     }
 }

@@ -42,7 +42,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §13.3 | ITT Controller — équipements ITT | ✅ | |
 | §13.4 | ITT Controller — pannes engins de transfert | ✅ | |
 | §14.1 | Rapport de fin de shift | ⬜ | Non commencé (agrégation multi-navires/multi-modules) |
-| §14.2 | Rapport de fin d'escale | 🟡 | PDF généré mais contenu partiel (header + anomalies) ; pas encore la consolidation complète attendue |
+| §14.2 | Rapport de fin d'escale | ✅ | Consolidation complète (PDF + Excel) : horaires/statut final, 5 sections Vessel Planning, incidents STS, Cargo, ressources STS/TT, difficultés/actions/points restants ouverts |
 | §14.3 | Export PDF | ✅ | Mécanisme générique en place (QuestPDF) |
 | §14.4 | Export Excel | ✅ | Mécanisme générique en place (ClosedXML) |
 | §14.5 | Envoi par e-mail | ✅ | `mailto:` + journal d'audit |
