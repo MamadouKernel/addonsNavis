@@ -35,10 +35,10 @@ namespace EscaleReport.Web.Controllers;
 [Authorize]
 public class DispatchController(ISender mediator) : Controller
 {
-    // Tableau de bord Dispatch STS (CDC §6).
-    public async Task<IActionResult> Sts(CancellationToken cancellationToken)
+    // Tableau de bord Dispatch STS (CDC §6). Sélection du shift (§6.1) via querystring.
+    public async Task<IActionResult> Sts(DateOnly? date, string? shift, CancellationToken cancellationToken)
     {
-        var dto = await mediator.Send(new GetDispatchStsQuery(), cancellationToken);
+        var dto = await mediator.Send(new GetDispatchStsQuery(date, shift), cancellationToken);
         return View(dto);
     }
 

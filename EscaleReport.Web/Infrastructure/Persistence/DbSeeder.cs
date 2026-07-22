@@ -32,6 +32,7 @@ public static class DbSeeder
         await SeedStsIncidentTypesAsync(dbContext);
         await SeedGantriesAsync(dbContext);
         await SeedYardZonesAsync(dbContext);
+        await SeedShiftsAsync(dbContext);
 
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         if (await userManager.Users.AnyAsync())
@@ -220,6 +221,29 @@ public static class DbSeeder
             {
                 ListKey = ReferenceListKeys.YardZone,
                 Value = zones[i],
+                SortOrder = i
+            });
+        }
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+    }
+
+    private static async Task SeedShiftsAsync(IApplicationDbContext dbContext)
+    {
+        if (await dbContext.ReferenceValues.AnyAsync(r => r.ListKey == ReferenceListKeys.Shift))
+        {
+            return;
+        }
+
+        // CDC §1 "Glossaire" : "Les shifts concernés sont notamment le matin, l'après-midi et
+        // la nuit" — liste paramétrable, ces 3 valeurs ne sont qu'un socle par défaut.
+        string[] shifts = ["Matin", "Après-midi", "Nuit"];
+        for (var i = 0; i < shifts.Length; i++)
+        {
+            dbContext.ReferenceValues.Add(new ReferenceValue
+            {
+                ListKey = ReferenceListKeys.Shift,
+                Value = shifts[i],
                 SortOrder = i
             });
         }

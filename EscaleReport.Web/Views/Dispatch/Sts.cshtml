@@ -37,6 +37,72 @@
     <div class="mb-6 alert-error">@error</div>
 }
 
+<!-- ============ SELECTION DU SHIFT (§6.1) ============ -->
+<section class="card mb-6">
+    <h2 class="card-title mb-1">Sélection du shift</h2>
+    <p class="card-subtitle mb-4">Navires affichés automatiquement : en cours d'opération, ou attendus (ETA) pendant la date/shift sélectionnés.</p>
+
+    <form asp-controller="Dispatch" asp-action="Sts" method="get" class="mb-5 flex flex-wrap items-end gap-4">
+        <div>
+            <label class="field-label">Date</label>
+            <input type="date" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Shift</label>
+            <select name="shift" class="input-field">
+                <option value="">Tous</option>
+                @foreach (var s in Model.ShiftsDisponibles)
+                {
+                    @if (s == Model.SelectedShift)
+                    {
+                        <option value="@s" selected>@s</option>
+                    }
+                    else
+                    {
+                        <option value="@s">@s</option>
+                    }
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn-primary">Filtrer</button>
+    </form>
+
+    <div class="table-shell">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire</th>
+                        <th class="hidden md:table-cell">Voyage</th>
+                        <th>ETA</th>
+                        <th class="hidden md:table-cell">Shift</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.NaviresDuShift.Any())
+                {
+                    <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucun navire en cours ou attendu pour cette sélection.</td></tr>
+                }
+                @foreach (var n in Model.NaviresDuShift)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@n.Navire</td>
+                        <td class="hidden md:table-cell">@n.Voyage</td>
+                        <td class="whitespace-nowrap">@n.Eta.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden md:table-cell">@(n.Shift ?? "—")</td>
+                        <td>
+                            @if (n.EnCours) { <span class="badge-warning">En cours</span> }
+                            else { <span class="badge-neutral">Attendu</span> }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
 <div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="stsTabs">
     <button type="button" class="tab-btn active" data-tab="portiques">Portiques</button>
     <button type="button" class="tab-btn" data-tab="incidents">Incidents <span class="tab-count">@incidentsEnCours</span></button>

@@ -13,7 +13,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §5.3 | Vessel Planning — Incidents opérationnels | ✅ | |
 | §5.4 | Vessel Planning — Conteneurs additionnels | ✅ | |
 | §5.5 | Vessel Planning — Marchandises dangereuses | ✅ | |
-| §6.1 | Dispatch STS — sélection shift/date | 🟡 | Pas de sélecteur date+shift ; le tableau de bord affiche l'état courant global, sans filtrage par shift |
+| §6.1 | Dispatch STS — sélection shift/date | ✅ | Sélecteur date+shift, navires en cours/attendus affichés automatiquement (shift paramétrable) |
 | §6.2 | Dispatch STS — portiques | ✅ | Affectation, statut, fin d'affectation |
 | §6.3 | Dispatch STS — incidents STS | ✅ | |
 | §6.4 | Dispatch STS — pointeurs | ✅ | |

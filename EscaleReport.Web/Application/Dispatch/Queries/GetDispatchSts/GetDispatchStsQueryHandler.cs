@@ -92,6 +92,37 @@ public class GetDispatchStsQueryHandler(
             .OrderByDescending(r => r.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
+        // CDC §6.1 "Sélection du shift" : affichage automatique des navires en cours
+        // d'opération ou attendus (ETA) pendant la date/shift sélectionnés.
+        var selectedDate = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var shiftsDisponibles = await dbContext.ReferenceValues
+            .AsNoTracking()
+            .Where(r => r.ListKey == ReferenceListKeys.Shift && r.IsActive)
+            .OrderBy(r => r.SortOrder)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+
+        var toutesEscales = await dbContext.Escales
+            .AsNoTracking()
+            .Where(e => e.StatutOperations != StatutOperations.Terminees)
+            .ToListAsync(cancellationToken);
+
+        var naviresDuShift = toutesEscales
+            .Where(e => e.StatutOperations == StatutOperations.EnCours
+                || (DateOnly.FromDateTime(e.Eta) == selectedDate
+                    && (string.IsNullOrEmpty(request.Shift) || string.IsNullOrEmpty(e.Shift) || e.Shift == request.Shift)))
+            .OrderBy(e => e.Eta)
+            .Select(e => new NavireDuShiftDto
+            {
+                Id = e.Id,
+                Navire = e.Navire,
+                Voyage = e.Voyage,
+                Eta = e.Eta,
+                Shift = e.Shift,
+                EnCours = e.StatutOperations == StatutOperations.EnCours
+            }).ToList();
+
         return new DispatchStsDto
         {
             Gantries = gantries.Select(GantryDto.FromEntity).ToList(),
@@ -100,7 +131,11 @@ public class GetDispatchStsQueryHandler(
             Incidents = incidents,
             TypesIncidentDisponibles = typesIncident,
             Pointeurs = pointeurs.Select(StsPointeurDto.FromEntity).ToList(),
-            RopnEntries = ropn.Select(RopnEntryDto.FromEntity).ToList()
+            RopnEntries = ropn.Select(RopnEntryDto.FromEntity).ToList(),
+            SelectedDate = selectedDate,
+            SelectedShift = request.Shift,
+            ShiftsDisponibles = shiftsDisponibles,
+            NaviresDuShift = naviresDuShift
         };
     }
 }
