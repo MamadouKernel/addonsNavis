@@ -5,6 +5,7 @@ using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Domain.VesselPlanning;
+using EscaleReport.Web.Domain.YardPlanning;
 using EscaleReport.Web.Infrastructure.Identity;
 using EscaleReport.Web.Infrastructure.Persistence.Interceptors;
 using Microsoft.AspNetCore.Identity;
@@ -49,6 +50,9 @@ public abstract class ApplicationDbContext(
     public DbSet<RemplacementOperateur> RemplacementsOperateur => Set<RemplacementOperateur>();
     public DbSet<CargoConsommation> CargoConsommations => Set<CargoConsommation>();
     public DbSet<ReportEmailLog> ReportEmailLogs => Set<ReportEmailLog>();
+    public DbSet<VesselYardPlan> VesselYardPlans => Set<VesselYardPlan>();
+    public DbSet<TransfertOut> TransfertsOut => Set<TransfertOut>();
+    public DbSet<HousekeepingTask> HousekeepingTasks => Set<HousekeepingTask>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

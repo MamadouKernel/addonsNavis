@@ -1250,6 +1250,158 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.ToTable("OperationalIncidents");
                 });
 
+            modelBuilder.Entity("EscaleReport.Web.Domain.YardPlanning.HousekeepingTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DatePrevue")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateRealisation")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Priorite")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Responsable")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Statut")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Zone")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HousekeepingTasks");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.YardPlanning.TransfertOut", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Bay")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Commentaire")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DetailOuDestination")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("HeureDebut")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("HeureFin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("NombreConteneurs")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TransfertsOut");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.YardPlanning.VesselYardPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ConteneursTransbordement")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EscaleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Observations")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("ReefersExport")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReefersImport")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServiceMaritime")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ZoneDebarquement")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EscaleId");
+
+                    b.ToTable("VesselYardPlans");
+                });
+
             modelBuilder.Entity("EscaleReport.Web.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1558,6 +1710,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                 });
 
             modelBuilder.Entity("EscaleReport.Web.Domain.VesselPlanning.OperationalIncident", b =>
+                {
+                    b.HasOne("EscaleReport.Web.Domain.Escales.Escale", null)
+                        .WithMany()
+                        .HasForeignKey("EscaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.YardPlanning.VesselYardPlan", b =>
                 {
                     b.HasOne("EscaleReport.Web.Domain.Escales.Escale", null)
                         .WithMany()

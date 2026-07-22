@@ -1,0 +1,340 @@
+@using EscaleReport.Web.Application.YardPlanning.Queries.GetYardPlannerDashboard
+@using EscaleReport.Web.Domain.Escales
+@using EscaleReport.Web.Domain.YardPlanning
+@model YardPlannerDashboardDto
+@{
+    ViewData["Title"] = "Yard Planner";
+
+    static string StatutOpsLabel(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "En cours",
+        StatutOperations.Terminees => "Terminées",
+        _ => "Pas encore débutées"
+    };
+
+    static string StatutOpsBadge(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "badge-warning",
+        StatutOperations.Terminees => "badge-success",
+        _ => "badge-neutral"
+    };
+
+    static string StatutPlanifLabel(StatutPlanification s) => s switch
+    {
+        StatutPlanification.Planifie => "Planifié",
+        _ => "Non planifié"
+    };
+
+    static string HousekeepingLabel(HousekeepingStatus s) => s switch
+    {
+        HousekeepingStatus.EnCours => "En cours",
+        HousekeepingStatus.Termine => "Terminé",
+        HousekeepingStatus.Reporte => "Reporté",
+        _ => "À faire"
+    };
+
+    var transfertsEnCours = Model.TransfertsOut.Count(t => !t.EstTermine);
+    var tachesEnCours = Model.HousekeepingTasks.Count(t => t.Statut is HousekeepingStatus.AFaire or HousekeepingStatus.EnCours);
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Yard Planner</h1>
+    <p class="page-subtitle">Préparation des zones de débarquement, transferts Out et housekeeping — CDC §11</p>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="yardTabs">
+    <button type="button" class="tab-btn active" data-tab="navires">Navires en cours</button>
+    <button type="button" class="tab-btn" data-tab="plans">Plans navire</button>
+    <button type="button" class="tab-btn" data-tab="transferts">Transferts Out <span class="tab-count">@transfertsEnCours</span></button>
+    <button type="button" class="tab-btn" data-tab="housekeeping">Housekeeping <span class="tab-count">@tachesEnCours</span></button>
+</div>
+
+<!-- ============ NAVIRES EN COURS A QUAI (§11.1) ============ -->
+<section id="tab-navires" class="yard-panel card">
+    <h2 class="card-title mb-1">Navires en cours à quai</h2>
+    <p class="card-subtitle mb-5">CDC §11.1</p>
+
+    <div class="table-shell">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire</th>
+                        <th class="hidden md:table-cell">Voyage</th>
+                        <th class="hidden lg:table-cell">Quai</th>
+                        <th class="hidden lg:table-cell">Ligne</th>
+                        <th>ETA</th>
+                        <th>Statut</th>
+                        <th class="hidden md:table-cell">Planification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.NaviresEnCours.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune escale enregistrée.</td></tr>
+                }
+                @foreach (var n in Model.NaviresEnCours)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@n.Navire</td>
+                        <td class="hidden md:table-cell">@n.Voyage</td>
+                        <td class="hidden lg:table-cell">@n.Quai</td>
+                        <td class="hidden lg:table-cell">@n.LigneMaritime</td>
+                        <td class="whitespace-nowrap">@n.Eta.ToString("dd/MM HH:mm")</td>
+                        <td><span class="@StatutOpsBadge(n.StatutOperations)">@StatutOpsLabel(n.StatutOperations)</span></td>
+                        <td class="hidden md:table-cell">@StatutPlanifLabel(n.StatutPlanification)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ============ PLANS NAVIRE ET ZONES DE DEBARQUEMENT (§11.2) ============ -->
+<section id="tab-plans" class="yard-panel card hidden">
+    <h2 class="card-title mb-1">Plans navire et zones de débarquement</h2>
+    <p class="card-subtitle mb-5">CDC §11.2 — les zones disponibles sont paramétrables.</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire</th>
+                        <th class="hidden md:table-cell">Service maritime</th>
+                        <th>Zone</th>
+                        <th>Reefers imp.</th>
+                        <th>Reefers exp.</th>
+                        <th class="hidden lg:table-cell">Transbordement</th>
+                        <th class="hidden lg:table-cell">Observations</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.VesselYardPlans.Any())
+                {
+                    <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucun plan enregistré.</td></tr>
+                }
+                @foreach (var p in Model.VesselYardPlans)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@p.Navire</td>
+                        <td class="hidden md:table-cell">@p.ServiceMaritime</td>
+                        <td><span class="badge-brand">@p.ZoneDebarquement</span></td>
+                        <td>@p.ReefersImport</td>
+                        <td>@p.ReefersExport</td>
+                        <td class="hidden lg:table-cell">@p.ConteneursTransbordement</td>
+                        <td class="hidden lg:table-cell">@p.Observations</td>
+                        <td class="text-right">
+                            <form asp-controller="YardPlanner" asp-action="UpdateVesselYardPlan" method="post" class="inline-flex items-center gap-1">
+                                <input type="hidden" name="Id" value="@p.Id" />
+                                <input type="number" name="ReefersImport" value="@p.ReefersImport" min="0" class="input-field w-16 py-1 text-xs" title="Reefers import" />
+                                <input type="number" name="ReefersExport" value="@p.ReefersExport" min="0" class="input-field w-16 py-1 text-xs" title="Reefers export" />
+                                <input type="number" name="ConteneursTransbordement" value="@p.ConteneursTransbordement" min="0" class="input-field w-16 py-1 text-xs" title="Transbordement" />
+                                <input type="hidden" name="Observations" value="@p.Observations" />
+                                <button type="submit" class="btn-link whitespace-nowrap">Mettre à jour</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="YardPlanner" asp-action="AddVesselYardPlan" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+            <label class="field-label">Navire</label>
+            <select name="EscaleId" class="input-field">
+                @foreach (var e in Model.EscalesDisponibles)
+                {
+                    <option value="@e.Id">@e.Navire</option>
+                }
+            </select>
+        </div>
+        <div><label class="field-label">Service maritime</label><input name="ServiceMaritime" required class="input-field" /></div>
+        <div>
+            <label class="field-label">Zone de débarquement</label>
+            <select name="ZoneDebarquement" class="input-field">
+                @foreach (var z in Model.ZonesDisponibles)
+                {
+                    <option value="@z">@z</option>
+                }
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Ajouter</button>
+        </div>
+        <div><label class="field-label">Reefers import</label><input type="number" name="ReefersImport" min="0" value="0" class="input-field" /></div>
+        <div><label class="field-label">Reefers export</label><input type="number" name="ReefersExport" min="0" value="0" class="input-field" /></div>
+        <div><label class="field-label">Conteneurs transbordement</label><input type="number" name="ConteneursTransbordement" min="0" value="0" class="input-field" /></div>
+        <div><label class="field-label">Observations</label><input name="Observations" class="input-field" /></div>
+    </form>
+</section>
+
+<!-- ============ TRANSFERTS OUT (§11.3) ============ -->
+<section id="tab-transferts" class="yard-panel card hidden">
+    <h2 class="card-title mb-1">Transferts Out</h2>
+    <p class="card-subtitle mb-5">CDC §11.3</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Bay</th>
+                        <th>Conteneurs</th>
+                        <th class="hidden md:table-cell">Détail / destination</th>
+                        <th>Début</th>
+                        <th class="hidden lg:table-cell">Fin</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.TransfertsOut.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun transfert Out.</td></tr>
+                }
+                @foreach (var t in Model.TransfertsOut)
+                {
+                    <tr>
+                        <td class="font-mono font-semibold text-slate-900">@t.Bay</td>
+                        <td>@t.NombreConteneurs</td>
+                        <td class="hidden md:table-cell">@t.DetailOuDestination</td>
+                        <td class="whitespace-nowrap">@t.HeureDebut.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden whitespace-nowrap lg:table-cell">@(t.HeureFin?.ToString("dd/MM HH:mm") ?? "—")</td>
+                        <td>
+                            @if (t.EstTermine) { <span class="badge-success">Terminé</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!t.EstTermine)
+                            {
+                                <form asp-controller="YardPlanner" asp-action="EndTransfertOut" method="post">
+                                    <input type="hidden" name="transfertId" value="@t.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Terminer</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="YardPlanner" asp-action="AddTransfertOut" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div><label class="field-label">Bay</label><input name="Bay" required class="input-field" /></div>
+        <div><label class="field-label">Nombre de conteneurs</label><input type="number" name="NombreConteneurs" min="0" value="0" class="input-field" /></div>
+        <div><label class="field-label">Détail / destination</label><input name="DetailOuDestination" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="HeureDebut" class="input-field" /></div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Déclarer</button>
+        </div>
+        <div class="sm:col-span-2 lg:col-span-5"><label class="field-label">Commentaire</label><input name="Commentaire" class="input-field" /></div>
+    </form>
+</section>
+
+<!-- ============ HOUSEKEEPING (§11.4) ============ -->
+<section id="tab-housekeeping" class="yard-panel card hidden">
+    <h2 class="card-title mb-1">Housekeeping</h2>
+    <p class="card-subtitle mb-5">CDC §11.4 — le statut doit rester à jour en continu pour orienter la relève suivante.</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th class="hidden md:table-cell">Zone</th>
+                        <th class="hidden lg:table-cell">Priorité</th>
+                        <th class="hidden md:table-cell">Responsable</th>
+                        <th class="hidden lg:table-cell">Prévue</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.HousekeepingTasks.Any())
+                {
+                    <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune tâche de housekeeping.</td></tr>
+                }
+                @foreach (var t in Model.HousekeepingTasks)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@t.Description</td>
+                        <td class="hidden md:table-cell">@t.Zone</td>
+                        <td class="hidden lg:table-cell">@t.Priorite</td>
+                        <td class="hidden md:table-cell">@t.Responsable</td>
+                        <td class="hidden whitespace-nowrap lg:table-cell">@(t.DatePrevue?.ToString("dd/MM HH:mm") ?? "—")</td>
+                        <td>
+                            <form asp-controller="YardPlanner" asp-action="ChangeHousekeepingTaskStatus" method="post" class="inline-flex items-center gap-1">
+                                <input type="hidden" name="TaskId" value="@t.Id" />
+                                <select name="Statut" onchange="this.form.submit()" class="input-field py-1.5 text-xs">
+                                    @foreach (HousekeepingStatus s in Enum.GetValues<HousekeepingStatus>())
+                                    {
+                                        @if (s == t.Statut)
+                                        {
+                                            <option value="@((int)s)" selected>@HousekeepingLabel(s)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)s)">@HousekeepingLabel(s)</option>
+                                        }
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="YardPlanner" asp-action="AddHousekeepingTask" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div class="sm:col-span-2"><label class="field-label">Description</label><input name="Description" required class="input-field" /></div>
+        <div>
+            <label class="field-label">Zone</label>
+            <select name="Zone" class="input-field">
+                <option value="">—</option>
+                @foreach (var z in Model.ZonesDisponibles)
+                {
+                    <option value="@z">@z</option>
+                }
+            </select>
+        </div>
+        <div><label class="field-label">Priorité</label><input name="Priorite" placeholder="Haute / Normale / Basse" class="input-field" /></div>
+        <div><label class="field-label">Responsable</label><input name="Responsable" class="input-field" /></div>
+        <div><label class="field-label">Date prévue</label><input type="datetime-local" name="DatePrevue" class="input-field" /></div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Ajouter</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var tabs = document.querySelectorAll('#yardTabs .tab-btn');
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.yard-panel').forEach(function (p) { p.classList.add('hidden'); });
+                    var panel = document.getElementById('tab-' + btn.dataset.tab);
+                    if (panel) { panel.classList.remove('hidden'); }
+                });
+            });
+        })();
+    </script>
+}

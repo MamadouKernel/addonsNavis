@@ -4,6 +4,7 @@ using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Domain.VesselPlanning;
+using EscaleReport.Web.Domain.YardPlanning;
 using Microsoft.EntityFrameworkCore;
 
 namespace EscaleReport.Web.Application.Common.Interfaces;
@@ -37,6 +38,9 @@ public interface IApplicationDbContext
     DbSet<RemplacementOperateur> RemplacementsOperateur { get; }
     DbSet<CargoConsommation> CargoConsommations { get; }
     DbSet<ReportEmailLog> ReportEmailLogs { get; }
+    DbSet<VesselYardPlan> VesselYardPlans { get; }
+    DbSet<TransfertOut> TransfertsOut { get; }
+    DbSet<HousekeepingTask> HousekeepingTasks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

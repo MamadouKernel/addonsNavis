@@ -19,4 +19,5 @@ public static class ReferenceListKeys
     public const string IncidentCategory = "IncidentCategory";
     public const string CutReason = "CutReason";
     public const string StsIncidentType = "StsIncidentType";
+    public const string YardZone = "YardZone";
 }

@@ -31,7 +31,10 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §9.3 | Dispatch autres engins — déconnexions/absences | ✅ | |
 | §9.4 | Dispatch autres engins — remplacement opérateurs | ✅ | |
 | §10 | Cargo Control | ✅ | Dashboard, consommation Disch/Load, Revised Load, alertes ; export PDF/Excel/email au niveau escale |
-| §11 | Yard Planner | ⬜ | Non commencé |
+| §11.1 | Yard Planner — navires en cours à quai | ✅ | Lecture seule |
+| §11.2 | Yard Planner — plans navire et zones de débarquement | ✅ | Zones paramétrables |
+| §11.3 | Yard Planner — transferts Out | ✅ | |
+| §11.4 | Yard Planner — housekeeping | ✅ | |
 | §12 | Coordinateur Control Room | ⬜ | Non commencé |
 | §13 | ITT Controller | ⬜ | Non commencé |
 | §14.1 | Rapport de fin de shift | ⬜ | Non commencé (agrégation multi-navires/multi-modules) |
@@ -53,3 +56,4 @@ Créés par le seeder au premier démarrage (mot de passe généré et affiché 
 | `vplanner` | Vessel Planner |
 | `dispatcher1` | Dispatcher |
 | `cargo1` | Cargo Controller |
+| `yardplanner1` | Yard Planner |

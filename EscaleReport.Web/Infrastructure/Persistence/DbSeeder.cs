@@ -31,6 +31,7 @@ public static class DbSeeder
         await SeedIncidentCategoriesAsync(dbContext);
         await SeedStsIncidentTypesAsync(dbContext);
         await SeedGantriesAsync(dbContext);
+        await SeedYardZonesAsync(dbContext);
 
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         if (await userManager.Users.AnyAsync())
@@ -83,6 +84,18 @@ public static class DbSeeder
                 Permissions.GenererPdf,
                 Permissions.GenererExcel,
                 Permissions.EnvoyerRapportEmail
+            ]);
+
+        // Compte de démonstration pour le rôle Yard Planner (CDC §11).
+        await SeedUserAsync(
+            userManager, dbContext, logger, configuration,
+            configKeyPrefix: "SeedYardPlanner", defaultUserName: "yardplanner1",
+            role: Roles.YardPlanner,
+            permissions:
+            [
+                Permissions.ConsulterEscales,
+                Permissions.SaisirDonneesModule,
+                Permissions.ModifierDonneesModule
             ]);
     }
 
@@ -163,6 +176,27 @@ public static class DbSeeder
         for (var i = 1; i <= 8; i++)
         {
             dbContext.Gantries.Add(new Gantry { Code = $"CR{i}" });
+        }
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+    }
+
+    private static async Task SeedYardZonesAsync(IApplicationDbContext dbContext)
+    {
+        if (await dbContext.ReferenceValues.AnyAsync(r => r.ListKey == ReferenceListKeys.YardZone))
+        {
+            return;
+        }
+
+        string[] zones = ["Zone A", "Zone B", "Zone C", "Zone D", "Zone Reefer", "Zone Transbordement"];
+        for (var i = 0; i < zones.Length; i++)
+        {
+            dbContext.ReferenceValues.Add(new ReferenceValue
+            {
+                ListKey = ReferenceListKeys.YardZone,
+                Value = zones[i],
+                SortOrder = i
+            });
         }
 
         await dbContext.SaveChangesAsync(CancellationToken.None);
