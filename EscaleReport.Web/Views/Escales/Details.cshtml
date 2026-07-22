@@ -1,4 +1,5 @@
 @using EscaleReport.Web.Application.Escales.Queries.GetEscaleDetail
+@using EscaleReport.Web.Domain.Escales
 @using EscaleReport.Web.Domain.VesselPlanning
 @model EscaleDetailDto
 @{
@@ -29,6 +30,26 @@
     var incidentsEnCours = Model.Incidents.Count(i => i.Statut == IncidentStatus.EnCours);
     var additionnelsEnAttente = Model.ConteneursAdditionnels.Count(c => c.Decision == AdditionalContainerDecision.EnAttente);
     var dangereuxAlertes = Model.ConteneursDangereux.Count(c => c.AlerteRenouvellement);
+
+    // CDC §4.3 : points d'attention à signaler lorsque l'escale passe au statut "Terminées".
+    var anomaliesNonResolues = Model.Anomalies.Count(a => a.Statut == AnomalyStatus.NonResolu);
+    var dangereuxNonRegularises = Model.ConteneursDangereux.Count(c => c.StatutOperationnel == DangerousContainerStatus.ASuivre);
+    var additionnelsNonTraites = additionnelsEnAttente;
+    var pointsAttentionCloture = anomaliesNonResolues + dangereuxNonRegularises + additionnelsNonTraites;
+
+    static string StatutOperationsLabel(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "En cours",
+        StatutOperations.Terminees => "Terminées",
+        _ => "Pas encore débutées"
+    };
+
+    static string StatutPlanificationLabel(StatutPlanification s) => s switch
+    {
+        StatutPlanification.Planifie => "Planifié",
+        StatutPlanification.PlanValide => "Plan validé",
+        _ => "Non planifié"
+    };
 }
 
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4 sm:mb-8">
@@ -79,6 +100,61 @@
 {
     <div class="mb-6 alert-error">@error</div>
 }
+
+<!-- ============ STATUTS (§4.3) ============ -->
+<section class="card mb-6">
+    <h2 class="card-title mb-1">Statuts</h2>
+    <p class="card-subtitle mb-4">Le passage au statut « Terminées » est réservé aux utilisateurs habilités.</p>
+
+    <div class="flex flex-wrap items-end gap-4">
+        <form asp-controller="Escales" asp-action="ChangeStatutOperations" method="post">
+            <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+            <label class="field-label">Statut des opérations</label>
+            <select name="NouveauStatut" onchange="this.form.submit()" class="input-field">
+                @foreach (StatutOperations s in Enum.GetValues<StatutOperations>())
+                {
+                    @if (s == Model.Escale.StatutOperations)
+                    {
+                        <option value="@((int)s)" selected>@StatutOperationsLabel(s)</option>
+                    }
+                    else
+                    {
+                        <option value="@((int)s)">@StatutOperationsLabel(s)</option>
+                    }
+                }
+            </select>
+        </form>
+        <form asp-controller="Escales" asp-action="ChangeStatutPlanification" method="post">
+            <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+            <label class="field-label">Statut de planification</label>
+            <select name="NouveauStatut" onchange="this.form.submit()" class="input-field">
+                @foreach (StatutPlanification s in Enum.GetValues<StatutPlanification>())
+                {
+                    @if (s == Model.Escale.StatutPlanification)
+                    {
+                        <option value="@((int)s)" selected>@StatutPlanificationLabel(s)</option>
+                    }
+                    else
+                    {
+                        <option value="@((int)s)">@StatutPlanificationLabel(s)</option>
+                    }
+                }
+            </select>
+        </form>
+    </div>
+
+    @if (Model.Escale.StatutOperations == StatutOperations.Terminees && pointsAttentionCloture > 0)
+    {
+        <div class="alert-error mt-4">
+            Escale terminée avec @pointsAttentionCloture point(s) d'attention non traité(s) :
+            @(anomaliesNonResolues > 0 ? $"{anomaliesNonResolues} anomalie(s) non résolue(s)" : null)
+            @(anomaliesNonResolues > 0 && (dangereuxNonRegularises > 0 || additionnelsNonTraites > 0) ? " · " : null)
+            @(dangereuxNonRegularises > 0 ? $"{dangereuxNonRegularises} conteneur(s) dangereux non régularisé(s)" : null)
+            @(dangereuxNonRegularises > 0 && additionnelsNonTraites > 0 ? " · " : null)
+            @(additionnelsNonTraites > 0 ? $"{additionnelsNonTraites} conteneur(s) additionnel(s) non traité(s)" : null)
+        </div>
+    }
+</section>
 
 <div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="vpTabs">
     <button type="button" class="tab-btn active" data-tab="anomalies">Anomalies <span class="tab-count">@Model.Anomalies.Count</span></button>

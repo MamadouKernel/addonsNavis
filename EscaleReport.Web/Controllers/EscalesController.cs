@@ -1,3 +1,5 @@
+using EscaleReport.Web.Application.Escales.Commands.ChangeEscaleStatutOperations;
+using EscaleReport.Web.Application.Escales.Commands.ChangeEscaleStatutPlanification;
 using EscaleReport.Web.Application.Escales.Commands.CreateEscale;
 using EscaleReport.Web.Application.Escales.Commands.LogReportEmail;
 using EscaleReport.Web.Application.Escales.Queries.GenerateEscaleExcelExport;
@@ -45,6 +47,23 @@ public class EscalesController(ISender mediator) : Controller
         }
 
         return View(detail);
+    }
+
+    // CDC §4.3 : passage "Terminées" réservé aux utilisateurs habilités (contrôlé côté handler).
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeStatutOperations(ChangeEscaleStatutOperationsCommand command, CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(Details), new { id = command.EscaleId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeStatutPlanification(ChangeEscaleStatutPlanificationCommand command, CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(Details), new { id = command.EscaleId });
     }
 
     // Génération directe par l'application (QuestPDF), pas via l'impression navigateur — CDC §14.3.

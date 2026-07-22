@@ -7,7 +7,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §2 | Utilisateurs, rôles, permissions | ✅ | Identity + rôles + permissions décorrélées des rôles (claims), 4 comptes de démo seedés |
 | §4.1 | Escales — tableau de bord | ✅ | Liste + filtres |
 | §4.2 | Escales — création | ✅ | Formulaire, brouillon tant que champs obligatoires manquants |
-| §4.3 | Escales — statuts | 🟡 | Statuts modélisés (enum) mais **pas d'action dédiée** pour faire évoluer le statut après création (passage "Terminées" réservé aux habilités = à faire) |
+| §4.3 | Escales — statuts | ✅ | Changement de statut opérations/planification, passage "Terminées" réservé à la permission dédiée, alerte des points d'attention (anomalies/dangereux/additionnels non traités) à la clôture |
 | §5.1 | Vessel Planning — Anomalies conteneurs | ✅ | |
 | §5.2 | Vessel Planning — Conteneurs vides | ✅ | |
 | §5.3 | Vessel Planning — Incidents opérationnels | ✅ | |

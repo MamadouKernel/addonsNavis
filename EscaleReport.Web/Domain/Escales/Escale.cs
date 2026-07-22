@@ -31,4 +31,10 @@ public class Escale : BaseAuditableEntity
         && Eta != default;
 
     public void RefreshDraftState() => IsDraft = !HasRequiredFields();
+
+    // CDC §4.3 : le passage au statut "Terminées" est soumis à une permission dédiée
+    // (Permissions.MarquerEscaleTerminee), contrôlée dans le handler, pas ici.
+    public void ChangerStatutOperations(StatutOperations nouveauStatut) => StatutOperations = nouveauStatut;
+
+    public void ChangerStatutPlanification(StatutPlanification nouveauStatut) => StatutPlanification = nouveauStatut;
 }
