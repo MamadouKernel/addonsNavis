@@ -1,0 +1,18 @@
+{
+  "name": "escalereport.web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "css:build": "tailwindcss -i ./ClientAssets/input.css -o ./wwwroot/css/site.css --minify",
+    "css:watch": "tailwindcss -i ./ClientAssets/input.css -o ./wwwroot/css/site.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}

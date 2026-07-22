@@ -1,0 +1,53 @@
+@model EscaleReport.Web.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Connexion";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion - EscaleReport</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 px-4">
+    <div class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-soft-lg">
+        <div class="mb-7 flex items-center gap-3">
+            <div class="grid h-11 w-11 flex-none place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-soft">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 17l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1" />
+                    <path d="M5 17V9l7-4 7 4v8" />
+                    <path d="M12 5v12" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold leading-tight text-slate-900">EscaleReport</h1>
+                <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Côte d'Ivoire Terminal</p>
+            </div>
+        </div>
+
+        <form asp-controller="Account" asp-action="Login" method="post" class="space-y-4">
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert-error"></div>
+            }
+
+            <div>
+                <label asp-for="UserName" class="field-label"></label>
+                <input asp-for="UserName" autofocus class="input-field" />
+            </div>
+            <div>
+                <label asp-for="Password" class="field-label"></label>
+                <input asp-for="Password" class="input-field" />
+            </div>
+
+            <button type="submit" class="btn-primary w-full">
+                Se connecter
+            </button>
+        </form>
+    </div>
+</body>
+</html>

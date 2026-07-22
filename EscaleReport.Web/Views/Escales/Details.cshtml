@@ -1,0 +1,533 @@
+@using EscaleReport.Web.Application.Escales.Queries.GetEscaleDetail
+@using EscaleReport.Web.Domain.VesselPlanning
+@model EscaleDetailDto
+@{
+    ViewData["Title"] = Model.Escale.Navire;
+
+    static string SensLabel(Sens s) => s == Sens.Debarquement ? "Débarquement" : "Embarquement";
+    static string DecisionLabel(AdditionalContainerDecision d) => d switch
+    {
+        AdditionalContainerDecision.Debarque => "Débarqué",
+        AdditionalContainerDecision.Embarque => "Embarqué",
+        AdditionalContainerDecision.Refuse => "Refusé",
+        AdditionalContainerDecision.Reporte => "Reporté",
+        _ => "En attente"
+    };
+    static string BadtLabel(BadtStatus s) => s switch
+    {
+        BadtStatus.Pris => "Pris",
+        BadtStatus.ARenouveler => "À renouveler",
+        _ => "Non pris"
+    };
+    static string StatutOpLabel(DangerousContainerStatus s) => s switch
+    {
+        DangerousContainerStatus.Cloture => "Clôturé",
+        DangerousContainerStatus.Reembarque => "Réembarqué",
+        _ => "À suivre"
+    };
+
+    var incidentsEnCours = Model.Incidents.Count(i => i.Statut == IncidentStatus.EnCours);
+    var additionnelsEnAttente = Model.ConteneursAdditionnels.Count(c => c.Decision == AdditionalContainerDecision.EnAttente);
+    var dangereuxAlertes = Model.ConteneursDangereux.Count(c => c.AlerteRenouvellement);
+}
+
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4 sm:mb-8">
+    <div>
+        <h1 class="page-title">@Model.Escale.Navire</h1>
+        <p class="page-subtitle">
+            Voyage @Model.Escale.Voyage · @Model.Escale.LigneMaritime · Quai @(Model.Escale.Quai ?? "—")
+        </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+        <a asp-action="Report" asp-route-id="@Model.Escale.Id" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
+            Rapport PDF
+        </a>
+        <a asp-action="ExportExcel" asp-route-id="@Model.Escale.Id" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M9.5 13l5 6M14.5 13l-5 6" /></svg>
+            Export Excel
+        </a>
+        <button type="button" class="btn-secondary" onclick="document.getElementById('emailPrompt').showModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" /><path d="m4 6 8 6 8-6" /></svg>
+            Envoyer par e-mail
+        </button>
+        <a asp-action="Index" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+            Retour
+        </a>
+    </div>
+</div>
+
+<dialog id="emailPrompt" class="card m-auto w-[90vw] max-w-md backdrop:bg-slate-900/50">
+    <form asp-controller="Escales" asp-action="SendReportEmail" method="post">
+        <input type="hidden" name="id" value="@Model.Escale.Id" />
+        <h2 class="card-title mb-1">Envoyer le rapport par e-mail</h2>
+        <p class="card-subtitle mb-4">
+            Un brouillon s'ouvrira dans votre client de messagerie — le PDF exporté ci-dessus
+            reste à joindre manuellement avant l'envoi (CDC §14.5).
+        </p>
+        <label class="field-label">Destinataires (séparés par des virgules)</label>
+        <input name="recipients" type="text" required placeholder="nom@exemple.com, autre@exemple.com" class="input-field" />
+        <div class="mt-5 flex flex-wrap justify-end gap-3">
+            <button type="button" class="btn-secondary" onclick="document.getElementById('emailPrompt').close()">Annuler</button>
+            <button type="submit" class="btn-primary">Ouvrir le brouillon</button>
+        </div>
+    </form>
+</dialog>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="vpTabs">
+    <button type="button" class="tab-btn active" data-tab="anomalies">Anomalies <span class="tab-count">@Model.Anomalies.Count</span></button>
+    <button type="button" class="tab-btn" data-tab="vides">Vides <span class="tab-count">@Model.ConteneursVides.Count</span></button>
+    <button type="button" class="tab-btn" data-tab="incidents">Incidents <span class="tab-count">@incidentsEnCours</span></button>
+    <button type="button" class="tab-btn" data-tab="additionnels">Additionnels <span class="tab-count">@additionnelsEnAttente</span></button>
+    <button type="button" class="tab-btn" data-tab="dangereux">Dangereux <span class="tab-count">@dangereuxAlertes</span></button>
+</div>
+
+<!-- ============ ANOMALIES (§5.1) ============ -->
+<section id="tab-anomalies" class="vp-panel card">
+    <h2 class="card-title mb-1">Conteneurs en anomalie</h2>
+    <p class="card-subtitle mb-5">CDC §5.1</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Conteneur</th>
+                        <th>Sens</th>
+                        <th class="hidden md:table-cell">Ligne</th>
+                        <th class="hidden md:table-cell">Position</th>
+                        <th>Raison</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Anomalies.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune anomalie déclarée.</td></tr>
+                }
+                @foreach (var a in Model.Anomalies)
+                {
+                    <tr>
+                        <td class="font-mono font-semibold text-slate-900">@a.NumeroConteneur</td>
+                        <td class="whitespace-nowrap">@SensLabel(a.Sens)</td>
+                        <td class="hidden md:table-cell">@a.LigneMaritime</td>
+                        <td class="hidden md:table-cell">@a.Position</td>
+                        <td>@a.Raison</td>
+                        <td>
+                            @if (a.Statut == AnomalyStatus.Resolu)
+                            {
+                                <span class="badge-success">Résolu @(a.ResoluPar is not null ? "· " + a.ResoluPar : "")</span>
+                            }
+                            else
+                            {
+                                <span class="badge-danger">Non résolu</span>
+                            }
+                        </td>
+                        <td class="text-right">
+                            @if (a.Statut == AnomalyStatus.NonResolu)
+                            {
+                                <form asp-controller="VesselPlanning" asp-action="ResolveAnomaly" method="post">
+                                    <input type="hidden" name="anomalyId" value="@a.Id" />
+                                    <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Marquer résolu</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="VesselPlanning" asp-action="AddAnomaly" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-6">
+        <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+        <div><label class="field-label">Conteneur</label><input name="NumeroConteneur" required class="input-field" /></div>
+        <div>
+            <label class="field-label">Sens</label>
+            <select name="Sens" class="input-field">
+                <option value="@((int)Sens.Debarquement)">Débarquement</option>
+                <option value="@((int)Sens.Embarquement)">Embarquement</option>
+            </select>
+        </div>
+        <div><label class="field-label">Ligne</label><input name="LigneMaritime" class="input-field" /></div>
+        <div><label class="field-label">Position</label><input name="Position" class="input-field" /></div>
+        <div>
+            <label class="field-label">Raison</label>
+            <select name="Raison" class="input-field">
+                @foreach (var raison in Model.RaisonsDisponibles)
+                {
+                    <option value="@raison">@raison</option>
+                }
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                Ajouter
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- ============ CONTENEURS VIDES (§5.2) ============ -->
+<section id="tab-vides" class="vp-panel card hidden">
+    <h2 class="card-title mb-1">Conteneurs vides à embarquer</h2>
+    <p class="card-subtitle mb-5">CDC §5.2 — reste calculé automatiquement (souhaité + ajouté − embarqué − coupé)</p>
+
+    @{
+        var totSouh = Model.ConteneursVides.Sum(v => v.QuantiteSouhaitee);
+        var totAjout = Model.ConteneursVides.Sum(v => v.QuantiteAjoutee);
+        var totPlan = Model.ConteneursVides.Sum(v => v.QuantitePlanifiee);
+        var totEmb = Model.ConteneursVides.Sum(v => v.QuantiteEmbarquee);
+        var totCoupe = Model.ConteneursVides.Sum(v => v.QuantiteCoupee);
+        var totReste = Model.ConteneursVides.Sum(v => v.QuantiteRestante);
+    }
+    <div class="mb-6 grid grid-cols-3 gap-3 sm:grid-cols-6">
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Souhaité</div>
+            <div class="font-mono text-lg font-bold text-slate-900">@totSouh</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Ajouté</div>
+            <div class="font-mono text-lg font-bold text-slate-900">@totAjout</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Planifié</div>
+            <div class="font-mono text-lg font-bold text-slate-900">@totPlan</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Embarqué</div>
+            <div class="font-mono text-lg font-bold text-slate-900">@totEmb</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Coupé</div>
+            <div class="font-mono text-lg font-bold text-slate-900">@totCoupe</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+            <div class="text-[10px] font-semibold uppercase text-slate-500">Restant</div>
+            <div class="font-mono text-lg font-bold text-amber-600">@totReste</div>
+        </div>
+    </div>
+
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @if (!Model.ConteneursVides.Any())
+        {
+            <p class="text-sm text-slate-400 sm:col-span-2 lg:col-span-3">Aucun objectif de conteneurs vides.</p>
+        }
+        @foreach (var v in Model.ConteneursVides)
+        {
+            <form asp-controller="VesselPlanning" asp-action="UpdateEmptyTarget" method="post" class="rounded-xl border border-slate-200 p-4">
+                <input type="hidden" name="Id" value="@v.Id" />
+                <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+                <div class="mb-3 flex items-start justify-between gap-2">
+                    <div>
+                        <div class="font-semibold text-slate-900">@v.LigneMaritime</div>
+                        <div class="text-xs text-slate-500">Type @v.TypeConteneur · Souhaité @v.QuantiteSouhaitee</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-semibold uppercase text-slate-500">Reste</div>
+                        <div class="font-mono text-xl font-bold @(v.QuantiteRestante == 0 ? "text-emerald-600" : "text-amber-600")">@v.QuantiteRestante</div>
+                    </div>
+                </div>
+                <div class="mb-3 grid grid-cols-2 gap-2">
+                    <div><label class="field-label">Ajouté</label><input name="QuantiteAjoutee" type="number" min="0" value="@v.QuantiteAjoutee" class="input-field py-1.5 text-xs" /></div>
+                    <div><label class="field-label">Planifié</label><input name="QuantitePlanifiee" type="number" min="0" value="@v.QuantitePlanifiee" class="input-field py-1.5 text-xs" /></div>
+                    <div><label class="field-label">Embarqué</label><input name="QuantiteEmbarquee" type="number" min="0" value="@v.QuantiteEmbarquee" class="input-field py-1.5 text-xs" /></div>
+                    <div><label class="field-label">Coupé</label><input name="QuantiteCoupee" type="number" min="0" value="@v.QuantiteCoupee" class="input-field py-1.5 text-xs" /></div>
+                </div>
+                <div class="mb-3"><label class="field-label">Motif de coupure</label><input name="MotifCoupure" value="@v.MotifCoupure" class="input-field" /></div>
+                <button type="submit" class="btn-secondary w-full">Mettre à jour</button>
+            </form>
+        }
+    </div>
+
+    <form asp-controller="VesselPlanning" asp-action="AddEmptyTarget" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+        <div><label class="field-label">Ligne maritime</label><input name="LigneMaritime" required class="input-field" /></div>
+        <div><label class="field-label">Type conteneur</label><input name="TypeConteneur" required placeholder="20 / 40" class="input-field" /></div>
+        <div><label class="field-label">Quantité souhaitée</label><input name="QuantiteSouhaitee" type="number" min="0" value="0" class="input-field" /></div>
+        <div class="flex items-end"><button type="submit" class="btn-primary w-full">Ajouter</button></div>
+    </form>
+</section>
+
+<!-- ============ INCIDENTS (§5.3) ============ -->
+<section id="tab-incidents" class="vp-panel card hidden">
+    <h2 class="card-title mb-1">Incidents opérationnels</h2>
+    <p class="card-subtitle mb-5">CDC §5.3 — durée calculée automatiquement, critique mis en évidence</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th class="hidden md:table-cell">Localisation</th>
+                        <th>Début</th>
+                        <th class="hidden lg:table-cell">Durée</th>
+                        <th>Gravité</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Incidents.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun incident déclaré.</td></tr>
+                }
+                @foreach (var i in Model.Incidents)
+                {
+                    <tr class="@(i.Gravite == IncidentGravite.Critique ? "bg-rose-50/60" : "")">
+                        <td class="font-semibold text-slate-900">@i.Categorie</td>
+                        <td class="hidden md:table-cell">@i.Localisation</td>
+                        <td class="whitespace-nowrap">@i.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden lg:table-cell">@(i.Duree.HasValue ? $"{(int)i.Duree.Value.TotalHours}h{i.Duree.Value.Minutes:D2}" : "—")</td>
+                        <td>
+                            @if (i.Gravite == IncidentGravite.Critique) { <span class="badge-danger">Critique</span> }
+                            else if (i.Gravite == IncidentGravite.Moyen) { <span class="badge-warning">Moyen</span> }
+                            else { <span class="badge-info">Info</span> }
+                        </td>
+                        <td>
+                            @if (i.Statut == IncidentStatus.Resolu) { <span class="badge-success">Résolu</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (i.Statut == IncidentStatus.EnCours)
+                            {
+                                <form asp-controller="VesselPlanning" asp-action="ResolveIncident" method="post">
+                                    <input type="hidden" name="incidentId" value="@i.Id" />
+                                    <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Résoudre</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="VesselPlanning" asp-action="AddIncident" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+        <div>
+            <label class="field-label">Catégorie</label>
+            <select name="Categorie" class="input-field">
+                @foreach (var cat in Model.CategoriesIncidentDisponibles)
+                {
+                    <option value="@cat">@cat</option>
+                }
+            </select>
+        </div>
+        <div><label class="field-label">Localisation</label><input name="Localisation" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input name="DateDebutUtc" type="datetime-local" class="input-field" /></div>
+        <div>
+            <label class="field-label">Gravité</label>
+            <select name="Gravite" class="input-field">
+                <option value="@((int)IncidentGravite.Information)">Information</option>
+                <option value="@((int)IncidentGravite.Moyen)">Moyen</option>
+                <option value="@((int)IncidentGravite.Critique)">Critique</option>
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Déclarer</button>
+        </div>
+        <div class="sm:col-span-2 lg:col-span-5">
+            <label class="field-label">Description</label>
+            <input name="Description" class="input-field" />
+        </div>
+    </form>
+</section>
+
+<!-- ============ CONTENEURS ADDITIONNELS (§5.4) ============ -->
+<section id="tab-additionnels" class="vp-panel card hidden">
+    <h2 class="card-title mb-1">Conteneurs additionnels</h2>
+    <p class="card-subtitle mb-5">CDC §5.4 — alerte si en attente à la fin des opérations</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Conteneur</th>
+                        <th>Sens</th>
+                        <th class="hidden md:table-cell">Ligne</th>
+                        <th class="hidden md:table-cell">Position</th>
+                        <th>Décision</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.ConteneursAdditionnels.Any())
+                {
+                    <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun conteneur additionnel.</td></tr>
+                }
+                @foreach (var c in Model.ConteneursAdditionnels)
+                {
+                    <tr class="@(c.Decision == AdditionalContainerDecision.EnAttente ? "bg-amber-50/60" : "")">
+                        <td class="font-mono font-semibold text-slate-900">@c.NumeroConteneur</td>
+                        <td class="whitespace-nowrap">@SensLabel(c.Sens)</td>
+                        <td class="hidden md:table-cell">@c.LigneMaritime</td>
+                        <td class="hidden md:table-cell">@c.Position</td>
+                        <td>
+                            @if (c.Decision == AdditionalContainerDecision.EnAttente) { <span class="badge-warning">En attente</span> }
+                            else if (c.Decision == AdditionalContainerDecision.Refuse) { <span class="badge-danger">Refusé</span> }
+                            else { <span class="badge-success">@DecisionLabel(c.Decision)</span> }
+                        </td>
+                        <td class="text-right">
+                            <form asp-controller="VesselPlanning" asp-action="SetAdditionalDecision" method="post" class="inline-flex items-center gap-2">
+                                <input type="hidden" name="containerId" value="@c.Id" />
+                                <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
+                                <select name="decision" onchange="this.form.submit()" class="input-field py-1 text-xs">
+                                    @foreach (AdditionalContainerDecision d in Enum.GetValues<AdditionalContainerDecision>())
+                                    {
+                                        @if (d == c.Decision)
+                                        {
+                                            <option value="@((int)d)" selected>@DecisionLabel(d)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)d)">@DecisionLabel(d)</option>
+                                        }
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="VesselPlanning" asp-action="AddAdditional" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-6">
+        <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+        <div><label class="field-label">Conteneur</label><input name="NumeroConteneur" required class="input-field" /></div>
+        <div>
+            <label class="field-label">Sens</label>
+            <select name="Sens" class="input-field">
+                <option value="@((int)Sens.Debarquement)">Débarquement</option>
+                <option value="@((int)Sens.Embarquement)">Embarquement</option>
+            </select>
+        </div>
+        <div><label class="field-label">Ligne</label><input name="LigneMaritime" class="input-field" /></div>
+        <div><label class="field-label">Position</label><input name="Position" class="input-field" /></div>
+        <div><label class="field-label">Réf. e-mail</label><input name="ReferenceEmail" class="input-field" /></div>
+        <div class="flex items-end"><button type="submit" class="btn-primary w-full">Ajouter</button></div>
+        <div class="sm:col-span-2 lg:col-span-6"><label class="field-label">Commentaire</label><input name="Commentaire" class="input-field" /></div>
+    </form>
+</section>
+
+<!-- ============ CONTENEURS DANGEREUX (§5.5) ============ -->
+<section id="tab-dangereux" class="vp-panel card hidden">
+    <h2 class="card-title mb-1">Conteneurs dangereux</h2>
+    <p class="card-subtitle mb-5">CDC §5.5 — statut « à renouveler » mis en évidence</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Conteneur</th>
+                        <th class="hidden md:table-cell">Classe IMO</th>
+                        <th class="hidden md:table-cell">Position</th>
+                        <th>BADT</th>
+                        <th>Statut opérationnel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.ConteneursDangereux.Any())
+                {
+                    <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucun conteneur dangereux.</td></tr>
+                }
+                @foreach (var c in Model.ConteneursDangereux)
+                {
+                    <tr class="@(c.AlerteRenouvellement ? "bg-rose-50/60" : "")">
+                        <td class="font-mono font-semibold text-slate-900">@c.NumeroConteneur</td>
+                        <td class="hidden md:table-cell">@c.ClasseImo</td>
+                        <td class="hidden md:table-cell">@c.Position</td>
+                        <td>
+                            @if (c.AlerteRenouvellement) { <span class="badge-danger">À renouveler</span> }
+                            else if (c.StatutBadt == BadtStatus.Pris) { <span class="badge-success">Pris</span> }
+                            else { <span class="badge-neutral">Non pris</span> }
+                        </td>
+                        <td>
+                            <form asp-controller="VesselPlanning" asp-action="UpdateDangerousStatus" method="post" class="flex flex-wrap items-center gap-2">
+                                <input type="hidden" name="containerId" value="@c.Id" />
+                                <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
+                                <select name="statutBadt" onchange="this.form.submit()" class="input-field py-1 text-xs">
+                                    @foreach (BadtStatus b in Enum.GetValues<BadtStatus>())
+                                    {
+                                        @if (b == c.StatutBadt)
+                                        {
+                                            <option value="@((int)b)" selected>@BadtLabel(b)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)b)">@BadtLabel(b)</option>
+                                        }
+                                    }
+                                </select>
+                                <select name="statutOperationnel" onchange="this.form.submit()" class="input-field py-1 text-xs">
+                                    @foreach (DangerousContainerStatus s in Enum.GetValues<DangerousContainerStatus>())
+                                    {
+                                        @if (s == c.StatutOperationnel)
+                                        {
+                                            <option value="@((int)s)" selected>@StatutOpLabel(s)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)s)">@StatutOpLabel(s)</option>
+                                        }
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="VesselPlanning" asp-action="AddDangerous" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+        <div><label class="field-label">Conteneur</label><input name="NumeroConteneur" required class="input-field" /></div>
+        <div><label class="field-label">Ligne</label><input name="LigneMaritime" class="input-field" /></div>
+        <div><label class="field-label">Classe IMO</label><input name="ClasseImo" class="input-field" /></div>
+        <div><label class="field-label">Position</label><input name="Position" class="input-field" /></div>
+        <div><label class="field-label">Validité BADT</label><input name="DateValiditeBadt" type="date" class="input-field" /></div>
+        <div class="flex items-end lg:col-span-5">
+            <button type="submit" class="btn-primary">Ajouter</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var tabs = document.querySelectorAll('#vpTabs .tab-btn');
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.vp-panel').forEach(function (p) { p.classList.add('hidden'); });
+                    var panel = document.getElementById('tab-' + btn.dataset.tab);
+                    if (panel) { panel.classList.remove('hidden'); }
+                });
+            });
+        })();
+    </script>
+}

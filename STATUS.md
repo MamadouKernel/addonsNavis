@@ -1,0 +1,48 @@
+# État d'implémentation — EscaleReport
+
+Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel · ⬜ non commencé.
+
+| § CDC | Module | Statut | Détail |
+|---|---|---|---|
+| §2 | Utilisateurs, rôles, permissions | ✅ | Identity + rôles + permissions décorrélées des rôles (claims), 4 comptes de démo seedés |
+| §4.1 | Escales — tableau de bord | ✅ | Liste + filtres |
+| §4.2 | Escales — création | ✅ | Formulaire, brouillon tant que champs obligatoires manquants |
+| §4.3 | Escales — statuts | 🟡 | Statuts modélisés (enum) mais **pas d'action dédiée** pour faire évoluer le statut après création (passage "Terminées" réservé aux habilités = à faire) |
+| §5.1 | Vessel Planning — Anomalies conteneurs | ✅ | |
+| §5.2 | Vessel Planning — Conteneurs vides | ✅ | |
+| §5.3 | Vessel Planning — Incidents opérationnels | ✅ | |
+| §5.4 | Vessel Planning — Conteneurs additionnels | ✅ | |
+| §5.5 | Vessel Planning — Marchandises dangereuses | ✅ | |
+| §6.1 | Dispatch STS — sélection shift/date | 🟡 | Pas de sélecteur date+shift ; le tableau de bord affiche l'état courant global, sans filtrage par shift |
+| §6.2 | Dispatch STS — portiques | ✅ | Affectation, statut, fin d'affectation |
+| §6.3 | Dispatch STS — incidents STS | ✅ | |
+| §6.4 | Dispatch STS — pointeurs | ✅ | |
+| §6.5 | Dispatch STS — ROPN | ✅ | |
+| §7.1 | Dispatch TT — effectif | ✅ | |
+| §7.2 | Dispatch TT — affectation par navire | ✅ | |
+| §7.3 | Dispatch TT — déconnexions TT | ⬜ | Non implémenté |
+| §8 | Dispatch RTG | ⬜ | Non commencé |
+| §9 | Dispatch autres engins | ⬜ | Non commencé |
+| §10 | Cargo Control | ✅ | Dashboard, consommation Disch/Load, Revised Load, alertes ; export PDF/Excel/email au niveau escale |
+| §11 | Yard Planner | ⬜ | Non commencé |
+| §12 | Coordinateur Control Room | ⬜ | Non commencé |
+| §13 | ITT Controller | ⬜ | Non commencé |
+| §14.1 | Rapport de fin de shift | ⬜ | Non commencé (agrégation multi-navires/multi-modules) |
+| §14.2 | Rapport de fin d'escale | 🟡 | PDF généré mais contenu partiel (header + anomalies) ; pas encore la consolidation complète attendue |
+| §14.3 | Export PDF | ✅ | Mécanisme générique en place (QuestPDF) |
+| §14.4 | Export Excel | ✅ | Mécanisme générique en place (ClosedXML) |
+| §14.5 | Envoi par e-mail | ✅ | `mailto:` + journal d'audit |
+| §15 | Paramétrage de la solution | ⬜ | Listes de référence en base (ReferenceValue) mais pas d'UI d'admin pour les gérer |
+| §16 | Notifications et alertes | ⬜ | Non commencé (alertes calculées existent en données, pas de notification poussée) |
+| §17 | Reporting et indicateurs transverses | ⬜ | Non commencé |
+
+## Comptes de démonstration (environnement de développement)
+
+Créés par le seeder au premier démarrage (mot de passe généré et affiché une seule fois dans les logs si non fourni via configuration) :
+
+| Compte | Rôle |
+|---|---|
+| `admin` | Administrateur |
+| `vplanner` | Vessel Planner |
+| `dispatcher1` | Dispatcher |
+| `cargo1` | Cargo Controller |

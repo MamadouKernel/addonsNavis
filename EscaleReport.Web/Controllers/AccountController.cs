@@ -1,0 +1,70 @@
+using EscaleReport.Web.Infrastructure.Identity;
+using EscaleReport.Web.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+
+namespace EscaleReport.Web.Controllers;
+
+public class AccountController(
+    SignInManager<ApplicationUser> signInManager,
+    UserManager<ApplicationUser> userManager,
+    ILogger<AccountController> logger) : Controller
+{
+    [HttpGet]
+    public IActionResult Login(string? returnUrl = null) => View(new LoginViewModel { ReturnUrl = returnUrl });
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(LoginViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await userManager.FindByNameAsync(model.UserName);
+        if (user is null || !user.IsActive)
+        {
+            // Message volontairement générique (CDC §2.4) : ne pas révéler si le compte existe.
+            ModelState.AddModelError(string.Empty, "Identifiant ou mot de passe incorrect.");
+            return View(model);
+        }
+
+        // CDC §2.4 : verrouillage après plusieurs échecs -> lockoutOnFailure: true.
+        var result = await signInManager.PasswordSignInAsync(user, model.Password, isPersistent: false, lockoutOnFailure: true);
+
+        if (result.IsLockedOut)
+        {
+            ModelState.AddModelError(string.Empty, "Compte verrouillé après plusieurs échecs. Réessayez plus tard.");
+            return View(model);
+        }
+
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, "Identifiant ou mot de passe incorrect.");
+            return View(model);
+        }
+
+        logger.LogInformation("Connexion réussie pour {UserName}", model.UserName);
+
+        if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+        {
+            return Redirect(model.ReturnUrl);
+        }
+
+        return RedirectToAction("Index", "Escales");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        await signInManager.SignOutAsync();
+        return RedirectToAction(nameof(Login));
+    }
+
+    [HttpGet]
+    public IActionResult AccessDenied() => View();
+}

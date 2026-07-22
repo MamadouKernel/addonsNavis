@@ -1,0 +1,12 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Node / Tailwind build artifacts
+node_modules/
+EscaleReport.Web/wwwroot/css/site.css
+
+# Secrets locaux (mots de passe de seed éventuellement définis en local via user-secrets)
+*.pfx

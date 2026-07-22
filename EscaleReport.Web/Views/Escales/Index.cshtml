@@ -1,0 +1,83 @@
+@using EscaleReport.Web.Application.Escales.Dtos
+@using EscaleReport.Web.Domain.Escales
+@model IReadOnlyList<EscaleDto>
+@{
+    ViewData["Title"] = "Escales";
+
+    static string OpsLabel(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "En cours",
+        StatutOperations.Terminees => "Terminée",
+        _ => "Pas encore débutée"
+    };
+    static string PlanifLabel(StatutPlanification s) => s switch
+    {
+        StatutPlanification.Planifie => "Planifié",
+        StatutPlanification.PlanValide => "Plan validé",
+        _ => "Non planifié"
+    };
+}
+
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4 sm:mb-8">
+    <div>
+        <h1 class="page-title">Tableau de bord des escales</h1>
+        <p class="page-subtitle">Vue d'ensemble des navires à venir, en cours et terminés.</p>
+    </div>
+    <a asp-action="Create" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+        Nouvelle escale
+    </a>
+</div>
+
+<div class="table-shell">
+    <div class="table-scroll">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th>Navire</th>
+                    <th class="hidden sm:table-cell">Voyage</th>
+                    <th class="hidden md:table-cell">Ligne</th>
+                    <th class="hidden md:table-cell">Quai</th>
+                    <th>ETA</th>
+                    <th>Statut ops.</th>
+                    <th class="hidden lg:table-cell">Planification</th>
+                    <th>État</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="8" class="!text-center text-slate-400 py-10">
+                        Aucune escale. Créez la première fiche pour commencer.
+                    </td>
+                </tr>
+            }
+            @foreach (var e in Model)
+            {
+                <tr class="cursor-pointer" onclick="location.href='@Url.Action("Details", new { id = e.Id })'">
+                    <td class="font-semibold text-slate-900">
+                        <a asp-action="Details" asp-route-id="@e.Id" class="hover:text-indigo-600 hover:underline">@e.Navire</a>
+                    </td>
+                    <td class="hidden sm:table-cell">@e.Voyage</td>
+                    <td class="hidden md:table-cell">@e.LigneMaritime</td>
+                    <td class="hidden md:table-cell">@e.Quai</td>
+                    <td class="whitespace-nowrap">@(e.Eta == default ? "—" : e.Eta.ToString("dd/MM/yy HH:mm"))</td>
+                    <td><span class="badge-info">@OpsLabel(e.StatutOperations)</span></td>
+                    <td class="hidden lg:table-cell"><span class="badge-neutral">@PlanifLabel(e.StatutPlanification)</span></td>
+                    <td>
+                        @if (e.IsDraft)
+                        {
+                            <span class="badge-warning">Brouillon</span>
+                        }
+                        else
+                        {
+                            <span class="badge-success">Complète</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

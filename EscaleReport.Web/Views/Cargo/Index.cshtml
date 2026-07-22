@@ -1,0 +1,66 @@
+@using EscaleReport.Web.Application.Cargo.Dtos
+@model IReadOnlyList<CargoDashboardRowDto>
+@{
+    ViewData["Title"] = "Cargo Control";
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Cargo Control</h1>
+    <p class="page-subtitle">Consolidation Disch/Load et suivi du Revised Load par escale — CDC §10</p>
+</div>
+
+<div class="table-shell">
+    <div class="table-scroll">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th>Navire</th>
+                    <th class="hidden sm:table-cell">Voyage</th>
+                    <th>Disch</th>
+                    <th>Load</th>
+                    <th>Revised Load</th>
+                    <th>Alertes</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="7" class="!text-center text-slate-400 py-10">Aucune escale.</td></tr>
+            }
+            @foreach (var r in Model)
+            {
+                <tr class="cursor-pointer" onclick="location.href='@Url.Action("Detail", new { id = r.EscaleId })'">
+                    <td class="font-semibold text-slate-900">@r.Navire</td>
+                    <td class="hidden sm:table-cell">@r.Voyage</td>
+                    <td>
+                        @if (r.DischRealisee) { <span class="badge-success">Fait</span> }
+                        else { <span class="badge-warning">À faire</span> }
+                    </td>
+                    <td>
+                        @if (r.LoadRealisee) { <span class="badge-success">Fait</span> }
+                        else { <span class="badge-warning">À faire</span> }
+                    </td>
+                    <td>
+                        @if (r.RevisedLoadRecu) { <span class="badge-success">Reçu</span> }
+                        else { <span class="badge-neutral">En attente</span> }
+                    </td>
+                    <td>
+                        @if (r.NombreAlertes > 0)
+                        {
+                            <span class="badge-danger">@r.NombreAlertes</span>
+                        }
+                        else
+                        {
+                            <span class="badge-success">0</span>
+                        }
+                    </td>
+                    <td class="text-right">
+                        <a asp-action="Detail" asp-route-id="@r.EscaleId" class="btn-link">Ouvrir</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

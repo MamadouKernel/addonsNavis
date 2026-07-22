@@ -1,0 +1,62 @@
+@using EscaleReport.Web.Application.Escales.Commands.CreateEscale
+@model CreateEscaleCommand
+@{
+    ViewData["Title"] = "Nouvelle escale";
+}
+
+<h1 class="page-title mb-6">Nouvelle escale</h1>
+
+<form asp-action="Create" method="post" class="card max-w-2xl space-y-5">
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert-error"></div>
+    }
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+            <label asp-for="Navire" class="field-label">
+                Navire <span class="text-indigo-500">*</span>
+            </label>
+            <input asp-for="Navire" class="input-field" />
+            <span asp-validation-for="Navire" class="mt-1 block text-xs font-medium text-rose-600"></span>
+        </div>
+        <div>
+            <label asp-for="Voyage" class="field-label">Voyage</label>
+            <input asp-for="Voyage" class="input-field" />
+        </div>
+        <div>
+            <label asp-for="LigneMaritime" class="field-label">Ligne maritime / armateur</label>
+            <input asp-for="LigneMaritime" class="input-field" />
+        </div>
+        <div>
+            <label asp-for="Eta" class="field-label">ETA</label>
+            <input asp-for="Eta" type="datetime-local" class="input-field" />
+        </div>
+        <div>
+            <label asp-for="VesselVisit" class="field-label">Vessel Visit</label>
+            <input asp-for="VesselVisit" class="input-field" />
+        </div>
+        <div>
+            <label asp-for="Quai" class="field-label">Quai</label>
+            <input asp-for="Quai" class="input-field" />
+        </div>
+        <div>
+            <label asp-for="Shift" class="field-label">Shift</label>
+            <input asp-for="Shift" class="input-field" />
+        </div>
+        <div>
+            <label asp-for="Planificateur" class="field-label">Planificateur</label>
+            <input asp-for="Planificateur" class="input-field" />
+        </div>
+    </div>
+
+    <p class="text-xs text-slate-500">
+        * Champs obligatoires pour un enregistrement définitif (Navire, Voyage, Ligne, ETA) — CDC §4.2.
+        Tant qu'ils sont incomplets, la fiche reste enregistrée en brouillon.
+    </p>
+
+    <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-primary">Enregistrer</button>
+        <a asp-action="Index" class="btn-secondary">Annuler</a>
+    </div>
+</form>

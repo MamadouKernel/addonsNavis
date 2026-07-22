@@ -1,0 +1,117 @@
+@using EscaleReport.Web.Application.Cargo.Queries.GetCargoDetail
+@model CargoDetailDto
+@{
+    ViewData["Title"] = Model.Escale.Navire;
+    var c = Model.Consommation;
+}
+
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4 sm:mb-8">
+    <div>
+        <h1 class="page-title">@Model.Escale.Navire</h1>
+        <p class="page-subtitle">Voyage @Model.Escale.Voyage · @Model.Escale.LigneMaritime</p>
+    </div>
+    <a asp-action="Index" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+        Retour
+    </a>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<form asp-action="UpdateConsommation" method="post" class="card mb-8">
+    <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h2 class="card-title">Consommation Disch (débarquement)</h2>
+            <p class="card-subtitle">Total calculé automatiquement : <span class="font-mono font-bold text-slate-900">@c.DischTotal</span></p>
+        </div>
+        @if (c.DischRealisee)
+        {
+            <span class="badge-success">Réalisée</span>
+        }
+        else
+        {
+            <span class="badge-warning">Non réalisée</span>
+        }
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div><label class="field-label">Hazard</label><input name="DischHazard" type="number" min="0" value="@c.DischHazard" class="input-field" /></div>
+        <div><label class="field-label">Reefer</label><input name="DischReefer" type="number" min="0" value="@c.DischReefer" class="input-field" /></div>
+        <div><label class="field-label">OOG</label><input name="DischOog" type="number" min="0" value="@c.DischOog" class="input-field" /></div>
+        <div><label class="field-label">20 pieds</label><input name="Disch20Pieds" type="number" min="0" value="@c.Disch20Pieds" class="input-field" /></div>
+        <div><label class="field-label">40 pieds</label><input name="Disch40Pieds" type="number" min="0" value="@c.Disch40Pieds" class="input-field" /></div>
+        <div><label class="field-label">Import</label><input name="DischImport" type="number" min="0" value="@c.DischImport" class="input-field" /></div>
+        <div><label class="field-label">Restow</label><input name="DischRestow" type="number" min="0" value="@c.DischRestow" class="input-field" /></div>
+        <div><label class="field-label">Transhipment</label><input name="DischTranshipment" type="number" min="0" value="@c.DischTranshipment" class="input-field" /></div>
+    </div>
+
+    <label class="mt-5 flex items-center gap-2 text-sm font-medium text-slate-700">
+        <input type="checkbox" name="DischRealisee" value="true" checked="@c.DischRealisee" class="h-4 w-4 accent-indigo-600" />
+        Consommation Disch réalisée
+    </label>
+
+    <hr class="my-6 border-slate-200" />
+
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h2 class="card-title">Consommation Load (embarquement)</h2>
+            <p class="card-subtitle">Total calculé automatiquement : <span class="font-mono font-bold text-slate-900">@c.LoadTotal</span></p>
+        </div>
+        @if (c.LoadRealisee)
+        {
+            <span class="badge-success">Réalisée</span>
+        }
+        else
+        {
+            <span class="badge-warning">Non réalisée</span>
+        }
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div><label class="field-label">Présents au yard</label><input name="LoadYard" type="number" min="0" value="@c.LoadYard" class="input-field" /></div>
+        <div><label class="field-label">En communication</label><input name="LoadEnCommunication" type="number" min="0" value="@c.LoadEnCommunication" class="input-field" /></div>
+    </div>
+
+    <label class="mt-5 flex items-center gap-2 text-sm font-medium text-slate-700">
+        <input type="checkbox" name="LoadRealisee" value="true" checked="@c.LoadRealisee" class="h-4 w-4 accent-indigo-600" />
+        Consommation Load réalisée
+    </label>
+
+    <div class="mt-6">
+        <button type="submit" class="btn-primary">Enregistrer</button>
+    </div>
+</form>
+
+<section class="card">
+    <h2 class="card-title mb-1">Revised Load</h2>
+    <p class="card-subtitle mb-5">CDC §10.6</p>
+
+    @if (c.RevisedLoadRecu)
+    {
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+            <span class="badge-success mb-2">Reçu</span>
+            <p>Le @c.RevisedLoadDateUtc?.ToString("dd/MM/yyyy HH:mm") UTC, confirmé par @c.RevisedLoadPar.</p>
+            @if (!string.IsNullOrWhiteSpace(c.RevisedLoadObservations))
+            {
+                <p class="mt-1 text-emerald-700">@c.RevisedLoadObservations</p>
+            }
+        </div>
+    }
+    else
+    {
+        <form asp-action="MarkRevisedLoadReceived" method="post" class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-3">
+            <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
+            <div class="sm:col-span-2">
+                <label class="field-label">Observations</label>
+                <input name="observations" class="input-field" />
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="btn-primary w-full">Marquer reçu</button>
+            </div>
+        </form>
+    }
+</section>

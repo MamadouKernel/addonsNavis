@@ -1,0 +1,148 @@
+@using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt
+@model DispatchTtDto
+@{
+    ViewData["Title"] = "Dispatch TT";
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Dispatch TT</h1>
+    <p class="page-subtitle">Effectif des Terminal Tractors et affectation par navire — CDC §7</p>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<section class="card mb-8">
+    <h2 class="card-title mb-5">Effectif du parc</h2>
+
+    <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Non désignés</div>
+            <div class="mt-1 font-mono text-2xl font-bold text-slate-900">@Model.Effectif.NonDesignes</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Disponibles</div>
+            <div class="mt-1 font-mono text-2xl font-bold text-emerald-600">@Model.Effectif.Disponibles</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Désignés</div>
+            <div class="mt-1 font-mono text-2xl font-bold text-slate-900">@Model.Effectif.Designes</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Retirés</div>
+            <div class="mt-1 font-mono text-2xl font-bold text-rose-600">@Model.Effectif.Retires</div>
+        </div>
+    </div>
+
+    <form asp-controller="Dispatch" asp-action="UpdateTtEffectif" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div>
+            <label class="field-label">Total parc</label>
+            <input name="TotalParc" type="number" min="0" value="@Model.Effectif.TotalParc" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Désignés</label>
+            <input name="Designes" type="number" min="0" value="@Model.Effectif.Designes" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Raison non-désignation</label>
+            <input name="RaisonNonDesignation" value="@Model.Effectif.RaisonNonDesignation" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Retirés (pannes...)</label>
+            <input name="Retires" type="number" min="0" value="@Model.Effectif.Retires" class="input-field" />
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Mettre à jour</button>
+        </div>
+    </form>
+</section>
+
+<section class="card">
+    <h2 class="card-title mb-1">Affectation par navire</h2>
+    <p class="card-subtitle mb-5">Les écarts entre besoin et affectation réelle sont signalés automatiquement.</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire</th>
+                        <th>Prévu</th>
+                        <th>Affecté</th>
+                        <th class="hidden md:table-cell">Opérationnel</th>
+                        <th>Écart</th>
+                        <th class="hidden lg:table-cell">Observations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Assignments.Any())
+                {
+                    <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune affectation.</td></tr>
+                }
+                @foreach (var a in Model.Assignments)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@a.Navire</td>
+                        <td>@a.NombrePrevu</td>
+                        <td>@a.NombreAffecte</td>
+                        <td class="hidden md:table-cell">@a.NombreOperationnel</td>
+                        <td>
+                            @if (a.Ecart < 0)
+                            {
+                                <span class="badge-danger">@a.Ecart</span>
+                            }
+                            else if (a.Ecart > 0)
+                            {
+                                <span class="badge-info">+@a.Ecart</span>
+                            }
+                            else
+                            {
+                                <span class="badge-success">0</span>
+                            }
+                        </td>
+                        <td class="hidden lg:table-cell">@a.Observations</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Dispatch" asp-action="AssignTt" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div>
+            <label class="field-label">Navire</label>
+            <select name="EscaleId" class="input-field">
+                @foreach (var e in Model.EscalesDisponibles)
+                {
+                    <option value="@e.Id">@e.Navire</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Prévu</label>
+            <input name="NombrePrevu" type="number" min="0" value="0" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Affecté</label>
+            <input name="NombreAffecte" type="number" min="0" value="0" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Opérationnel</label>
+            <input name="NombreOperationnel" type="number" min="0" value="0" class="input-field" />
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                Affecter
+            </button>
+        </div>
+        <div class="sm:col-span-2 lg:col-span-5">
+            <label class="field-label">Observations</label>
+            <input name="Observations" class="input-field" />
+        </div>
+    </form>
+</section>

@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+/* Tailwind v4 scanne le projet automatiquement, mais on épingle les sources
+   pertinentes explicitement pour un résultat reproductible en CI. */
+@source "../Views";
+@source "../Controllers";
+@source "../wwwroot/js";
+
+@theme {
+  /* Ombre douce unique pour toute l'appli (cartes, boutons) — cohérence visuelle
+     "moderne/clean/soft" plutôt que les shadow-md par défaut de Tailwind, plus dures. */
+  --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 28px -8px rgba(15, 23, 42, 0.10);
+  --shadow-soft-lg: 0 2px 4px rgba(15, 23, 42, 0.04), 0 20px 40px -12px rgba(15, 23, 42, 0.16);
+}
+
+/* ================= Design system — composants réutilisables =================
+   Un seul endroit à faire évoluer pour que tous les modules (présents et futurs)
+   restent visuellement cohérents, au lieu de répéter de longues chaînes utilitaires
+   dans chaque vue. Chaque classe est autonome (Tailwind v4 n'autorise pas @apply sur
+   une autre classe custom) : une seule classe suffit dans les vues, pas de chaînage. */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+           text-sm font-semibold transition-all duration-150
+           bg-indigo-600 text-white shadow-soft
+           hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-soft-lg
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+           text-sm font-semibold transition-all duration-150
+           border border-slate-200 bg-white text-slate-700
+           hover:border-slate-300 hover:bg-slate-50
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+           text-sm font-semibold transition-all duration-150
+           border border-rose-200 bg-white text-rose-600
+           hover:bg-rose-50
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200 focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-link {
+    @apply text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline;
+  }
+
+  .card {
+    @apply rounded-2xl border border-slate-200/70 bg-white p-6 shadow-soft;
+  }
+  .card-title {
+    @apply text-base font-bold text-slate-900;
+  }
+  .card-subtitle {
+    @apply mt-0.5 text-sm text-slate-500;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+  .input-field {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800
+           placeholder:text-slate-400 transition-colors
+           focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-50;
+  }
+
+  .badge-neutral  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600; }
+  .badge-info     { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-sky-50 text-sky-700; }
+  .badge-success  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700; }
+  .badge-warning  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700; }
+  .badge-danger   { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-rose-50 text-rose-700; }
+  .badge-brand    { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700; }
+
+  .table-shell {
+    @apply overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-soft;
+  }
+  /* Sur mobile, la table défile horizontalement plutôt que de casser la mise en page —
+     .table-shell garde les coins arrondis, .table-scroll gère le défilement à l'intérieur. */
+  .table-scroll {
+    @apply overflow-x-auto;
+  }
+  .table-modern {
+    @apply w-full text-left text-sm;
+  }
+  .table-modern thead {
+    @apply bg-slate-50;
+  }
+  .table-modern th {
+    @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200;
+  }
+  .table-modern td {
+    @apply px-4 py-3 border-b border-slate-100 text-slate-700;
+  }
+  .table-modern tbody tr {
+    @apply transition-colors hover:bg-slate-50/80;
+  }
+  .table-modern tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold tracking-tight text-slate-900;
+  }
+  .page-subtitle {
+    @apply mt-1 text-sm text-slate-500;
+  }
+
+  .alert-error {
+    @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700;
+  }
+
+  .tab-btn {
+    @apply inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5
+           text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100;
+  }
+  .tab-btn.active {
+    @apply bg-slate-900 text-white hover:bg-slate-900;
+  }
+  .tab-count {
+    @apply rounded-full bg-black/10 px-1.5 py-0.5 text-[11px] font-bold;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-400
+           transition-colors hover:bg-white/5 hover:text-white;
+  }
+  .sidebar-link.active {
+    @apply bg-white/10 text-white;
+  }
+}
