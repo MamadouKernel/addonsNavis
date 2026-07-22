@@ -10,6 +10,7 @@ public class CoordinatorDashboardDto
     public RtgAutresEnginsSyntheseDto SyntheseRtgAutresEngins { get; set; } = new();
     public IReadOnlyList<CargoSyntheseDto> SyntheseCargo { get; set; } = [];
     public YardSyntheseDto SyntheseYard { get; set; } = new();
+    public IttSyntheseDto SyntheseItt { get; set; } = new();
     public IReadOnlyList<CoordinatorIncidentDto> Incidents { get; set; } = [];
 }
 
@@ -40,13 +41,12 @@ public class StsSyntheseDto
     public IReadOnlyList<string> NaviresConcernes { get; set; } = [];
 }
 
-// Déconnexions TT (CDC §7.3) non encore suivies dans l'application — champ volontairement
-// absent plutôt que d'afficher une valeur à zéro trompeuse.
 public class TtSyntheseDto
 {
     public int EffectifTotal { get; set; }
     public int EffectifDesigne { get; set; }
     public int EffectifDisponible { get; set; }
+    public int Deconnexions { get; set; }
     public int EcartsAffectation { get; set; }
 }
 
@@ -78,6 +78,16 @@ public class YardSyntheseDto
     public int TransfertsOutEnCours { get; set; }
     public int HousekeepingTotal { get; set; }
     public int TachesEnRetard { get; set; }
+}
+
+// CDC §12 liste "ITT" parmi les modules synthétisés, sans en détailler les champs (le
+// périmètre ITT Controller lui-même reste, selon le CDC, "encore en ajustement côté prototype").
+public class IttSyntheseDto
+{
+    public int TransfertsEnCours { get; set; }
+    public int IncidentsEnCours { get; set; }
+    public int EquipementsDisponibles { get; set; }
+    public int EquipementsEnPanne { get; set; }
 }
 
 public class CoordinatorIncidentDto

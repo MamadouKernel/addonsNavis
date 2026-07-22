@@ -121,9 +121,8 @@
         </section>
 
         <section class="card">
-            <h2 class="card-title mb-1">Synthèse TT</h2>
-            <p class="card-subtitle mb-4">Déconnexions TT non encore suivies (§7.3).</p>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <h2 class="card-title mb-5">Synthèse TT</h2>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
                 <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
                     <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Total</div>
                     <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseTt.EffectifTotal</div>
@@ -135,6 +134,10 @@
                 <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
                     <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Disponible</div>
                     <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseTt.EffectifDisponible</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Déconnexions</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseTt.Deconnexions</div>
                 </div>
                 <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
                     <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Écarts</div>
@@ -199,6 +202,28 @@
                 <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
                     <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Tâches en retard</div>
                     <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseYard.TachesEnRetard</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title mb-5">Synthèse ITT</h2>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Transferts en cours</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseItt.TransfertsEnCours</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Incidents en cours</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseItt.IncidentsEnCours</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Équip. disponibles</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseItt.EquipementsDisponibles</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Équip. en panne</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseItt.EquipementsEnPanne</div>
                 </div>
             </div>
         </section>

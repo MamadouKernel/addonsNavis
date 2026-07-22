@@ -1193,6 +1193,82 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                     b.ToTable("IttTransferIncidents");
                 });
 
+            modelBuilder.Entity("EscaleReport.Web.Domain.Reporting.EscalePlanificationNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Commentaire")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("EscaleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EscaleId")
+                        .IsUnique();
+
+                    b.ToTable("EscalePlanificationNotes");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Reporting.ShiftHandoverNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionsEnCours")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("PointsATransmettre")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Shift")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date", "Shift")
+                        .IsUnique();
+
+                    b.ToTable("ShiftHandoverNotes");
+                });
+
             modelBuilder.Entity("EscaleReport.Web.Domain.VesselPlanning.AdditionalContainer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1920,6 +1996,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                     b.HasOne("EscaleReport.Web.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Reporting.EscalePlanificationNote", b =>
+                {
+                    b.HasOne("EscaleReport.Web.Domain.Escales.Escale", null)
+                        .WithMany()
+                        .HasForeignKey("EscaleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

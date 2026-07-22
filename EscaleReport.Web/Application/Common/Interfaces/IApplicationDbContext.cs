@@ -5,6 +5,7 @@ using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Domain.Itt;
+using EscaleReport.Web.Domain.Reporting;
 using EscaleReport.Web.Domain.VesselPlanning;
 using EscaleReport.Web.Domain.YardPlanning;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,8 @@ public interface IApplicationDbContext
     DbSet<IttTransferIncident> IttTransferIncidents { get; }
     DbSet<IttEquipementEffectif> IttEquipementEffectifs { get; }
     DbSet<IttEnginPanne> IttEnginPannes { get; }
+    DbSet<ShiftHandoverNote> ShiftHandoverNotes { get; }
+    DbSet<EscalePlanificationNote> EscalePlanificationNotes { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

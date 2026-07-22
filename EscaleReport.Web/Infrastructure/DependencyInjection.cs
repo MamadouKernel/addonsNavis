@@ -51,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEscalePdfReportGenerator, QuestPdfEscaleReportGenerator>();
         services.AddScoped<IEscaleExcelReportGenerator, ClosedXmlEscaleExcelReportGenerator>();
+        services.AddScoped<IShiftReportPdfGenerator, QuestPdfShiftReportGenerator>();
 
         return services;
     }

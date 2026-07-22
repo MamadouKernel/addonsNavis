@@ -78,12 +78,15 @@ public class GetCoordinatorDashboardQueryHandler(
         var ttEffectif = await dbContext.TtEffectifs.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
         var ecartsTt = await dbContext.TtVesselAssignments.AsNoTracking()
             .CountAsync(a => a.NombreAffecte != a.NombrePrevu, cancellationToken);
+        var deconnexionsTtEnCours = await dbContext.TtDeconnexions.AsNoTracking()
+            .CountAsync(d => d.DateRetourUtc == null, cancellationToken);
 
         var syntheseTt = new TtSyntheseDto
         {
             EffectifTotal = ttEffectif?.TotalParc ?? 0,
             EffectifDesigne = ttEffectif?.Designes ?? 0,
             EffectifDisponible = ttEffectif?.Disponibles ?? 0,
+            Deconnexions = deconnexionsTtEnCours,
             EcartsAffectation = ecartsTt
         };
 
@@ -146,6 +149,20 @@ public class GetCoordinatorDashboardQueryHandler(
                 t.Statut != HousekeepingStatus.Termine && t.DatePrevue.HasValue && t.DatePrevue.Value < maintenant)
         };
 
+        // ---------- Synthèse ITT (§12 — champs non détaillés par le CDC) ----------
+        var transfertsItt = await dbContext.IttTransfers.AsNoTracking().ToListAsync(cancellationToken);
+        var incidentsIttEnCours = await dbContext.IttTransferIncidents.AsNoTracking()
+            .CountAsync(i => i.DateFinUtc == null, cancellationToken);
+        var equipementItt = await dbContext.IttEquipementEffectifs.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+
+        var syntheseItt = new IttSyntheseDto
+        {
+            TransfertsEnCours = transfertsItt.Count(t => t.NombreRestant > 0),
+            IncidentsEnCours = incidentsIttEnCours,
+            EquipementsDisponibles = equipementItt?.Disponible ?? 0,
+            EquipementsEnPanne = equipementItt?.EnPanne ?? 0
+        };
+
         // ---------- Incidents du Coordinateur (§12.8) ----------
         var incidents = await dbContext.CoordinatorIncidents.AsNoTracking()
             .OrderByDescending(i => i.DateDebutUtc)
@@ -169,6 +186,7 @@ public class GetCoordinatorDashboardQueryHandler(
             SyntheseRtgAutresEngins = syntheseRtgAutresEngins,
             SyntheseCargo = syntheseCargo,
             SyntheseYard = syntheseYard,
+            SyntheseItt = syntheseItt,
             Incidents = incidents
         };
     }

@@ -1,0 +1,363 @@
+@using EscaleReport.Web.Application.Reporting.Queries.GetShiftReport
+@using EscaleReport.Web.Domain.Escales
+@model ShiftReportDto
+@{
+    ViewData["Title"] = "Rapport de fin de shift";
+
+    static string StatutOpsLabel(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "En cours",
+        StatutOperations.Terminees => "Terminées",
+        _ => "Pas encore débutées"
+    };
+
+    static string StatutOpsBadge(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "badge-warning",
+        StatutOperations.Terminees => "badge-success",
+        _ => "badge-neutral"
+    };
+
+    static string PlanifLabel(StatutPlanification s) => s switch
+    {
+        StatutPlanification.Planifie => "Planifié",
+        StatutPlanification.PlanValide => "Plan validé",
+        _ => "Non planifié"
+    };
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Rapport de fin de shift</h1>
+    <p class="page-subtitle">Consolidation multi-postes — CDC §14.1</p>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<!-- ============ SELECTION DATE / SHIFT / NAVIRE ============ -->
+<section class="card mb-6">
+    <h2 class="card-title mb-1">Sélection</h2>
+    <p class="card-subtitle mb-4">Coordinateur : @Model.Coordinateur — générable pour le navire courant ou l'ensemble des navires en cours.</p>
+
+    <form asp-controller="Reporting" asp-action="Index" method="get" class="flex flex-wrap items-end gap-4">
+        <div>
+            <label class="field-label">Date</label>
+            <input type="date" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Shift</label>
+            <select name="shift" class="input-field">
+                <option value="">Tous</option>
+                @foreach (var s in Model.ShiftsDisponibles)
+                {
+                    @if (s == Model.Shift)
+                    {
+                        <option value="@s" selected>@s</option>
+                    }
+                    else
+                    {
+                        <option value="@s">@s</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Navire</label>
+            <select name="escaleId" class="input-field">
+                <option value="">Tous les navires en cours</option>
+                @foreach (var e in Model.EscalesDisponibles)
+                {
+                    <option value="@e.Id">@e.Navire</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn-primary">Filtrer</button>
+        <a asp-controller="Reporting" asp-action="GeneratePdf"
+           asp-route-date="@Model.Date.ToString("yyyy-MM-dd")" asp-route-shift="@Model.Shift"
+           asp-route-escaleId="@(Model.NavireCourantMode ? Model.NaviresPresentsOuAttendus.FirstOrDefault()?.Id : null)"
+           class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
+            Télécharger le rapport PDF
+        </a>
+    </form>
+</section>
+
+<!-- ============ NAVIRES PRESENTS OU ATTENDUS (§14.1) ============ -->
+<section class="card mb-6">
+    <h2 class="card-title mb-1">@(Model.NavireCourantMode ? "Navire" : "Navires présents ou attendus")</h2>
+    <div class="table-shell">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire</th>
+                        <th class="hidden md:table-cell">Voyage</th>
+                        <th class="hidden lg:table-cell">Quai</th>
+                        <th>ETA</th>
+                        <th>État des opérations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.NaviresPresentsOuAttendus.Any())
+                {
+                    <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucun navire présent ou attendu.</td></tr>
+                }
+                @foreach (var n in Model.NaviresPresentsOuAttendus)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@n.Navire</td>
+                        <td class="hidden md:table-cell">@n.Voyage</td>
+                        <td class="hidden lg:table-cell">@n.Quai</td>
+                        <td class="whitespace-nowrap">@(n.Eta == default ? "—" : n.Eta.ToString("dd/MM HH:mm"))</td>
+                        <td><span class="@StatutOpsBadge(n.StatutOperations)">@StatutOpsLabel(n.StatutOperations)</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ============ SYNTHESES PAR POSTE ============ -->
+<div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="card">
+        <h2 class="card-title mb-5">Ressources STS</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Disponibles</div>
+                <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseSts.PortiquesDisponibles</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Affectés</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseSts.PortiquesAffectes</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">En panne</div>
+                <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseSts.PortiquesEnPanne</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Incidents en cours</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseSts.IncidentsEnCours</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title mb-5">Ressources TT</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Total</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseTt.EffectifTotal</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Disponible</div>
+                <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseTt.EffectifDisponible</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Déconnexions</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseTt.Deconnexions</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Écarts</div>
+                <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseTt.EcartsAffectation</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title mb-5">Ressources RTG et autres engins</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">RTG dispo.</div>
+                <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseRtgAutresEngins.RtgDisponible</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">RTG en panne</div>
+                <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseRtgAutresEngins.RtgEnPanne</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Autres engins dispo.</div>
+                <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseRtgAutresEngins.EnginsDisponibles</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Clashs / Gate</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@(Model.SyntheseRtgAutresEngins.Clashs + Model.SyntheseRtgAutresEngins.ProblemesGate)</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title mb-5">Yard et ITT</h2>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Tâches Yard en retard</div>
+                <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseYard.TachesEnRetard</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Transferts Out en cours</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseYard.TransfertsOutEnCours</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Transferts ITT en cours</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseItt.TransfertsEnCours</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Incidents ITT en cours</div>
+                <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseItt.IncidentsEnCours</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- ============ PANNES / INCIDENTS ============ -->
+<div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="card">
+        <h2 class="card-title mb-4">Pannes et indisponibilités</h2>
+        @if (!Model.PannesEtIndisponibilites.Any())
+        {
+            <p class="text-sm italic text-slate-400">Aucune panne ou indisponibilité en cours.</p>
+        }
+        else
+        {
+            <ul class="space-y-2 text-sm text-slate-700">
+                @foreach (var p in Model.PannesEtIndisponibilites)
+                {
+                    <li>• @p</li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="card">
+        <h2 class="card-title mb-4">Incidents</h2>
+        @if (!Model.Incidents.Any())
+        {
+            <p class="text-sm italic text-slate-400">Aucun incident en cours.</p>
+        }
+        else
+        {
+            <ul class="space-y-2 text-sm text-slate-700">
+                @foreach (var i in Model.Incidents)
+                {
+                    <li>• @i</li>
+                }
+            </ul>
+        }
+    </section>
+</div>
+
+<!-- ============ DONNEES CARGO ============ -->
+<section class="card mb-6">
+    <h2 class="card-title mb-5">Données Cargo</h2>
+    <div class="table-shell">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire</th>
+                        <th>Disch fait</th>
+                        <th>Load fait</th>
+                        <th class="hidden md:table-cell">Revised reçu</th>
+                        <th class="hidden md:table-cell">Rapport envoyé</th>
+                        <th>Alertes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.SyntheseCargo.Any())
+                {
+                    <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune consolidation Cargo enregistrée.</td></tr>
+                }
+                @foreach (var c in Model.SyntheseCargo)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@c.Navire</td>
+                        <td>@(c.DischFait ? "Oui" : "Non")</td>
+                        <td>@(c.LoadFait ? "Oui" : "Non")</td>
+                        <td class="hidden md:table-cell">@(c.RevisedLoadRecu ? "Oui" : "Non")</td>
+                        <td class="hidden md:table-cell">@(c.RapportEnvoye ? "Oui" : "Non")</td>
+                        <td>
+                            @if (c.AlertesOuvertes > 0) { <span class="badge-warning">@c.AlertesOuvertes</span> }
+                            else { <span class="badge-success">0</span> }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ============ ACTIONS EN COURS / POINTS A TRANSMETTRE ============ -->
+<section class="card mb-6">
+    <h2 class="card-title mb-1">Actions en cours et points à transmettre</h2>
+    <p class="card-subtitle mb-4">Rédigés par le Coordinateur pour la relève suivante.</p>
+
+    <form asp-controller="Reporting" asp-action="SaveHandoverNote" method="post" class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <input type="hidden" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="shift" value="@Model.Shift" />
+        <input type="hidden" name="escaleId" value="@(Model.NavireCourantMode ? Model.NaviresPresentsOuAttendus.FirstOrDefault()?.Id : null)" />
+        <div>
+            <label class="field-label">Actions en cours</label>
+            <textarea name="actionsEnCours" rows="4" class="input-field">@Model.ActionsEnCours</textarea>
+        </div>
+        <div>
+            <label class="field-label">Points à transmettre au shift suivant</label>
+            <textarea name="pointsATransmettre" rows="4" class="input-field">@Model.PointsATransmettre</textarea>
+        </div>
+        <div class="lg:col-span-2">
+            <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+    </form>
+</section>
+
+<!-- ============ PLANIFICATION (affichée une seule fois, en fin de document) ============ -->
+<section class="card">
+    <h2 class="card-title mb-1">Planification</h2>
+    <p class="card-subtitle mb-5">Navires attendus — un commentaire ou une consigne peut être ajouté pour la relève.</p>
+
+    <div class="table-shell">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire</th>
+                        <th class="hidden md:table-cell">Voyage</th>
+                        <th class="hidden lg:table-cell">Quai</th>
+                        <th>ETA</th>
+                        <th>Planification</th>
+                        <th>Consigne pour la relève</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Planification.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun navire attendu.</td></tr>
+                }
+                @foreach (var p in Model.Planification)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@p.Navire</td>
+                        <td class="hidden md:table-cell">@p.Voyage</td>
+                        <td class="hidden lg:table-cell">@p.Quai</td>
+                        <td class="whitespace-nowrap">@(p.Eta == default ? "—" : p.Eta.ToString("dd/MM HH:mm"))</td>
+                        <td>@PlanifLabel(p.StatutPlanification)</td>
+                        <td colspan="2">
+                            <form asp-controller="Reporting" asp-action="SavePlanificationNote" method="post" class="flex items-center gap-2">
+                                <input type="hidden" name="escaleId" value="@p.EscaleId" />
+                                <input type="hidden" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" />
+                                <input type="hidden" name="shift" value="@Model.Shift" />
+                                <input type="hidden" name="currentEscaleId" value="@(Model.NavireCourantMode ? Model.NaviresPresentsOuAttendus.FirstOrDefault()?.Id : null)" />
+                                <input name="commentaire" value="@p.Commentaire" class="input-field py-1.5 text-xs" placeholder="Consigne..." />
+                                <button type="submit" class="btn-link whitespace-nowrap">Enregistrer</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

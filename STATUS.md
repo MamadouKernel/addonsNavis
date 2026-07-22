@@ -35,13 +35,13 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §11.2 | Yard Planner — plans navire et zones de débarquement | ✅ | Zones paramétrables |
 | §11.3 | Yard Planner — transferts Out | ✅ | |
 | §11.4 | Yard Planner — housekeeping | ✅ | |
-| §12.1-12.7 | Coordinateur — vue consolidée (Navires/STS/TT/RTG+autres engins/Cargo/Yard) | ✅ | Choix des modules affichés par l'admin non implémenté (dépend de §15) |
+| §12.1-12.7 | Coordinateur — vue consolidée (Navires/STS/TT/RTG+autres engins/Cargo/Yard/ITT) | ✅ | Choix des modules affichés par l'admin non implémenté (dépend de §15) |
 | §12.8 | Coordinateur — incidents propres | ✅ | |
 | §13.1 | ITT Controller — suivi des transferts | ✅ | Restant/avancement calculés automatiquement |
 | §13.2 | ITT Controller — incidents de transfert | ✅ | |
 | §13.3 | ITT Controller — équipements ITT | ✅ | |
 | §13.4 | ITT Controller — pannes engins de transfert | ✅ | |
-| §14.1 | Rapport de fin de shift | ⬜ | Non commencé (agrégation multi-navires/multi-modules) |
+| §14.1 | Rapport de fin de shift | ✅ | Sélection date/shift/navire, synthèses par poste, pannes/incidents transverses, actions en cours et points à transmettre (saisis par le Coordinateur), rubrique Planification en fin de document, PDF généré pour le navire courant ou tous les navires en cours |
 | §14.2 | Rapport de fin d'escale | ✅ | Consolidation complète (PDF + Excel) : horaires/statut final, 5 sections Vessel Planning, incidents STS, Cargo, ressources STS/TT, difficultés/actions/points restants ouverts |
 | §14.3 | Export PDF | ✅ | Mécanisme générique en place (QuestPDF) |
 | §14.4 | Export Excel | ✅ | Mécanisme générique en place (ClosedXML) |
