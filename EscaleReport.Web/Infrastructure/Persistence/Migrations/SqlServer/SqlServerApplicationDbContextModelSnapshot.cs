@@ -214,6 +214,53 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.ToTable("GantryAssignments");
                 });
 
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.GateTruckIssue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ActionRealisee")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("CamionReference")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateFinUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProblemeRencontre")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("TypeOperation")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GateTruckIssues");
+                });
+
             modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.RopnEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -261,6 +308,140 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.HasKey("Id");
 
                     b.ToTable("RopnEntries");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.RtgClash", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ActionRealisee")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateFinUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("EnginsConcernes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Lieu")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RtgClashes");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.RtgEffectif", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Affecte")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Disponible")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EnPanne")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Retire")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalParc")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RtgEffectifs");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.RtgPanne", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CommentaireReprise")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateFinUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Engin")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Raison")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("RetireEffectif")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RtgPannes");
                 });
 
             modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.StsIncident", b =>

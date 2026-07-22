@@ -21,7 +21,11 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §7.1 | Dispatch TT — effectif | ✅ | |
 | §7.2 | Dispatch TT — affectation par navire | ✅ | |
 | §7.3 | Dispatch TT — déconnexions TT | ⬜ | Non implémenté |
-| §8 | Dispatch RTG | ⬜ | Non commencé |
+| §8.1 | Dispatch RTG — effectif | ✅ | |
+| §8.2 | Dispatch RTG — consultation incidents STS | ✅ | Lecture seule |
+| §8.3 | Dispatch RTG — pannes RTG | ✅ | |
+| §8.4 | Dispatch RTG — clashs | ✅ | |
+| §8.5 | Dispatch RTG — problèmes camions Gate | ✅ | |
 | §9 | Dispatch autres engins | ⬜ | Non commencé |
 | §10 | Cargo Control | ✅ | Dashboard, consommation Disch/Load, Revised Load, alertes ; export PDF/Excel/email au niveau escale |
 | §11 | Yard Planner | ⬜ | Non commencé |

@@ -27,6 +27,10 @@ public interface IApplicationDbContext
     DbSet<RopnEntry> RopnEntries { get; }
     DbSet<TtEffectif> TtEffectifs { get; }
     DbSet<TtVesselAssignment> TtVesselAssignments { get; }
+    DbSet<RtgEffectif> RtgEffectifs { get; }
+    DbSet<RtgPanne> RtgPannes { get; }
+    DbSet<RtgClash> RtgClashes { get; }
+    DbSet<GateTruckIssue> GateTruckIssues { get; }
     DbSet<CargoConsommation> CargoConsommations { get; }
     DbSet<ReportEmailLog> ReportEmailLogs { get; }
 
