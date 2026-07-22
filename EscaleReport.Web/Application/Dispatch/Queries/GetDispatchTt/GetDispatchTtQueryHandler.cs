@@ -43,6 +43,21 @@ public class GetDispatchTtQueryHandler(
             .Select(e => new EscaleOptionDto { Id = e.Id, Navire = e.Navire })
             .ToListAsync(cancellationToken);
 
+        var deconnexions = await dbContext.TtDeconnexions
+            .AsNoTracking()
+            .OrderByDescending(d => d.DateDebutUtc)
+            .Select(d => new TtDeconnexionDto
+            {
+                Id = d.Id,
+                NumeroTt = d.NumeroTt,
+                DateDebutUtc = d.DateDebutUtc,
+                DateRetourUtc = d.DateRetourUtc,
+                Duree = d.Duree,
+                Raison = d.Raison,
+                RetireEffectif = d.RetireEffectif,
+                EstResolue = d.EstResolue
+            }).ToListAsync(cancellationToken);
+
         return new DispatchTtDto
         {
             Effectif = effectif is null
@@ -57,7 +72,8 @@ public class GetDispatchTtQueryHandler(
                     Retires = effectif.Retires
                 },
             Assignments = assignments,
-            EscalesDisponibles = escalesDisponibles
+            EscalesDisponibles = escalesDisponibles,
+            Deconnexions = deconnexions
         };
     }
 }

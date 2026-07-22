@@ -42,6 +42,7 @@ public abstract class ApplicationDbContext(
     public DbSet<RopnEntry> RopnEntries => Set<RopnEntry>();
     public DbSet<TtEffectif> TtEffectifs => Set<TtEffectif>();
     public DbSet<TtVesselAssignment> TtVesselAssignments => Set<TtVesselAssignment>();
+    public DbSet<TtDeconnexion> TtDeconnexions => Set<TtDeconnexion>();
     public DbSet<RtgEffectif> RtgEffectifs => Set<RtgEffectif>();
     public DbSet<RtgPanne> RtgPannes => Set<RtgPanne>();
     public DbSet<RtgClash> RtgClashes => Set<RtgClash>();

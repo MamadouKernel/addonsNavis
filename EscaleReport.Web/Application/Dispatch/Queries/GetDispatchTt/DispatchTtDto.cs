@@ -7,6 +7,19 @@ public class DispatchTtDto
     public TtEffectifDto Effectif { get; set; } = new();
     public IReadOnlyList<TtVesselAssignmentDto> Assignments { get; set; } = [];
     public IReadOnlyList<EscaleOptionDto> EscalesDisponibles { get; set; } = [];
+    public IReadOnlyList<TtDeconnexionDto> Deconnexions { get; set; } = [];
+}
+
+public class TtDeconnexionDto
+{
+    public Guid Id { get; set; }
+    public string NumeroTt { get; set; } = string.Empty;
+    public DateTime DateDebutUtc { get; set; }
+    public DateTime? DateRetourUtc { get; set; }
+    public TimeSpan? Duree { get; set; }
+    public string? Raison { get; set; }
+    public bool RetireEffectif { get; set; }
+    public bool EstResolue { get; set; }
 }
 
 public class TtEffectifDto

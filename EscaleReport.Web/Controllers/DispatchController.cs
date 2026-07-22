@@ -9,6 +9,7 @@ using EscaleReport.Web.Application.Dispatch.Commands.AddStsIncident;
 using EscaleReport.Web.Application.Dispatch.Commands.AddStsPointeur;
 using EscaleReport.Web.Application.Dispatch.Commands.AssignGantry;
 using EscaleReport.Web.Application.Dispatch.Commands.AssignTt;
+using EscaleReport.Web.Application.Dispatch.Commands.AddTtDeconnexion;
 using EscaleReport.Web.Application.Dispatch.Commands.ChangeGantryStatus;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseEnginDeconnexion;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseEnginProbleme;
@@ -16,6 +17,7 @@ using EscaleReport.Web.Application.Dispatch.Commands.CloseGateTruckIssue;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseRtgClash;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseRtgPanne;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseStsIncident;
+using EscaleReport.Web.Application.Dispatch.Commands.CloseTtDeconnexion;
 using EscaleReport.Web.Application.Dispatch.Commands.EndGantryAssignment;
 using EscaleReport.Web.Application.Dispatch.Commands.EndStsPointeur;
 using EscaleReport.Web.Application.Dispatch.Commands.ResolveRopnEntry;
@@ -155,6 +157,23 @@ public class DispatchController(ISender mediator) : Controller
         }
 
         await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(Tt));
+    }
+
+    // ---------- Déconnexions TT (§7.3) ----------
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddTtDeconnexion(AddTtDeconnexionCommand command, CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(Tt));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CloseTtDeconnexion(Guid deconnexionId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new CloseTtDeconnexionCommand(deconnexionId), cancellationToken);
         return RedirectToAction(nameof(Tt));
     }
 

@@ -20,7 +20,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §6.5 | Dispatch STS — ROPN | ✅ | |
 | §7.1 | Dispatch TT — effectif | ✅ | |
 | §7.2 | Dispatch TT — affectation par navire | ✅ | |
-| §7.3 | Dispatch TT — déconnexions TT | ⬜ | Non implémenté |
+| §7.3 | Dispatch TT — déconnexions TT | ✅ | |
 | §8.1 | Dispatch RTG — effectif | ✅ | |
 | §8.2 | Dispatch RTG — consultation incidents STS | ✅ | Lecture seule |
 | §8.3 | Dispatch RTG — pannes RTG | ✅ | |

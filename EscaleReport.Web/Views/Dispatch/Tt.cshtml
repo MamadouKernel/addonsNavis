@@ -146,3 +146,73 @@
         </div>
     </form>
 </section>
+
+<section class="card mt-8">
+    <h2 class="card-title mb-1">Déconnexions TT</h2>
+    <p class="card-subtitle mb-5">CDC §7.3</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>N° TT</th>
+                        <th>Début</th>
+                        <th class="hidden md:table-cell">Retour</th>
+                        <th class="hidden lg:table-cell">Durée</th>
+                        <th class="hidden md:table-cell">Raison</th>
+                        <th>Retrait effectif</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Deconnexions.Any())
+                {
+                    <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucune déconnexion signalée.</td></tr>
+                }
+                @foreach (var d in Model.Deconnexions)
+                {
+                    <tr>
+                        <td class="font-mono font-semibold text-slate-900">@d.NumeroTt</td>
+                        <td class="whitespace-nowrap">@d.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden whitespace-nowrap md:table-cell">@(d.DateRetourUtc?.ToString("dd/MM HH:mm") ?? "—")</td>
+                        <td class="hidden lg:table-cell">@(d.Duree.HasValue ? $"{(int)d.Duree.Value.TotalHours}h{Math.Abs(d.Duree.Value.Minutes):D2}" : "—")</td>
+                        <td class="hidden md:table-cell">@d.Raison</td>
+                        <td>@(d.RetireEffectif ? "Oui" : "Non")</td>
+                        <td>
+                            @if (d.EstResolue) { <span class="badge-success">Rétabli</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!d.EstResolue)
+                            {
+                                <form asp-controller="Dispatch" asp-action="CloseTtDeconnexion" method="post">
+                                    <input type="hidden" name="deconnexionId" value="@d.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Signaler le retour</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Dispatch" asp-action="AddTtDeconnexion" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div><label class="field-label">N° TT</label><input name="NumeroTt" required class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div class="sm:col-span-2"><label class="field-label">Raison</label><input name="Raison" class="input-field" /></div>
+        <div class="flex items-end gap-3">
+            <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <input type="checkbox" name="RetireEffectif" value="true" class="h-4 w-4 accent-indigo-600" />
+                Retrait effectif
+            </label>
+        </div>
+        <div class="flex items-end lg:col-span-5">
+            <button type="submit" class="btn-primary">Déclarer</button>
+        </div>
+    </form>
+</section>

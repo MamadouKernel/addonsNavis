@@ -30,6 +30,7 @@ public interface IApplicationDbContext
     DbSet<RopnEntry> RopnEntries { get; }
     DbSet<TtEffectif> TtEffectifs { get; }
     DbSet<TtVesselAssignment> TtVesselAssignments { get; }
+    DbSet<TtDeconnexion> TtDeconnexions { get; }
     DbSet<RtgEffectif> RtgEffectifs { get; }
     DbSet<RtgPanne> RtgPannes { get; }
     DbSet<RtgClash> RtgClashes { get; }
