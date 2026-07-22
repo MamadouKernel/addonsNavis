@@ -7,6 +7,7 @@ using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Domain.Itt;
 using EscaleReport.Web.Domain.Reporting;
+using EscaleReport.Web.Domain.Settings;
 using EscaleReport.Web.Domain.VesselPlanning;
 using EscaleReport.Web.Domain.YardPlanning;
 using EscaleReport.Web.Infrastructure.Identity;
@@ -64,6 +65,9 @@ public abstract class ApplicationDbContext(
     public DbSet<IttEnginPanne> IttEnginPannes => Set<IttEnginPanne>();
     public DbSet<ShiftHandoverNote> ShiftHandoverNotes => Set<ShiftHandoverNote>();
     public DbSet<EscalePlanificationNote> EscalePlanificationNotes => Set<EscalePlanificationNote>();
+    public DbSet<GeneralSettings> GeneralSettings => Set<GeneralSettings>();
+    public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
+    public DbSet<AlertThreshold> AlertThresholds => Set<AlertThreshold>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

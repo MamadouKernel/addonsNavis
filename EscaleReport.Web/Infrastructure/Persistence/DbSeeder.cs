@@ -3,6 +3,7 @@ using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Common;
 using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Identity;
+using EscaleReport.Web.Domain.Settings;
 using EscaleReport.Web.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,10 @@ public static class DbSeeder
         await SeedGantriesAsync(dbContext);
         await SeedYardZonesAsync(dbContext);
         await SeedShiftsAsync(dbContext);
+        await SeedQuaisAsync(dbContext);
+        await SeedLignesMaritimesAsync(dbContext);
+        await SeedBaysAsync(dbContext);
+        await SeedEmailTemplatesAsync(dbContext);
 
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         if (await userManager.Users.AnyAsync())
@@ -247,6 +252,90 @@ public static class DbSeeder
                 SortOrder = i
             });
         }
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+    }
+
+    private static async Task SeedQuaisAsync(IApplicationDbContext dbContext)
+    {
+        if (await dbContext.ReferenceValues.AnyAsync(r => r.ListKey == ReferenceListKeys.Quai))
+        {
+            return;
+        }
+
+        string[] quais = ["Poste 1", "Poste 2", "Poste 3", "Poste 4"];
+        for (var i = 0; i < quais.Length; i++)
+        {
+            dbContext.ReferenceValues.Add(new ReferenceValue { ListKey = ReferenceListKeys.Quai, Value = quais[i], SortOrder = i });
+        }
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+    }
+
+    private static async Task SeedLignesMaritimesAsync(IApplicationDbContext dbContext)
+    {
+        if (await dbContext.ReferenceValues.AnyAsync(r => r.ListKey == ReferenceListKeys.LigneMaritime))
+        {
+            return;
+        }
+
+        string[] lignes = ["CMA CGM", "Maersk", "MSC", "PIL", "Grimaldi"];
+        for (var i = 0; i < lignes.Length; i++)
+        {
+            dbContext.ReferenceValues.Add(new ReferenceValue { ListKey = ReferenceListKeys.LigneMaritime, Value = lignes[i], SortOrder = i });
+        }
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+    }
+
+    private static async Task SeedBaysAsync(IApplicationDbContext dbContext)
+    {
+        if (await dbContext.ReferenceValues.AnyAsync(r => r.ListKey == ReferenceListKeys.Bay))
+        {
+            return;
+        }
+
+        for (var i = 1; i <= 10; i++)
+        {
+            dbContext.ReferenceValues.Add(new ReferenceValue { ListKey = ReferenceListKeys.Bay, Value = $"Bay {i:D2}", SortOrder = i - 1 });
+        }
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+    }
+
+    private static async Task SeedEmailTemplatesAsync(IApplicationDbContext dbContext)
+    {
+        if (await dbContext.EmailTemplates.AnyAsync())
+        {
+            return;
+        }
+
+        dbContext.EmailTemplates.Add(new EmailTemplate
+        {
+            Cle = EmailTemplateKeys.RapportEscale,
+            Sujet = "Rapport d'escale - {navire} ({voyage})",
+            Corps = "Bonjour,\n\nVeuillez trouver ci-joint le rapport d'escale du navire {navire}, voyage {voyage}, ligne {ligne}.\n\n" +
+                    "Merci de joindre le fichier PDF exporté depuis la fiche escale avant l'envoi.\n\nCordialement."
+        });
+        dbContext.EmailTemplates.Add(new EmailTemplate
+        {
+            Cle = EmailTemplateKeys.RapportShift,
+            Sujet = "Rapport de fin de shift - {date} ({shift})",
+            Corps = "Bonjour,\n\nVeuillez trouver ci-joint le rapport de fin de shift du {date}, shift {shift}.\n\n" +
+                    "Merci de joindre le fichier PDF exporté depuis l'écran Rapport de shift avant l'envoi.\n\nCordialement."
+        });
+        dbContext.EmailTemplates.Add(new EmailTemplate
+        {
+            Cle = EmailTemplateKeys.ConsommationDisch,
+            Sujet = "Consommation Disch - {navire} ({voyage})",
+            Corps = "Bonjour,\n\nVeuillez trouver ci-joint la consommation Disch du navire {navire}, voyage {voyage}.\n\nCordialement."
+        });
+        dbContext.EmailTemplates.Add(new EmailTemplate
+        {
+            Cle = EmailTemplateKeys.ConsommationLoad,
+            Sujet = "Consommation Load - {navire} ({voyage})",
+            Corps = "Bonjour,\n\nVeuillez trouver ci-joint la consommation Load du navire {navire}, voyage {voyage}.\n\nCordialement."
+        });
 
         await dbContext.SaveChangesAsync(CancellationToken.None);
     }

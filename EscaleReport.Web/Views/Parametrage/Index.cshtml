@@ -1,0 +1,184 @@
+@using EscaleReport.Web.Application.Settings.Queries.GetParametrage
+@model ParametrageDto
+@{
+    ViewData["Title"] = "Paramétrage";
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Paramétrage de la solution</h1>
+    <p class="page-subtitle">Listes de valeurs, portiques, modèles d'e-mail et seuils d'alerte — CDC §15.1</p>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="paramTabs">
+    <button type="button" class="tab-btn active" data-tab="general">Général</button>
+    <button type="button" class="tab-btn" data-tab="listes">Listes de référence</button>
+    <button type="button" class="tab-btn" data-tab="portiques">Portiques</button>
+    <button type="button" class="tab-btn" data-tab="emails">Modèles d'e-mail</button>
+    <button type="button" class="tab-btn" data-tab="alertes">Seuils d'alerte</button>
+</div>
+
+<!-- ============ PARAMETRES GENERAUX (§15.1) ============ -->
+<section id="tab-general" class="param-panel card">
+    <h2 class="card-title mb-5">Paramètres généraux</h2>
+    <form asp-controller="Parametrage" asp-action="UpdateGeneralSettings" method="post"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div><label class="field-label">Nom de la société</label><input name="NomSociete" value="@Model.GeneralSettings.NomSociete" class="input-field" /></div>
+        <div><label class="field-label">Planificateur par défaut</label><input name="PlanificateurParDefaut" value="@Model.GeneralSettings.PlanificateurParDefaut" class="input-field" /></div>
+        <div class="sm:col-span-2">
+            <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+    </form>
+</section>
+
+<!-- ============ LISTES DE REFERENCE (§15.1) ============ -->
+<section id="tab-listes" class="param-panel hidden">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    @foreach (var list in Model.ReferenceLists)
+    {
+        <section class="card">
+            <h2 class="card-title mb-4">@list.Label</h2>
+            <div class="mb-4 flex flex-wrap gap-2">
+                @if (!list.Values.Any())
+                {
+                    <span class="text-sm italic text-slate-400">Aucune valeur.</span>
+                }
+                @foreach (var v in list.Values)
+                {
+                    <form asp-controller="Parametrage" asp-action="ToggleReferenceValueActive" method="post" class="inline-flex">
+                        <input type="hidden" name="id" value="@v.Id" />
+                        <button type="submit" class="@(v.IsActive ? "badge-brand" : "badge-neutral opacity-50") cursor-pointer" title="Cliquer pour activer/désactiver">
+                            @v.Value @(v.IsActive ? "" : "(inactif)")
+                        </button>
+                    </form>
+                }
+            </div>
+            <form asp-controller="Parametrage" asp-action="AddReferenceValue" method="post" class="flex gap-2">
+                <input type="hidden" name="ListKey" value="@list.ListKey" />
+                <input name="Value" required placeholder="Nouvelle valeur" class="input-field flex-1" />
+                <button type="submit" class="btn-secondary whitespace-nowrap">Ajouter</button>
+            </form>
+        </section>
+    }
+    </div>
+</section>
+
+<!-- ============ PORTIQUES (§15.1) ============ -->
+<section id="tab-portiques" class="param-panel card hidden">
+    <h2 class="card-title mb-1">Portiques STS</h2>
+    <p class="card-subtitle mb-5">Un portique déjà affecté ne peut pas être supprimé.</p>
+
+    <div class="mb-6 flex flex-wrap gap-3">
+        @foreach (var g in Model.Gantries)
+        {
+            <div class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-2">
+                <span class="font-mono font-semibold text-slate-900">@g.Code</span>
+                @if (g.PeutEtreSupprime)
+                {
+                    <form asp-controller="Parametrage" asp-action="RemoveGantry" method="post">
+                        <input type="hidden" name="id" value="@g.Id" />
+                        <button type="submit" class="btn-link text-xs">Supprimer</button>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+
+    <form asp-controller="Parametrage" asp-action="AddGantry" method="post" class="flex gap-2 max-w-sm">
+        <input name="Code" required placeholder="CR9" class="input-field flex-1" />
+        <button type="submit" class="btn-primary whitespace-nowrap">Ajouter</button>
+    </form>
+</section>
+
+<!-- ============ MODELES D'E-MAIL (§14.5/§15.1) ============ -->
+<section id="tab-emails" class="param-panel hidden">
+    <div class="grid grid-cols-1 gap-6">
+    @foreach (var t in Model.EmailTemplates)
+    {
+        <section class="card">
+            <h2 class="card-title mb-5">@t.Label</h2>
+            <form asp-controller="Parametrage" asp-action="UpsertEmailTemplate" method="post" class="grid grid-cols-1 gap-4">
+                <input type="hidden" name="Cle" value="@t.Cle" />
+                <div><label class="field-label">Sujet</label><input name="Sujet" value="@t.Sujet" required class="input-field" /></div>
+                <div><label class="field-label">Corps</label><textarea name="Corps" rows="4" required class="input-field">@t.Corps</textarea></div>
+                <div><label class="field-label">Destinataires par défaut</label><input name="DestinatairesParDefaut" value="@t.DestinatairesParDefaut" placeholder="nom@exemple.com, autre@exemple.com" class="input-field" /></div>
+                <div>
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </section>
+    }
+    </div>
+</section>
+
+<!-- ============ SEUILS D'ALERTE (§15.1) ============ -->
+<section id="tab-alertes" class="param-panel card hidden">
+    <h2 class="card-title mb-1">Délais déclenchant les alertes</h2>
+    <p class="card-subtitle mb-5">Seuils administrables ; le moteur de notifications (§16) reste à construire.</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Clé</th>
+                        <th>Libellé</th>
+                        <th>Délai (heures)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.AlertThresholds.Any())
+                {
+                    <tr><td colspan="4" class="!text-center text-slate-400 py-8">Aucun seuil configuré.</td></tr>
+                }
+                @foreach (var a in Model.AlertThresholds)
+                {
+                    <tr>
+                        <td class="font-mono">@a.Cle</td>
+                        <td>@a.Libelle</td>
+                        <td>@a.ValeurHeures h</td>
+                        <td class="text-right">
+                            <form asp-controller="Parametrage" asp-action="RemoveAlertThreshold" method="post">
+                                <input type="hidden" name="id" value="@a.Id" />
+                                <button type="submit" class="btn-link whitespace-nowrap">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Parametrage" asp-action="UpsertAlertThreshold" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div><label class="field-label">Clé</label><input name="Cle" required placeholder="EscaleIncompleteHeures" class="input-field" /></div>
+        <div><label class="field-label">Libellé</label><input name="Libelle" required placeholder="Escale incomplète" class="input-field" /></div>
+        <div><label class="field-label">Délai (heures)</label><input type="number" name="ValeurHeures" min="0" value="0" class="input-field" /></div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Ajouter</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var tabs = document.querySelectorAll('#paramTabs .tab-btn');
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.param-panel').forEach(function (p) { p.classList.add('hidden'); });
+                    var panel = document.getElementById('tab-' + btn.dataset.tab);
+                    if (panel) { panel.classList.remove('hidden'); }
+                });
+            });
+        })();
+    </script>
+}

@@ -46,7 +46,8 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §14.3 | Export PDF | ✅ | Mécanisme générique en place (QuestPDF) |
 | §14.4 | Export Excel | ✅ | Mécanisme générique en place (ClosedXML) |
 | §14.5 | Envoi par e-mail | ✅ | `mailto:` + journal d'audit |
-| §15 | Paramétrage de la solution | ⬜ | Listes de référence en base (ReferenceValue) mais pas d'UI d'admin pour les gérer |
+| §15.1 | Paramétrage — listes, portiques, modèles d'e-mail, seuils d'alerte | ✅ | UI admin complète (5 onglets) : réglages généraux, 9 listes de référence (activation/ajout), portiques (ajout/suppression protégée par référence réelle — affectations et incidents STS), 4 modèles d'e-mail avec substitution de variables branchée sur l'envoi réel du rapport d'escale, seuils d'alerte (CRUD) |
+| §15.2 | Personnalisation de l'interface (thèmes) | ⬜ | Hors périmètre de cette itération — nécessiterait un système de thèmes transverse (dark mode, palette par société), jugé orthogonal aux modules métier |
 | §16 | Notifications et alertes | ⬜ | Non commencé (alertes calculées existent en données, pas de notification poussée) |
 | §17 | Reporting et indicateurs transverses | ⬜ | Non commencé |
 

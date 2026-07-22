@@ -2,6 +2,7 @@ using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
+using EscaleReport.Web.Domain.Settings;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,15 +26,26 @@ public class LogReportEmailCommandHandler(
             return null;
         }
 
-        // Modèle de mail paramétrable "à terme" (CDC §14.5) : ici valeurs par défaut avec
-        // substitution de variables {navire}/{voyage}/{ligne}, en attendant l'écran de
-        // paramétrage des modèles (CDC §15.1), non encore construit.
-        var subject = $"Rapport d'escale - {escale.Navire} ({escale.Voyage})";
-        var body =
-            $"Bonjour,\n\nVeuillez trouver ci-joint le rapport d'escale du navire {escale.Navire}, " +
-            $"voyage {escale.Voyage}, ligne {escale.LigneMaritime}.\n\n" +
-            "Merci de joindre le fichier PDF exporté depuis la fiche escale avant l'envoi.\n\n" +
-            "Cordialement.";
+        // CDC §14.5/§15.1 : modèle paramétré (Sujet/Corps avec {navire}/{voyage}/{ligne}/
+        // {visite}) s'il existe, sinon valeurs par défaut codées en dur.
+        var template = await dbContext.EmailTemplates.AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Cle == EmailTemplateKeys.RapportEscale, cancellationToken);
+
+        string subject, body;
+        if (template is not null && !string.IsNullOrWhiteSpace(template.Sujet))
+        {
+            subject = SubstituteVariables(template.Sujet, escale);
+            body = SubstituteVariables(template.Corps, escale);
+        }
+        else
+        {
+            subject = $"Rapport d'escale - {escale.Navire} ({escale.Voyage})";
+            body =
+                $"Bonjour,\n\nVeuillez trouver ci-joint le rapport d'escale du navire {escale.Navire}, " +
+                $"voyage {escale.Voyage}, ligne {escale.LigneMaritime}.\n\n" +
+                "Merci de joindre le fichier PDF exporté depuis la fiche escale avant l'envoi.\n\n" +
+                "Cordialement.";
+        }
 
         dbContext.ReportEmailLogs.Add(new ReportEmailLog
         {
@@ -54,4 +66,10 @@ public class LogReportEmailCommandHandler(
 
         return mailto;
     }
+
+    private static string SubstituteVariables(string text, Escale escale) => text
+        .Replace("{navire}", escale.Navire)
+        .Replace("{voyage}", escale.Voyage)
+        .Replace("{ligne}", escale.LigneMaritime)
+        .Replace("{visite}", escale.VesselVisit ?? "");
 }

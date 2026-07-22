@@ -6,6 +6,7 @@ using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Domain.Itt;
 using EscaleReport.Web.Domain.Reporting;
+using EscaleReport.Web.Domain.Settings;
 using EscaleReport.Web.Domain.VesselPlanning;
 using EscaleReport.Web.Domain.YardPlanning;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +53,9 @@ public interface IApplicationDbContext
     DbSet<IttEnginPanne> IttEnginPannes { get; }
     DbSet<ShiftHandoverNote> ShiftHandoverNotes { get; }
     DbSet<EscalePlanificationNote> EscalePlanificationNotes { get; }
+    DbSet<GeneralSettings> GeneralSettings { get; }
+    DbSet<EmailTemplate> EmailTemplates { get; }
+    DbSet<AlertThreshold> AlertThresholds { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

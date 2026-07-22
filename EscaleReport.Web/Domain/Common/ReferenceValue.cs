@@ -21,4 +21,21 @@ public static class ReferenceListKeys
     public const string StsIncidentType = "StsIncidentType";
     public const string YardZone = "YardZone";
     public const string Shift = "Shift";
+    public const string Quai = "Quai";
+    public const string LigneMaritime = "LigneMaritime";
+    public const string Bay = "Bay";
+
+    // CDC §15.1 : libellés affichés dans l'écran de paramétrage, associés à chaque clé.
+    public static readonly IReadOnlyDictionary<string, string> Labels = new Dictionary<string, string>
+    {
+        [AnomalyReason] = "Raisons d'anomalie",
+        [IncidentCategory] = "Catégories d'incident",
+        [CutReason] = "Motifs de coupure",
+        [StsIncidentType] = "Types de panne STS",
+        [YardZone] = "Zones Yard",
+        [Shift] = "Shifts",
+        [Quai] = "Quais",
+        [LigneMaritime] = "Lignes maritimes",
+        [Bay] = "Bays"
+    };
 }
