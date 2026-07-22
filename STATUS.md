@@ -37,7 +37,10 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §11.4 | Yard Planner — housekeeping | ✅ | |
 | §12.1-12.7 | Coordinateur — vue consolidée (Navires/STS/TT/RTG+autres engins/Cargo/Yard) | ✅ | Choix des modules affichés par l'admin non implémenté (dépend de §15) |
 | §12.8 | Coordinateur — incidents propres | ✅ | |
-| §13 | ITT Controller | ⬜ | Non commencé |
+| §13.1 | ITT Controller — suivi des transferts | ✅ | Restant/avancement calculés automatiquement |
+| §13.2 | ITT Controller — incidents de transfert | ✅ | |
+| §13.3 | ITT Controller — équipements ITT | ✅ | |
+| §13.4 | ITT Controller — pannes engins de transfert | ✅ | |
 | §14.1 | Rapport de fin de shift | ⬜ | Non commencé (agrégation multi-navires/multi-modules) |
 | §14.2 | Rapport de fin d'escale | 🟡 | PDF généré mais contenu partiel (header + anomalies) ; pas encore la consolidation complète attendue |
 | §14.3 | Export PDF | ✅ | Mécanisme générique en place (QuestPDF) |
@@ -59,3 +62,4 @@ Créés par le seeder au premier démarrage (mot de passe généré et affiché 
 | `cargo1` | Cargo Controller |
 | `yardplanner1` | Yard Planner |
 | `coordinateur1` | Coordinateur Control Room |
+| `ittcontroller1` | ITT Controller |

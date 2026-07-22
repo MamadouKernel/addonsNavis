@@ -983,6 +983,174 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                     b.ToTable("UserPermissions");
                 });
 
+            modelBuilder.Entity("EscaleReport.Web.Domain.Itt.IttEnginPanne", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionRealisee")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Cause")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DateFinUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Engin")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("RetireEffectif")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IttEnginPannes");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Itt.IttEquipementEffectif", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Disponible")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EnPanne")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Engage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Observations")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IttEquipementEffectifs");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Itt.IttTransfer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NavireConnexion")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("NombreATransferer")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NombreRecu")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NombreTransfere")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Observations")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IttTransfers");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Itt.IttTransferIncident", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionRealisee")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DateFinUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DifficulteOuObjet")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IttTransferIncidents");
+                });
+
             modelBuilder.Entity("EscaleReport.Web.Domain.VesselPlanning.AdditionalContainer", b =>
                 {
                     b.Property<Guid>("Id")

@@ -1,0 +1,273 @@
+@using EscaleReport.Web.Application.Itt.Queries.GetIttDashboard
+@model IttDashboardDto
+@{
+    ViewData["Title"] = "ITT Controller";
+
+    static string DureeLabel(TimeSpan? d) => d.HasValue ? $"{(int)d.Value.TotalHours}h{Math.Abs(d.Value.Minutes):D2}" : "—";
+
+    var incidentsEnCours = Model.TransferIncidents.Count(i => !i.EstResolu);
+    var pannesEnCours = Model.EnginPannes.Count(p => !p.EstResolue);
+}
+
+<div class="mb-8">
+    <h1 class="page-title">ITT Controller</h1>
+    <p class="page-subtitle">Transferts inter-terminaux, incidents, équipements et pannes — CDC §13</p>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="ittTabs">
+    <button type="button" class="tab-btn active" data-tab="transferts">Transferts</button>
+    <button type="button" class="tab-btn" data-tab="incidents">Incidents <span class="tab-count">@incidentsEnCours</span></button>
+    <button type="button" class="tab-btn" data-tab="equipements">Équipements</button>
+    <button type="button" class="tab-btn" data-tab="pannes">Pannes <span class="tab-count">@pannesEnCours</span></button>
+</div>
+
+<!-- ============ SUIVI DES TRANSFERTS (§13.1) ============ -->
+<section id="tab-transferts" class="itt-panel card">
+    <h2 class="card-title mb-1">Suivi des transferts</h2>
+    <p class="card-subtitle mb-5">CDC §13.1 — le nombre restant et le pourcentage d'avancement sont calculés automatiquement.</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Navire de connexion</th>
+                        <th>À transférer</th>
+                        <th>Transféré</th>
+                        <th class="hidden md:table-cell">Reçu</th>
+                        <th>Restant</th>
+                        <th>Avancement</th>
+                        <th class="hidden lg:table-cell">Observations</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Transfers.Any())
+                {
+                    <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucun transfert ITT enregistré.</td></tr>
+                }
+                @foreach (var t in Model.Transfers)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@t.NavireConnexion</td>
+                        <td>@t.NombreATransferer</td>
+                        <td>@t.NombreTransfere</td>
+                        <td class="hidden md:table-cell">@t.NombreRecu</td>
+                        <td>
+                            @if (t.NombreRestant > 0) { <span class="badge-warning">@t.NombreRestant</span> }
+                            else { <span class="badge-success">0</span> }
+                        </td>
+                        <td>@t.PourcentageAvancement.ToString("0.#")%</td>
+                        <td class="hidden lg:table-cell">@t.Observations</td>
+                        <td class="text-right">
+                            <form asp-controller="Itt" asp-action="UpdateTransfer" method="post" class="inline-flex items-center gap-1">
+                                <input type="hidden" name="Id" value="@t.Id" />
+                                <input type="number" name="NombreATransferer" value="@t.NombreATransferer" min="0" class="input-field w-16 py-1 text-xs" title="À transférer" />
+                                <input type="number" name="NombreTransfere" value="@t.NombreTransfere" min="0" class="input-field w-16 py-1 text-xs" title="Transféré" />
+                                <input type="number" name="NombreRecu" value="@t.NombreRecu" min="0" class="input-field w-16 py-1 text-xs" title="Reçu" />
+                                <input type="hidden" name="Observations" value="@t.Observations" />
+                                <button type="submit" class="btn-link whitespace-nowrap">Mettre à jour</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Itt" asp-action="AddTransfer" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div><label class="field-label">Navire de connexion</label><input name="NavireConnexion" required class="input-field" /></div>
+        <div><label class="field-label">À transférer</label><input type="number" name="NombreATransferer" min="0" value="0" class="input-field" /></div>
+        <div><label class="field-label">Transféré</label><input type="number" name="NombreTransfere" min="0" value="0" class="input-field" /></div>
+        <div><label class="field-label">Reçu</label><input type="number" name="NombreRecu" min="0" value="0" class="input-field" /></div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Ajouter</button>
+        </div>
+        <div class="sm:col-span-2 lg:col-span-5"><label class="field-label">Observations</label><input name="Observations" class="input-field" /></div>
+    </form>
+</section>
+
+<!-- ============ INCIDENTS DE TRANSFERT (§13.2) ============ -->
+<section id="tab-incidents" class="itt-panel card hidden">
+    <h2 class="card-title mb-1">Incidents de transfert</h2>
+    <p class="card-subtitle mb-5">CDC §13.2</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Difficulté / objet</th>
+                        <th>Début</th>
+                        <th class="hidden lg:table-cell">Durée</th>
+                        <th class="hidden md:table-cell">Note</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.TransferIncidents.Any())
+                {
+                    <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun incident de transfert.</td></tr>
+                }
+                @foreach (var i in Model.TransferIncidents)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@i.DifficulteOuObjet</td>
+                        <td class="whitespace-nowrap">@i.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden lg:table-cell">@DureeLabel(i.Duree)</td>
+                        <td class="hidden md:table-cell">@i.Note</td>
+                        <td>
+                            @if (i.EstResolu) { <span class="badge-success">Résolu</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!i.EstResolu)
+                            {
+                                <form asp-controller="Itt" asp-action="CloseTransferIncident" method="post">
+                                    <input type="hidden" name="incidentId" value="@i.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Clôturer</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Itt" asp-action="AddTransferIncident" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="sm:col-span-2"><label class="field-label">Difficulté / objet</label><input name="DifficulteOuObjet" required class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div><label class="field-label">Note</label><input name="Note" class="input-field" /></div>
+        <div class="flex items-end lg:col-span-4">
+            <button type="submit" class="btn-primary">Déclarer</button>
+        </div>
+    </form>
+</section>
+
+<!-- ============ EQUIPEMENTS ITT (§13.3) ============ -->
+<section id="tab-equipements" class="itt-panel card hidden">
+    <h2 class="card-title mb-5">Équipements ITT</h2>
+
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Disponible</div>
+            <div class="mt-1 font-mono text-2xl font-bold text-emerald-600">@Model.EquipementEffectif.Disponible</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Engagé</div>
+            <div class="mt-1 font-mono text-2xl font-bold text-slate-900">@Model.EquipementEffectif.Engage</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">En panne</div>
+            <div class="mt-1 font-mono text-2xl font-bold text-rose-600">@Model.EquipementEffectif.EnPanne</div>
+        </div>
+    </div>
+
+    <form asp-controller="Itt" asp-action="UpdateEquipementEffectif" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div><label class="field-label">Disponible</label><input name="Disponible" type="number" min="0" value="@Model.EquipementEffectif.Disponible" class="input-field" /></div>
+        <div><label class="field-label">Engagé</label><input name="Engage" type="number" min="0" value="@Model.EquipementEffectif.Engage" class="input-field" /></div>
+        <div><label class="field-label">En panne</label><input name="EnPanne" type="number" min="0" value="@Model.EquipementEffectif.EnPanne" class="input-field" /></div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Mettre à jour</button>
+        </div>
+        <div class="sm:col-span-2 lg:col-span-4"><label class="field-label">Observations</label><input name="Observations" value="@Model.EquipementEffectif.Observations" class="input-field" /></div>
+    </form>
+</section>
+
+<!-- ============ PANNES DES ENGINS DE TRANSFERT (§13.4) ============ -->
+<section id="tab-pannes" class="itt-panel card hidden">
+    <h2 class="card-title mb-1">Pannes des engins de transfert</h2>
+    <p class="card-subtitle mb-5">CDC §13.4</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Engin</th>
+                        <th>Début</th>
+                        <th class="hidden lg:table-cell">Durée</th>
+                        <th class="hidden md:table-cell">Cause</th>
+                        <th>Retrait effectif</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.EnginPannes.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune panne enregistrée.</td></tr>
+                }
+                @foreach (var p in Model.EnginPannes)
+                {
+                    <tr>
+                        <td class="font-mono font-semibold text-slate-900">@p.Engin</td>
+                        <td class="whitespace-nowrap">@p.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden lg:table-cell">@DureeLabel(p.Duree)</td>
+                        <td class="hidden md:table-cell">@p.Cause</td>
+                        <td>@(p.RetireEffectif ? "Oui" : "Non")</td>
+                        <td>
+                            @if (p.EstResolue) { <span class="badge-success">Reprise</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!p.EstResolue)
+                            {
+                                <form asp-controller="Itt" asp-action="CloseEnginPanne" method="post">
+                                    <input type="hidden" name="panneId" value="@p.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Clôturer</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Itt" asp-action="AddEnginPanne" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div><label class="field-label">Engin</label><input name="Engin" required class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div class="sm:col-span-2"><label class="field-label">Cause</label><input name="Cause" class="input-field" /></div>
+        <div class="flex items-end gap-3">
+            <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <input type="checkbox" name="RetireEffectif" value="true" class="h-4 w-4 accent-indigo-600" />
+                Retrait effectif
+            </label>
+        </div>
+        <div class="flex items-end lg:col-span-5">
+            <button type="submit" class="btn-primary">Déclarer</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var tabs = document.querySelectorAll('#ittTabs .tab-btn');
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.itt-panel').forEach(function (p) { p.classList.add('hidden'); });
+                    var panel = document.getElementById('tab-' + btn.dataset.tab);
+                    if (panel) { panel.classList.remove('hidden'); }
+                });
+            });
+        })();
+    </script>
+}

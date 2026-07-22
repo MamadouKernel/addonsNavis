@@ -110,6 +110,18 @@ public static class DbSeeder
                 Permissions.SaisirDonneesModule,
                 Permissions.ModifierDonneesModule
             ]);
+
+        // Compte de démonstration pour le rôle ITT Controller (CDC §13).
+        await SeedUserAsync(
+            userManager, dbContext, logger, configuration,
+            configKeyPrefix: "SeedIttController", defaultUserName: "ittcontroller1",
+            role: Roles.IttController,
+            permissions:
+            [
+                Permissions.ConsulterEscales,
+                Permissions.SaisirDonneesModule,
+                Permissions.ModifierDonneesModule
+            ]);
     }
 
     private static async Task SeedAnomalyReasonsAsync(IApplicationDbContext dbContext)
