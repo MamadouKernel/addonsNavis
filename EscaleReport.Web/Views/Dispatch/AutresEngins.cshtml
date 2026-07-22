@@ -1,0 +1,285 @@
+@using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchAutresEngins
+@using EscaleReport.Web.Domain.Dispatch
+@model DispatchAutresEnginsDto
+@{
+    ViewData["Title"] = "Dispatch autres engins";
+
+    static string DureeLabel(TimeSpan? d) => d.HasValue ? $"{(int)d.Value.TotalHours}h{Math.Abs(d.Value.Minutes):D2}" : "—";
+
+    static string CategorieLabel(CategorieEngin c) => c switch
+    {
+        CategorieEngin.ReachStacker => "Reach Stacker",
+        CategorieEngin.EmptyHandler => "Empty Handler",
+        _ => "Autre"
+    };
+
+    var problemesEnCours = Model.Problemes.Count(p => !p.EstResolu);
+    var deconnexionsEnCours = Model.Deconnexions.Count(d => !d.EstResolu);
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Dispatch autres engins</h1>
+    <p class="page-subtitle">Reach Stackers, Empty Handlers et autres engins de manutention — CDC §9</p>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="autresEnginsTabs">
+    <button type="button" class="tab-btn active" data-tab="effectif">Effectif</button>
+    <button type="button" class="tab-btn" data-tab="problemes">Problèmes <span class="tab-count">@problemesEnCours</span></button>
+    <button type="button" class="tab-btn" data-tab="deconnexions">Déconnexions <span class="tab-count">@deconnexionsEnCours</span></button>
+    <button type="button" class="tab-btn" data-tab="remplacements">Remplacements</button>
+</div>
+
+<!-- ============ ENGINS DISPONIBLES (§9.1) ============ -->
+<section id="tab-effectif" class="autres-engins-panel card">
+    <h2 class="card-title mb-1">Engins disponibles</h2>
+    <p class="card-subtitle mb-5">Le nombre retiré est calculé automatiquement à partir des problèmes d'engins ouverts avec retrait d'effectif.</p>
+
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reach Stackers</div>
+            <div class="mt-1 flex items-baseline gap-3">
+                <span class="font-mono text-2xl font-bold text-emerald-600">@Model.Effectif.DisponibleReachStackers</span>
+                <span class="text-xs text-slate-500">disponibles</span>
+            </div>
+            <div class="mt-1 text-xs text-rose-600">@Model.Effectif.RetireReachStackers retiré(s)</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Empty Handlers</div>
+            <div class="mt-1 flex items-baseline gap-3">
+                <span class="font-mono text-2xl font-bold text-emerald-600">@Model.Effectif.DisponibleEmptyHandlers</span>
+                <span class="text-xs text-slate-500">disponibles</span>
+            </div>
+            <div class="mt-1 text-xs text-rose-600">@Model.Effectif.RetireEmptyHandlers retiré(s)</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Autres engins</div>
+            <div class="mt-1 flex items-baseline gap-3">
+                <span class="font-mono text-2xl font-bold text-emerald-600">@Model.Effectif.DisponibleAutres</span>
+                <span class="text-xs text-slate-500">disponibles</span>
+            </div>
+            <div class="mt-1 text-xs text-rose-600">@Model.Effectif.RetireAutres retiré(s)</div>
+        </div>
+    </div>
+
+    <form asp-controller="Dispatch" asp-action="UpdateAutresEnginsEffectif" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-3 lg:grid-cols-4">
+        <div><label class="field-label">Reach Stackers disponibles</label><input name="DisponibleReachStackers" type="number" min="0" value="@Model.Effectif.DisponibleReachStackers" class="input-field" /></div>
+        <div><label class="field-label">Empty Handlers disponibles</label><input name="DisponibleEmptyHandlers" type="number" min="0" value="@Model.Effectif.DisponibleEmptyHandlers" class="input-field" /></div>
+        <div><label class="field-label">Autres engins disponibles</label><input name="DisponibleAutres" type="number" min="0" value="@Model.Effectif.DisponibleAutres" class="input-field" /></div>
+        <div class="flex items-end">
+            <button type="submit" class="btn-primary w-full">Mettre à jour</button>
+        </div>
+    </form>
+</section>
+
+<!-- ============ PROBLEMES D'ENGINS (§9.2) ============ -->
+<section id="tab-problemes" class="autres-engins-panel card hidden">
+    <h2 class="card-title mb-1">Problèmes d'engins</h2>
+    <p class="card-subtitle mb-5">CDC §9.2</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Engin</th>
+                        <th class="hidden md:table-cell">Catégorie</th>
+                        <th>Début</th>
+                        <th class="hidden lg:table-cell">Durée</th>
+                        <th>Retrait effectif</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Problemes.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun problème d'engin.</td></tr>
+                }
+                @foreach (var p in Model.Problemes)
+                {
+                    <tr>
+                        <td class="font-mono font-semibold text-slate-900">@p.Engin</td>
+                        <td class="hidden md:table-cell">@CategorieLabel(p.Categorie)</td>
+                        <td class="whitespace-nowrap">@p.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden lg:table-cell">@DureeLabel(p.Duree)</td>
+                        <td>@(p.RetireEffectif ? "Oui" : "Non")</td>
+                        <td>
+                            @if (p.EstResolu) { <span class="badge-success">Résolu</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!p.EstResolu)
+                            {
+                                <form asp-controller="Dispatch" asp-action="CloseEnginProbleme" method="post">
+                                    <input type="hidden" name="problemeId" value="@p.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Clôturer</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Dispatch" asp-action="AddEnginProbleme" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div><label class="field-label">Engin</label><input name="Engin" required placeholder="RS-02" class="input-field" /></div>
+        <div>
+            <label class="field-label">Catégorie</label>
+            <select name="Categorie" class="input-field">
+                <option value="@((int)CategorieEngin.ReachStacker)">Reach Stacker</option>
+                <option value="@((int)CategorieEngin.EmptyHandler)">Empty Handler</option>
+                <option value="@((int)CategorieEngin.Autre)">Autre</option>
+            </select>
+        </div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div class="sm:col-span-2"><label class="field-label">Problème</label><input name="Probleme" required class="input-field" /></div>
+        <div class="flex items-end gap-3">
+            <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <input type="checkbox" name="RetireEffectif" value="true" class="h-4 w-4 accent-indigo-600" />
+                Retrait effectif
+            </label>
+        </div>
+        <div class="flex items-end lg:col-span-5">
+            <button type="submit" class="btn-primary">Déclarer</button>
+        </div>
+    </form>
+</section>
+
+<!-- ============ DECONNEXIONS OU ABSENCES (§9.3) ============ -->
+<section id="tab-deconnexions" class="autres-engins-panel card hidden">
+    <h2 class="card-title mb-1">Déconnexions ou absences</h2>
+    <p class="card-subtitle mb-5">CDC §9.3 — indisponibilité de l'opérateur, distincte de celle de l'engin.</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Engin</th>
+                        <th>Début</th>
+                        <th class="hidden md:table-cell">Retour</th>
+                        <th class="hidden lg:table-cell">Durée</th>
+                        <th class="hidden md:table-cell">Motif</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Deconnexions.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune déconnexion signalée.</td></tr>
+                }
+                @foreach (var d in Model.Deconnexions)
+                {
+                    <tr>
+                        <td class="font-mono font-semibold text-slate-900">@d.Engin</td>
+                        <td class="whitespace-nowrap">@d.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden whitespace-nowrap md:table-cell">@(d.DateRetourUtc?.ToString("dd/MM HH:mm") ?? "—")</td>
+                        <td class="hidden lg:table-cell">@DureeLabel(d.Duree)</td>
+                        <td class="hidden md:table-cell">@d.Motif</td>
+                        <td>
+                            @if (d.EstResolu) { <span class="badge-success">Rétabli</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!d.EstResolu)
+                            {
+                                <form asp-controller="Dispatch" asp-action="CloseEnginDeconnexion" method="post">
+                                    <input type="hidden" name="deconnexionId" value="@d.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Signaler le retour</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Dispatch" asp-action="AddEnginDeconnexion" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div><label class="field-label">Engin</label><input name="Engin" required class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div class="sm:col-span-2"><label class="field-label">Motif</label><input name="Motif" class="input-field" /></div>
+        <div class="flex items-end lg:col-span-4">
+            <button type="submit" class="btn-primary">Déclarer</button>
+        </div>
+    </form>
+</section>
+
+<!-- ============ REMPLACEMENT DES OPERATEURS (§9.4) ============ -->
+<section id="tab-remplacements" class="autres-engins-panel card hidden">
+    <h2 class="card-title mb-1">Remplacement des opérateurs</h2>
+    <p class="card-subtitle mb-5">CDC §9.4</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Opérateur</th>
+                        <th>Engin quitté</th>
+                        <th>Nouvel engin</th>
+                        <th>Date / heure</th>
+                        <th class="hidden lg:table-cell">Raison</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Remplacements.Any())
+                {
+                    <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucun remplacement enregistré.</td></tr>
+                }
+                @foreach (var r in Model.Remplacements)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@r.Operateur</td>
+                        <td class="font-mono">@r.EnginQuitte</td>
+                        <td class="font-mono">@r.NouvelEngin</td>
+                        <td class="whitespace-nowrap">@r.DateHeureUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden lg:table-cell">@r.Raison</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Dispatch" asp-action="AddRemplacementOperateur" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div><label class="field-label">Opérateur</label><input name="Operateur" required class="input-field" /></div>
+        <div><label class="field-label">Engin quitté</label><input name="EnginQuitte" required class="input-field" /></div>
+        <div><label class="field-label">Nouvel engin</label><input name="NouvelEngin" required class="input-field" /></div>
+        <div><label class="field-label">Date / heure</label><input type="datetime-local" name="DateHeureUtc" class="input-field" /></div>
+        <div><label class="field-label">Raison</label><input name="Raison" class="input-field" /></div>
+        <div class="flex items-end lg:col-span-5">
+            <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var tabs = document.querySelectorAll('#autresEnginsTabs .tab-btn');
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.autres-engins-panel').forEach(function (p) { p.classList.add('hidden'); });
+                    var panel = document.getElementById('tab-' + btn.dataset.tab);
+                    if (panel) { panel.classList.remove('hidden'); }
+                });
+            });
+        })();
+    </script>
+}

@@ -1,4 +1,7 @@
+using EscaleReport.Web.Application.Dispatch.Commands.AddEnginDeconnexion;
+using EscaleReport.Web.Application.Dispatch.Commands.AddEnginProbleme;
 using EscaleReport.Web.Application.Dispatch.Commands.AddGateTruckIssue;
+using EscaleReport.Web.Application.Dispatch.Commands.AddRemplacementOperateur;
 using EscaleReport.Web.Application.Dispatch.Commands.AddRopnEntry;
 using EscaleReport.Web.Application.Dispatch.Commands.AddRtgClash;
 using EscaleReport.Web.Application.Dispatch.Commands.AddRtgPanne;
@@ -7,6 +10,8 @@ using EscaleReport.Web.Application.Dispatch.Commands.AddStsPointeur;
 using EscaleReport.Web.Application.Dispatch.Commands.AssignGantry;
 using EscaleReport.Web.Application.Dispatch.Commands.AssignTt;
 using EscaleReport.Web.Application.Dispatch.Commands.ChangeGantryStatus;
+using EscaleReport.Web.Application.Dispatch.Commands.CloseEnginDeconnexion;
+using EscaleReport.Web.Application.Dispatch.Commands.CloseEnginProbleme;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseGateTruckIssue;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseRtgClash;
 using EscaleReport.Web.Application.Dispatch.Commands.CloseRtgPanne;
@@ -14,8 +19,10 @@ using EscaleReport.Web.Application.Dispatch.Commands.CloseStsIncident;
 using EscaleReport.Web.Application.Dispatch.Commands.EndGantryAssignment;
 using EscaleReport.Web.Application.Dispatch.Commands.EndStsPointeur;
 using EscaleReport.Web.Application.Dispatch.Commands.ResolveRopnEntry;
+using EscaleReport.Web.Application.Dispatch.Commands.UpdateAutresEnginsEffectif;
 using EscaleReport.Web.Application.Dispatch.Commands.UpdateRtgEffectif;
 using EscaleReport.Web.Application.Dispatch.Commands.UpdateTtEffectif;
+using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchAutresEngins;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchRtg;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchSts;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt;
@@ -221,5 +228,63 @@ public class DispatchController(ISender mediator) : Controller
     {
         await mediator.Send(new CloseGateTruckIssueCommand(issueId, actionRealisee), cancellationToken);
         return RedirectToAction(nameof(Rtg));
+    }
+
+    // Tableau de bord Dispatch des autres engins (CDC §9).
+    public async Task<IActionResult> AutresEngins(CancellationToken cancellationToken)
+    {
+        var dto = await mediator.Send(new GetDispatchAutresEnginsQuery(), cancellationToken);
+        return View(dto);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateAutresEnginsEffectif(UpdateAutresEnginsEffectifCommand command, CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(AutresEngins));
+    }
+
+    // ---------- Problèmes d'engins (§9.2) ----------
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddEnginProbleme(AddEnginProblemeCommand command, CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(AutresEngins));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CloseEnginProbleme(Guid problemeId, string? actionRealisee, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new CloseEnginProblemeCommand(problemeId, actionRealisee), cancellationToken);
+        return RedirectToAction(nameof(AutresEngins));
+    }
+
+    // ---------- Déconnexions ou absences (§9.3) ----------
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddEnginDeconnexion(AddEnginDeconnexionCommand command, CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(AutresEngins));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CloseEnginDeconnexion(Guid deconnexionId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new CloseEnginDeconnexionCommand(deconnexionId), cancellationToken);
+        return RedirectToAction(nameof(AutresEngins));
+    }
+
+    // ---------- Remplacement des opérateurs (§9.4) ----------
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddRemplacementOperateur(AddRemplacementOperateurCommand command, CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(AutresEngins));
     }
 }

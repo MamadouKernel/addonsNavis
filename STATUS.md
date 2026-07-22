@@ -26,7 +26,10 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §8.3 | Dispatch RTG — pannes RTG | ✅ | |
 | §8.4 | Dispatch RTG — clashs | ✅ | |
 | §8.5 | Dispatch RTG — problèmes camions Gate | ✅ | |
-| §9 | Dispatch autres engins | ⬜ | Non commencé |
+| §9.1 | Dispatch autres engins — engins disponibles | ✅ | Retrait calculé automatiquement |
+| §9.2 | Dispatch autres engins — problèmes d'engins | ✅ | |
+| §9.3 | Dispatch autres engins — déconnexions/absences | ✅ | |
+| §9.4 | Dispatch autres engins — remplacement opérateurs | ✅ | |
 | §10 | Cargo Control | ✅ | Dashboard, consommation Disch/Load, Revised Load, alertes ; export PDF/Excel/email au niveau escale |
 | §11 | Yard Planner | ⬜ | Non commencé |
 | §12 | Coordinateur Control Room | ⬜ | Non commencé |

@@ -31,6 +31,10 @@ public interface IApplicationDbContext
     DbSet<RtgPanne> RtgPannes { get; }
     DbSet<RtgClash> RtgClashes { get; }
     DbSet<GateTruckIssue> GateTruckIssues { get; }
+    DbSet<AutresEnginsEffectif> AutresEnginsEffectifs { get; }
+    DbSet<EnginProbleme> EnginProblemes { get; }
+    DbSet<EnginDeconnexion> EnginDeconnexions { get; }
+    DbSet<RemplacementOperateur> RemplacementsOperateur { get; }
     DbSet<CargoConsommation> CargoConsommations { get; }
     DbSet<ReportEmailLog> ReportEmailLogs { get; }
 

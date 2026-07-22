@@ -43,6 +43,10 @@ public abstract class ApplicationDbContext(
     public DbSet<RtgPanne> RtgPannes => Set<RtgPanne>();
     public DbSet<RtgClash> RtgClashes => Set<RtgClash>();
     public DbSet<GateTruckIssue> GateTruckIssues => Set<GateTruckIssue>();
+    public DbSet<AutresEnginsEffectif> AutresEnginsEffectifs => Set<AutresEnginsEffectif>();
+    public DbSet<EnginProbleme> EnginProblemes => Set<EnginProbleme>();
+    public DbSet<EnginDeconnexion> EnginDeconnexions => Set<EnginDeconnexion>();
+    public DbSet<RemplacementOperateur> RemplacementsOperateur => Set<RemplacementOperateur>();
     public DbSet<CargoConsommation> CargoConsommations => Set<CargoConsommation>();
     public DbSet<ReportEmailLog> ReportEmailLogs => Set<ReportEmailLog>();
 

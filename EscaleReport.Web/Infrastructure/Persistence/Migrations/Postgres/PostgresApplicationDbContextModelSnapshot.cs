@@ -132,6 +132,128 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                     b.ToTable("ReferenceValues");
                 });
 
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.AutresEnginsEffectif", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("DisponibleAutres")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DisponibleEmptyHandlers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DisponibleReachStackers")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AutresEnginsEffectifs");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.EnginDeconnexion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DateRetourUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Engin")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Motif")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EnginDeconnexions");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.EnginProbleme", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionRealisee")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Categorie")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DateFinUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Engin")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Probleme")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("RetireEffectif")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EnginProblemes");
+                });
+
             modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.Gantry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -259,6 +381,56 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                     b.HasKey("Id");
 
                     b.ToTable("GateTruckIssues");
+                });
+
+            modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.RemplacementOperateur", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Commentaire")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateHeureUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EnginQuitte")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NouvelEngin")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Operateur")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Raison")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RemplacementsOperateur");
                 });
 
             modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.RopnEntry", b =>
