@@ -1,6 +1,7 @@
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Cargo;
 using EscaleReport.Web.Domain.Common;
+using EscaleReport.Web.Domain.Coordination;
 using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
@@ -53,6 +54,7 @@ public abstract class ApplicationDbContext(
     public DbSet<VesselYardPlan> VesselYardPlans => Set<VesselYardPlan>();
     public DbSet<TransfertOut> TransfertsOut => Set<TransfertOut>();
     public DbSet<HousekeepingTask> HousekeepingTasks => Set<HousekeepingTask>();
+    public DbSet<CoordinatorIncident> CoordinatorIncidents => Set<CoordinatorIncident>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

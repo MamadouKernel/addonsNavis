@@ -1,0 +1,324 @@
+@using EscaleReport.Web.Application.Coordination.Queries.GetCoordinatorDashboard
+@using EscaleReport.Web.Domain.Escales
+@model CoordinatorDashboardDto
+@{
+    ViewData["Title"] = "Coordinateur Control Room";
+
+    static string StatutOpsLabel(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "En cours",
+        StatutOperations.Terminees => "Terminées",
+        _ => "Pas encore débutées"
+    };
+
+    static string StatutOpsBadge(StatutOperations s) => s switch
+    {
+        StatutOperations.EnCours => "badge-warning",
+        StatutOperations.Terminees => "badge-success",
+        _ => "badge-neutral"
+    };
+
+    static string DureeLabel(TimeSpan? d) => d.HasValue ? $"{(int)d.Value.TotalHours}h{Math.Abs(d.Value.Minutes):D2}" : "—";
+
+    var incidentsEnCours = Model.Incidents.Count(i => !i.EstResolu);
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Coordinateur Control Room</h1>
+    <p class="page-subtitle">Vue consolidée par poste et incidents du Coordinateur — CDC §12</p>
+</div>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="mb-6 alert-error">@error</div>
+}
+
+<div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="coordTabs">
+    <button type="button" class="tab-btn active" data-tab="vue">Vue consolidée</button>
+    <button type="button" class="tab-btn" data-tab="incidents">Incidents Coordinateur <span class="tab-count">@incidentsEnCours</span></button>
+</div>
+
+<!-- ============ VUE CONSOLIDEE (§12.1-12.7) ============ -->
+<section id="tab-vue" class="coord-panel">
+    <section class="card mb-6">
+        <h2 class="card-title mb-1">Synthèse navires</h2>
+        <p class="card-subtitle mb-5">Une bulle vide peut simplement indiquer une activité sur une autre date/shift.</p>
+        <div class="table-shell">
+            <div class="table-scroll">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Navire</th>
+                            <th class="hidden md:table-cell">Voyage</th>
+                            <th class="hidden lg:table-cell">Ligne</th>
+                            <th class="hidden lg:table-cell">Quai</th>
+                            <th>ETA</th>
+                            <th class="hidden md:table-cell">ATA</th>
+                            <th class="hidden lg:table-cell">ETC</th>
+                            <th>Statut ops.</th>
+                            <th class="hidden md:table-cell">Planification</th>
+                            <th>Points d'attention</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (!Model.SyntheseNavires.Any())
+                    {
+                        <tr><td colspan="10" class="!text-center text-slate-400 py-8">Aucune escale enregistrée.</td></tr>
+                    }
+                    @foreach (var n in Model.SyntheseNavires)
+                    {
+                        <tr>
+                            <td class="font-semibold text-slate-900">@n.Navire</td>
+                            <td class="hidden md:table-cell">@n.Voyage</td>
+                            <td class="hidden lg:table-cell">@n.LigneMaritime</td>
+                            <td class="hidden lg:table-cell">@n.Quai</td>
+                            <td class="whitespace-nowrap">@n.Eta.ToString("dd/MM HH:mm")</td>
+                            <td class="hidden whitespace-nowrap md:table-cell">@(n.Ata?.ToString("dd/MM HH:mm") ?? "—")</td>
+                            <td class="hidden whitespace-nowrap lg:table-cell">@(n.Etc?.ToString("dd/MM HH:mm") ?? "—")</td>
+                            <td><span class="@StatutOpsBadge(n.StatutOperations)">@StatutOpsLabel(n.StatutOperations)</span></td>
+                            <td class="hidden md:table-cell">@(n.StatutPlanification == StatutPlanification.Planifie ? "Planifié" : "Non planifié")</td>
+                            <td>
+                                @if (n.PointsAttention > 0) { <span class="badge-danger">@n.PointsAttention</span> }
+                                else { <span class="badge-success">0</span> }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <section class="card">
+            <h2 class="card-title mb-5">Synthèse STS</h2>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Disponibles</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseSts.PortiquesDisponibles</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Affectés</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseSts.PortiquesAffectes</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">En panne</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseSts.PortiquesEnPanne</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Incidents en cours</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseSts.IncidentsEnCours</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Indispo. cumulée</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@DureeLabel(Model.SyntheseSts.TempsIndisponibiliteCumule)</div>
+                </div>
+            </div>
+            @if (Model.SyntheseSts.NaviresConcernes.Any())
+            {
+                <p class="mt-4 text-sm text-slate-500">Navires concernés : @string.Join(", ", Model.SyntheseSts.NaviresConcernes)</p>
+            }
+        </section>
+
+        <section class="card">
+            <h2 class="card-title mb-1">Synthèse TT</h2>
+            <p class="card-subtitle mb-4">Déconnexions TT non encore suivies (§7.3).</p>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Total</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseTt.EffectifTotal</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Désigné</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseTt.EffectifDesigne</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Disponible</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseTt.EffectifDisponible</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Écarts</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseTt.EcartsAffectation</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title mb-5">Synthèse RTG et autres engins</h2>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">RTG disponibles</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseRtgAutresEngins.RtgDisponible</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">RTG en panne</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseRtgAutresEngins.RtgEnPanne</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">RTG retirés</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-500">@Model.SyntheseRtgAutresEngins.RtgRetire</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Autres engins dispo.</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-emerald-600">@Model.SyntheseRtgAutresEngins.EnginsDisponibles</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Engins retirés</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseRtgAutresEngins.EnginsRetires</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Clashs</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseRtgAutresEngins.Clashs</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Problèmes Gate</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseRtgAutresEngins.ProblemesGate</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Remplacements</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseRtgAutresEngins.RemplacementsOperateurs</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title mb-5">Synthèse Yard</h2>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Zones débarquement</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseYard.ZonesDebarquement</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Transferts Out en cours</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseYard.TransfertsOutEnCours</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Housekeeping</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-slate-900">@Model.SyntheseYard.HousekeepingTotal</div>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                    <div class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Tâches en retard</div>
+                    <div class="mt-1 font-mono text-xl font-bold text-rose-600">@Model.SyntheseYard.TachesEnRetard</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="card">
+        <h2 class="card-title mb-5">Synthèse Cargo</h2>
+        <div class="table-shell">
+            <div class="table-scroll">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Navire</th>
+                            <th>Disch fait</th>
+                            <th>Load fait</th>
+                            <th class="hidden md:table-cell">Revised reçu</th>
+                            <th class="hidden md:table-cell">Rapport envoyé</th>
+                            <th>Alertes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (!Model.SyntheseCargo.Any())
+                    {
+                        <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune consolidation Cargo enregistrée.</td></tr>
+                    }
+                    @foreach (var c in Model.SyntheseCargo)
+                    {
+                        <tr>
+                            <td class="font-semibold text-slate-900">@c.Navire</td>
+                            <td>@(c.DischFait ? "Oui" : "Non")</td>
+                            <td>@(c.LoadFait ? "Oui" : "Non")</td>
+                            <td class="hidden md:table-cell">@(c.RevisedLoadRecu ? "Oui" : "Non")</td>
+                            <td class="hidden md:table-cell">@(c.RapportEnvoye ? "Oui" : "Non")</td>
+                            <td>
+                                @if (c.AlertesOuvertes > 0) { <span class="badge-warning">@c.AlertesOuvertes</span> }
+                                else { <span class="badge-success">0</span> }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</section>
+
+<!-- ============ INCIDENTS DU COORDINATEUR (§12.8) ============ -->
+<section id="tab-incidents" class="coord-panel card hidden">
+    <h2 class="card-title mb-1">Incidents du Coordinateur</h2>
+    <p class="card-subtitle mb-5">CDC §12.8</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Objet</th>
+                        <th>Début</th>
+                        <th class="hidden lg:table-cell">Durée</th>
+                        <th class="hidden md:table-cell">Note</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Incidents.Any())
+                {
+                    <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun incident Coordinateur.</td></tr>
+                }
+                @foreach (var i in Model.Incidents)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@i.Objet</td>
+                        <td class="whitespace-nowrap">@i.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden lg:table-cell">@DureeLabel(i.Duree)</td>
+                        <td class="hidden md:table-cell">@i.Note</td>
+                        <td>
+                            @if (i.EstResolu) { <span class="badge-success">Résolu</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!i.EstResolu)
+                            {
+                                <form asp-controller="Coordination" asp-action="CloseIncident" method="post">
+                                    <input type="hidden" name="incidentId" value="@i.Id" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Clôturer</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <form asp-controller="Coordination" asp-action="AddIncident" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div><label class="field-label">Objet</label><input name="Objet" required class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div class="sm:col-span-2"><label class="field-label">Note</label><input name="Note" class="input-field" /></div>
+        <div class="flex items-end lg:col-span-4">
+            <button type="submit" class="btn-primary">Déclarer</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var tabs = document.querySelectorAll('#coordTabs .tab-btn');
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.coord-panel').forEach(function (p) { p.classList.add('hidden'); });
+                    var panel = document.getElementById('tab-' + btn.dataset.tab);
+                    if (panel) { panel.classList.remove('hidden'); }
+                });
+            });
+        })();
+    </script>
+}

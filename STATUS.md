@@ -35,7 +35,8 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §11.2 | Yard Planner — plans navire et zones de débarquement | ✅ | Zones paramétrables |
 | §11.3 | Yard Planner — transferts Out | ✅ | |
 | §11.4 | Yard Planner — housekeeping | ✅ | |
-| §12 | Coordinateur Control Room | ⬜ | Non commencé |
+| §12.1-12.7 | Coordinateur — vue consolidée (Navires/STS/TT/RTG+autres engins/Cargo/Yard) | ✅ | Choix des modules affichés par l'admin non implémenté (dépend de §15) |
+| §12.8 | Coordinateur — incidents propres | ✅ | |
 | §13 | ITT Controller | ⬜ | Non commencé |
 | §14.1 | Rapport de fin de shift | ⬜ | Non commencé (agrégation multi-navires/multi-modules) |
 | §14.2 | Rapport de fin d'escale | 🟡 | PDF généré mais contenu partiel (header + anomalies) ; pas encore la consolidation complète attendue |
@@ -57,3 +58,4 @@ Créés par le seeder au premier démarrage (mot de passe généré et affiché 
 | `dispatcher1` | Dispatcher |
 | `cargo1` | Cargo Controller |
 | `yardplanner1` | Yard Planner |
+| `coordinateur1` | Coordinateur Control Room |

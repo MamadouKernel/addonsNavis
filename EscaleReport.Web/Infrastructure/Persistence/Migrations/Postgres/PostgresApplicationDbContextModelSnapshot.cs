@@ -132,6 +132,49 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                     b.ToTable("ReferenceValues");
                 });
 
+            modelBuilder.Entity("EscaleReport.Web.Domain.Coordination.CoordinatorIncident", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActionRealisee")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateDebutUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DateFinUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Objet")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CoordinatorIncidents");
+                });
+
             modelBuilder.Entity("EscaleReport.Web.Domain.Dispatch.AutresEnginsEffectif", b =>
                 {
                     b.Property<Guid>("Id")

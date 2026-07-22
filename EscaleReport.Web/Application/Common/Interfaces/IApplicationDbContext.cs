@@ -1,5 +1,6 @@
 using EscaleReport.Web.Domain.Cargo;
 using EscaleReport.Web.Domain.Common;
+using EscaleReport.Web.Domain.Coordination;
 using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
@@ -41,6 +42,7 @@ public interface IApplicationDbContext
     DbSet<VesselYardPlan> VesselYardPlans { get; }
     DbSet<TransfertOut> TransfertsOut { get; }
     DbSet<HousekeepingTask> HousekeepingTasks { get; }
+    DbSet<CoordinatorIncident> CoordinatorIncidents { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

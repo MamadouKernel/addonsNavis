@@ -97,6 +97,19 @@ public static class DbSeeder
                 Permissions.SaisirDonneesModule,
                 Permissions.ModifierDonneesModule
             ]);
+
+        // Compte de démonstration pour le rôle Coordinateur Control Room (CDC §12).
+        await SeedUserAsync(
+            userManager, dbContext, logger, configuration,
+            configKeyPrefix: "SeedCoordinateur", defaultUserName: "coordinateur1",
+            role: Roles.CoordinateurControlRoom,
+            permissions:
+            [
+                Permissions.ConsulterEscales,
+                Permissions.ConsulterAutresModules,
+                Permissions.SaisirDonneesModule,
+                Permissions.ModifierDonneesModule
+            ]);
     }
 
     private static async Task SeedAnomalyReasonsAsync(IApplicationDbContext dbContext)
