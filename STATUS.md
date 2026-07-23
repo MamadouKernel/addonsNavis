@@ -54,7 +54,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 
 ## Identité visuelle
 
-Palette "lagune" alignée sur le prototype HTML de référence (bleu-nuit du quai, turquoise lagon, corail pour les alertes) — pilotée par variables CSS pour rester cohérente en mode clair et sombre, appliquée aux composants partagés (cartes, boutons, badges, tableaux, sidebar en dégradé, page de connexion). Tableau de bord des escales converti en grille de cartes avec bordure d'accent colorée selon le statut opérationnel. Les effets avancés du prototype (scène de grue animée, thèmes multiples, glisser-déposer, confettis) restent hors périmètre — le CDC §15.2 les qualifie lui-même d'indicatifs, sans impact sur les règles de gestion.
+Palette "lagune" alignée sur le prototype HTML de référence (bleu-nuit du quai, turquoise lagon, corail pour les alertes) — pilotée par variables CSS pour rester cohérente en mode clair et sombre, appliquée aux composants partagés (cartes, boutons, badges, tableaux, sidebar en dégradé, page de connexion). Tableau de bord des escales converti en grille de cartes avec bordure d'accent colorée selon le statut opérationnel. Scène animée quai/navire/portique (CSS pur, `_PortScene.cshtml`) reprise sur la page de connexion et le tableau de bord des escales : un chariot transfère un conteneur du navire vers le parc en boucle, respecte `prefers-reduced-motion`. Les autres effets avancés du prototype (dix thèmes commutables, glisser-déposer interactif, confettis) restent hors périmètre — le CDC §15.2 les qualifie lui-même d'indicatifs, sans impact sur les règles de gestion.
 
 ## Comptes de démonstration (environnement de développement)
 

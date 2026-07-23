@@ -57,8 +57,30 @@ html{
 }
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .animate-floaty{animation:floaty 4.5s ease-in-out infinite}
+
+/* Scene animee quai/navire/portique (_PortScene.cshtml) : un chariot transporte un
+   conteneur du navire vers le parc en boucle - ambiance de terminal, sans dependance JS. */
+.port-scene{width:100%;height:auto;display:block}
+.ps-ship{animation:psBob 4.5s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+.ps-trolley{animation:psTrolley 9s ease-in-out infinite}
+.ps-container{animation:psCarry 9s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes psBob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@keyframes psTrolley{
+  0%,10%{transform:translate(0,0)}
+  16%{transform:translate(0,-6px)}
+  38%{transform:translate(695px,-6px)}
+  44%,58%{transform:translate(695px,0)}
+  64%{transform:translate(695px,-6px)}
+  86%{transform:translate(0,-6px)}
+  92%,100%{transform:translate(0,0)}
+}
+@keyframes psCarry{
+  0%,40%{opacity:1}
+  44%,90%{opacity:0}
+  96%,100%{opacity:1}
+}
 @media (prefers-reduced-motion: reduce){
-  .animate-floaty{animation:none}
+  .animate-floaty,.ps-ship,.ps-trolley,.ps-container{animation:none}
 }
 body{
   background:var(--surface);

@@ -12,16 +12,16 @@
     <title>Connexion - EscaleReport</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10"
+<body class="relative flex min-h-screen flex-col items-center justify-center gap-8 overflow-hidden px-4 py-10"
       style="background:linear-gradient(120deg, var(--ink) 0%, var(--steel) 55%, var(--steel-2) 100%); background-size:220% 220%; animation:hdrShift 18s ease infinite">
 
     <div aria-hidden="true" class="pointer-events-none absolute -top-32 -left-24 h-80 w-80 rounded-full opacity-25 blur-3xl" style="background:var(--sea)"></div>
     <div aria-hidden="true" class="pointer-events-none absolute -bottom-32 -right-16 h-96 w-96 rounded-full opacity-20 blur-3xl" style="background:var(--amber)"></div>
 
-    <!-- Vague de quai — clin d'oeil maritime discret en pied de page -->
-    <svg aria-hidden="true" class="pointer-events-none absolute inset-x-0 bottom-0 w-full opacity-40" viewBox="0 0 1200 80" preserveAspectRatio="none" style="height:70px">
-        <path d="M0,40 C150,70 350,10 600,40 C850,70 1050,10 1200,40 L1200,80 L0,80 Z" fill="var(--card)" />
-    </svg>
+    <!-- Scene animee navire/portique/parc — donne le ton "terminal a conteneurs" avant meme la connexion -->
+    <div class="relative w-full max-w-3xl overflow-hidden rounded-2xl" style="box-shadow: var(--shadow-soft-lg)">
+        @await Html.PartialAsync("_PortScene")
+    </div>
 
     <div class="relative w-full max-w-sm rounded-2xl p-8" style="background:var(--card); box-shadow: var(--shadow-soft-lg)">
         <div class="mb-7 flex items-center gap-3">

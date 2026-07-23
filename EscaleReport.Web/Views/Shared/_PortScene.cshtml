@@ -1,0 +1,70 @@
+@{
+    // Scene animee quai / navire / portique — reflete le domaine (terminal a conteneurs)
+    // en un clin d'oeil. CSS pur (pas de JS) : le va-et-vient du chariot simule un
+    // portique qui transfere un conteneur du navire vers le parc. Respecte
+    // prefers-reduced-motion (voir .port-scene dans input.css).
+}
+<svg class="port-scene" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Portique deplacant un conteneur du navire vers le parc a conteneurs">
+    <!-- ciel / arriere-plan degrade -->
+    <rect x="0" y="0" width="1200" height="220" fill="url(#ps-sky)" />
+
+    <!-- mer -->
+    <rect x="0" y="150" width="1200" height="30" fill="var(--sea)" opacity=".22" />
+    <!-- quai -->
+    <rect x="0" y="178" width="1200" height="42" fill="var(--ink)" opacity=".9" />
+    <line x1="0" y1="178" x2="1200" y2="178" stroke="var(--amber-soft)" stroke-width="2" opacity=".5" />
+
+    <!-- NAVIRE -->
+    <g class="ps-ship">
+        <polygon points="60,150 460,150 440,178 90,178" fill="var(--steel)" stroke="rgba(255,255,255,.18)" stroke-width="1" />
+        <rect x="380" y="120" width="42" height="32" rx="3" fill="var(--steel-2)" />
+        <rect x="388" y="128" width="10" height="9" fill="#CFE7E7" />
+        <rect x="404" y="128" width="10" height="9" fill="#CFE7E7" />
+        <!-- cales du navire : conteneurs empiles -->
+        <rect x="150" y="128" width="46" height="22" fill="var(--amber)" stroke="rgba(0,0,0,.15)" />
+        <rect x="150" y="104" width="46" height="22" fill="var(--sea)" stroke="rgba(0,0,0,.15)" />
+        <rect x="200" y="128" width="46" height="22" fill="var(--coral)" stroke="rgba(0,0,0,.15)" />
+        <rect x="200" y="104" width="46" height="22" fill="var(--steel-2)" stroke="rgba(0,0,0,.15)" />
+        <rect x="250" y="128" width="46" height="22" fill="var(--sea)" stroke="rgba(0,0,0,.15)" />
+    </g>
+
+    <!-- PARC A CONTENEURS -->
+    <g class="ps-yard">
+        <rect x="820" y="128" width="46" height="22" fill="var(--steel-2)" stroke="rgba(0,0,0,.15)" />
+        <rect x="872" y="128" width="46" height="22" fill="var(--amber)" stroke="rgba(0,0,0,.15)" />
+        <rect x="872" y="104" width="46" height="22" fill="var(--coral)" stroke="rgba(0,0,0,.15)" />
+        <rect x="924" y="128" width="46" height="22" fill="var(--sea)" stroke="rgba(0,0,0,.15)" />
+    </g>
+
+    <!-- PORTIQUE -->
+    <g stroke="#C7D6E2" stroke-width="6" fill="none" stroke-linecap="round">
+        <line x1="330" y1="30" x2="330" y2="150" />
+        <line x1="960" y1="30" x2="960" y2="150" />
+        <line x1="280" y1="26" x2="1010" y2="26" />
+    </g>
+    <g stroke="rgba(199,214,226,.7)" stroke-width="2.5" fill="none">
+        <line x1="645" y1="26" x2="645" y2="4" />
+        <line x1="645" y1="4" x2="280" y2="26" />
+        <line x1="645" y1="4" x2="1010" y2="26" />
+    </g>
+    <rect x="320" y="146" width="650" height="6" rx="3" fill="#C7D6E2" />
+
+    <!-- CHARIOT + CABLE + SPREADER + CONTENEUR TRANSPORTE -->
+    <g class="ps-trolley">
+        <rect x="155" y="16" width="40" height="11" rx="2" fill="#EAF2F8" />
+        <rect x="172" y="27" width="3" height="10" fill="#9FB6C6" />
+        <g class="ps-spreader">
+            <rect x="150" y="37" width="46" height="3" rx="1.5" fill="#9FB6C6" />
+            <rect class="ps-container" x="150" y="41" width="46" height="22" rx="2" fill="var(--amber-soft)" stroke="rgba(0,0,0,.18)" />
+        </g>
+    </g>
+</svg>
+
+<svg width="0" height="0" style="position:absolute">
+    <defs>
+        <linearGradient id="ps-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--ink)" />
+            <stop offset="100%" stop-color="var(--steel-2)" />
+        </linearGradient>
+    </defs>
+</svg>
