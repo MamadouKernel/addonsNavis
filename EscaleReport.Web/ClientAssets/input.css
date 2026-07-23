@@ -64,6 +64,8 @@ html{
 .ps-ship{animation:psBob 4.5s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
 .ps-trolley{animation:psTrolley 9s ease-in-out infinite}
 .ps-container{animation:psCarry 9s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+.ps-wave{animation:psWave 8s linear infinite}
+.ps-truck{animation:psTruck 13s linear infinite;transform-origin:center;transform-box:fill-box}
 @keyframes psBob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
 @keyframes psTrolley{
   0%,10%{transform:translate(0,0)}
@@ -79,8 +81,13 @@ html{
   44%,90%{opacity:0}
   96%,100%{opacity:1}
 }
+@keyframes psWave{from{transform:translateX(0)}to{transform:translateX(-600px)}}
+@keyframes psTruck{
+  0%{transform:translateX(-60px)}
+  100%{transform:translateX(1260px)}
+}
 @media (prefers-reduced-motion: reduce){
-  .animate-floaty,.ps-ship,.ps-trolley,.ps-container{animation:none}
+  .animate-floaty,.ps-ship,.ps-trolley,.ps-container,.ps-wave,.ps-truck{animation:none}
 }
 body{
   background:var(--surface);

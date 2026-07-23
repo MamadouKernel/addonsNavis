@@ -1,15 +1,20 @@
 @{
     // Scene animee quai / navire / portique — reflete le domaine (terminal a conteneurs)
     // en un clin d'oeil. CSS pur (pas de JS) : le va-et-vient du chariot simule un
-    // portique qui transfere un conteneur du navire vers le parc. Respecte
-    // prefers-reduced-motion (voir .port-scene dans input.css).
+    // portique qui transfere un conteneur du navire vers le parc, une houle defile sur
+    // la mer, un camion Gate traverse le quai (CDC §8.5 "problemes camions GATE").
+    // Respecte prefers-reduced-motion (voir .port-scene dans input.css).
 }
-<svg class="port-scene" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Portique deplacant un conteneur du navire vers le parc a conteneurs">
+<svg class="port-scene" viewBox="0 0 1200 220" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Portique deplacant un conteneur du navire vers le parc a conteneurs, camion au quai">
     <!-- ciel / arriere-plan degrade -->
     <rect x="0" y="0" width="1200" height="220" fill="url(#ps-sky)" />
 
-    <!-- mer -->
-    <rect x="0" y="150" width="1200" height="30" fill="var(--sea)" opacity=".22" />
+    <!-- mer + houle qui defile -->
+    <rect x="0" y="150" width="1200" height="28" fill="var(--sea)" opacity=".18" />
+    <g class="ps-wave" clip-path="url(#ps-sea-clip)">
+        <path d="M0,160 C50,150 100,170 150,160 C200,150 250,170 300,160 C350,150 400,170 450,160 C500,150 550,170 600,160 L600,178 L0,178 Z" fill="var(--sea)" opacity=".3" />
+        <path d="M600,160 C650,150 700,170 750,160 C800,150 850,170 900,160 C950,150 1000,170 1050,160 C1100,150 1150,170 1200,160 L1200,178 L600,178 Z" fill="var(--sea)" opacity=".3" />
+    </g>
     <!-- quai -->
     <rect x="0" y="178" width="1200" height="42" fill="var(--ink)" opacity=".9" />
     <line x1="0" y1="178" x2="1200" y2="178" stroke="var(--amber-soft)" stroke-width="2" opacity=".5" />
@@ -58,6 +63,24 @@
             <rect class="ps-container" x="150" y="41" width="46" height="22" rx="2" fill="var(--amber-soft)" stroke="rgba(0,0,0,.18)" />
         </g>
     </g>
+
+    <!-- CAMION GATE gare (CDC §8.5) -->
+    <g>
+        <rect x="1090" y="185" width="32" height="14" rx="2" fill="var(--steel-2)" />
+        <rect x="1122" y="181" width="15" height="18" rx="2" fill="var(--ink)" />
+        <rect x="1126" y="185" width="7" height="6" fill="#CFE7E7" />
+        <circle cx="1099" cy="201" r="4.5" fill="#1a1a1a" />
+        <circle cx="1129" cy="201" r="4.5" fill="#1a1a1a" />
+    </g>
+
+    <!-- CAMION GATE en mouvement, traverse le quai -->
+    <g class="ps-truck">
+        <rect x="0" y="185" width="32" height="14" rx="2" fill="var(--coral)" />
+        <rect x="32" y="181" width="15" height="18" rx="2" fill="var(--ink)" />
+        <rect x="36" y="185" width="7" height="6" fill="#CFE7E7" />
+        <circle cx="9" cy="201" r="4.5" fill="#1a1a1a" />
+        <circle cx="39" cy="201" r="4.5" fill="#1a1a1a" />
+    </g>
 </svg>
 
 <svg width="0" height="0" style="position:absolute">
@@ -66,5 +89,8 @@
             <stop offset="0%" stop-color="var(--ink)" />
             <stop offset="100%" stop-color="var(--steel-2)" />
         </linearGradient>
+        <clipPath id="ps-sea-clip">
+            <rect x="0" y="150" width="1200" height="28" />
+        </clipPath>
     </defs>
 </svg>
