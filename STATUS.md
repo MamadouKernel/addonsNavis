@@ -70,6 +70,7 @@ Audit interne (revue de code + tests manuels) suivi de corrections, toutes véri
 | Tentatives de connexion échouées et accès refusés non journalisés | `AuditLoggingBehaviour` journalise les `ForbiddenAccessException` ; `AccountController.Login` journalise les échecs (compte inconnu, verrouillé, mot de passe) |
 | Pages scaffold ASP.NET par défaut exposées sans usage (`Home/Index`, `Home/Privacy`) ; `ThemeController` sans `[Authorize]` | Pages supprimées (`Home/Error` conservé, requis par `UseExceptionHandler`) ; `[Authorize]` ajouté sur `ThemeController` |
 | `Html.Raw()` sur du HTML construit par interpolation de chaîne (`Views/Statistics/Index.cshtml`) | Remplacé par un `TagBuilder`/`IHtmlContent` qui encode automatiquement |
+| `ForbiddenAccessException`/`ValidationException` non interceptées : page d'erreur brute (pile d'appel visible) au lieu d'un message convivial | `AppExceptionFilter` (même mécanisme que `ConcurrencyExceptionFilter` déjà en place pour les conflits de concurrence) : message dans `TempData["Error"]` + redirection vers la page d'origine |
 
 ## Comptes de démonstration (environnement de développement)
 

@@ -11,7 +11,11 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews(options => options.Filters.Add<ConcurrencyExceptionFilter>());
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<ConcurrencyExceptionFilter>();
+    options.Filters.Add<AppExceptionFilter>();
+});
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
