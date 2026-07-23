@@ -89,7 +89,7 @@
         <h2 class="card-title mb-1">Envoyer le rapport par e-mail</h2>
         <p class="card-subtitle mb-4">
             Un brouillon s'ouvrira dans votre client de messagerie — le PDF exporté ci-dessus
-            reste à joindre manuellement avant l'envoi (CDC §14.5).
+            reste à joindre manuellement avant l'envoi.
         </p>
         <label class="field-label">Destinataires (séparés par des virgules)</label>
         <input name="recipients" type="text" required placeholder="nom@exemple.com, autre@exemple.com" class="input-field" />
@@ -194,7 +194,6 @@
 <!-- ============ ANOMALIES (§5.1) ============ -->
 <section id="tab-anomalies" class="vp-panel card">
     <h2 class="card-title mb-1">Conteneurs en anomalie</h2>
-    <p class="card-subtitle mb-5">CDC §5.1</p>
 
     <div class="table-shell mb-6">
         <div class="table-scroll">
@@ -284,7 +283,7 @@
 <!-- ============ CONTENEURS VIDES (§5.2) ============ -->
 <section id="tab-vides" class="vp-panel card hidden">
     <h2 class="card-title mb-1">Conteneurs vides à embarquer</h2>
-    <p class="card-subtitle mb-5">CDC §5.2 — reste calculé automatiquement (souhaité + ajouté − embarqué − coupé)</p>
+    <p class="card-subtitle mb-5">Reste calculé automatiquement (souhaité + ajouté − embarqué − coupé)</p>
 
     @{
         var totSouh = Model.ConteneursVides.Sum(v => v.QuantiteSouhaitee);
@@ -366,7 +365,7 @@
 <!-- ============ INCIDENTS (§5.3) ============ -->
 <section id="tab-incidents" class="vp-panel card hidden">
     <h2 class="card-title mb-1">Incidents opérationnels</h2>
-    <p class="card-subtitle mb-5">CDC §5.3 — durée calculée automatiquement, critique mis en évidence</p>
+    <p class="card-subtitle mb-5">Durée calculée automatiquement, critique mis en évidence</p>
 
     <div class="table-shell mb-6">
         <div class="table-scroll">
@@ -455,7 +454,7 @@
 <!-- ============ CONTENEURS ADDITIONNELS (§5.4) ============ -->
 <section id="tab-additionnels" class="vp-panel card hidden">
     <h2 class="card-title mb-1">Conteneurs additionnels</h2>
-    <p class="card-subtitle mb-5">CDC §5.4 — alerte si en attente à la fin des opérations</p>
+    <p class="card-subtitle mb-5">Alerte si en attente à la fin des opérations</p>
 
     <div class="table-shell mb-6">
         <div class="table-scroll">
@@ -535,7 +534,7 @@
 <!-- ============ CONTENEURS DANGEREUX (§5.5) ============ -->
 <section id="tab-dangereux" class="vp-panel card hidden">
     <h2 class="card-title mb-1">Conteneurs dangereux</h2>
-    <p class="card-subtitle mb-5">CDC §5.5 — statut « à renouveler » mis en évidence</p>
+    <p class="card-subtitle mb-5">Statut « à renouveler » mis en évidence</p>
 
     <div class="table-shell mb-6">
         <div class="table-scroll">
