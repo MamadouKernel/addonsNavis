@@ -65,3 +65,4 @@ Créés par le seeder au premier démarrage (mot de passe généré et affiché 
 | `yardplanner1` | Yard Planner |
 | `coordinateur1` | Coordinateur Control Room |
 | `ittcontroller1` | ITT Controller |
+| `shiftmanager1` | Shift Manager |
