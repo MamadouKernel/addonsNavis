@@ -7,6 +7,7 @@ public class ParametrageDto
     public IReadOnlyList<GantryDto> Gantries { get; set; } = [];
     public IReadOnlyList<EmailTemplateDto> EmailTemplates { get; set; } = [];
     public IReadOnlyList<AlertThresholdDto> AlertThresholds { get; set; } = [];
+    public IReadOnlyList<CoordinatorModuleVisibilityDto> CoordinatorModules { get; set; } = [];
 }
 
 public class GeneralSettingsDto
@@ -53,4 +54,11 @@ public class AlertThresholdDto
     public string Cle { get; set; } = string.Empty;
     public string Libelle { get; set; } = string.Empty;
     public int ValeurHeures { get; set; }
+}
+
+public class CoordinatorModuleVisibilityDto
+{
+    public string Cle { get; set; } = string.Empty;
+    public string Label { get; set; } = string.Empty;
+    public bool EstVisible { get; set; }
 }

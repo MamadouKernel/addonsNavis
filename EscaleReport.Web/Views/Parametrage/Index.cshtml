@@ -16,6 +16,7 @@
     <button type="button" class="tab-btn" data-tab="portiques">Portiques</button>
     <button type="button" class="tab-btn" data-tab="emails">Modèles d'e-mail</button>
     <button type="button" class="tab-btn" data-tab="alertes">Seuils d'alerte</button>
+    <button type="button" class="tab-btn" data-tab="modulescoord">Modules Coordinateur</button>
 </div>
 
 <!-- ============ PARAMETRES GENERAUX (§15.1) ============ -->
@@ -160,6 +161,24 @@
             <button type="submit" class="btn-primary w-full">Ajouter</button>
         </div>
     </form>
+</section>
+
+<!-- ============ MODULES COORDINATEUR (§12) ============ -->
+<section id="tab-modulescoord" class="param-panel card hidden">
+    <h2 class="card-title mb-1">Modules affichés au Coordinateur</h2>
+    <p class="card-subtitle mb-5">Choisit les synthèses visibles sur la vue consolidée (§12). Un module masqué n'est plus calculé, ni affiché.</p>
+
+    <div class="flex flex-wrap gap-2">
+        @foreach (var m in Model.CoordinatorModules)
+        {
+            <form asp-controller="Parametrage" asp-action="ToggleCoordinatorModuleVisibility" method="post" class="inline-flex">
+                <input type="hidden" name="cle" value="@m.Cle" />
+                <button type="submit" class="@(m.EstVisible ? "badge-brand" : "badge-neutral opacity-50") cursor-pointer" title="Cliquer pour afficher/masquer">
+                    @m.Label @(m.EstVisible ? "" : "(masqué)")
+                </button>
+            </form>
+        }
+    </div>
 </section>
 
 @section Scripts {

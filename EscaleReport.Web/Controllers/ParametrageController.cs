@@ -2,6 +2,7 @@ using EscaleReport.Web.Application.Settings.Commands.AddGantry;
 using EscaleReport.Web.Application.Settings.Commands.AddReferenceValue;
 using EscaleReport.Web.Application.Settings.Commands.RemoveAlertThreshold;
 using EscaleReport.Web.Application.Settings.Commands.RemoveGantry;
+using EscaleReport.Web.Application.Settings.Commands.ToggleCoordinatorModuleVisibility;
 using EscaleReport.Web.Application.Settings.Commands.ToggleReferenceValueActive;
 using EscaleReport.Web.Application.Settings.Commands.UpdateGeneralSettings;
 using EscaleReport.Web.Application.Settings.Commands.UpsertAlertThreshold;
@@ -84,6 +85,14 @@ public class ParametrageController(ISender mediator) : Controller
     public async Task<IActionResult> RemoveAlertThreshold(Guid id, CancellationToken cancellationToken)
     {
         await mediator.Send(new RemoveAlertThresholdCommand(id), cancellationToken);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleCoordinatorModuleVisibility(string cle, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ToggleCoordinatorModuleVisibilityCommand(cle), cancellationToken);
         return RedirectToAction(nameof(Index));
     }
 }

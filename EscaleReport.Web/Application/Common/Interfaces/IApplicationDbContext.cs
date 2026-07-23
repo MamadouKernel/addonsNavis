@@ -57,6 +57,7 @@ public interface IApplicationDbContext
     DbSet<GeneralSettings> GeneralSettings { get; }
     DbSet<EmailTemplate> EmailTemplates { get; }
     DbSet<AlertThreshold> AlertThresholds { get; }
+    DbSet<CoordinatorModuleVisibility> CoordinatorModuleVisibilities { get; }
     DbSet<AuditLogEntry> AuditLogEntries { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

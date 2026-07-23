@@ -68,6 +68,15 @@ public class GetParametrageQueryHandler(
             .Select(t => new AlertThresholdDto { Id = t.Id, Cle = t.Cle, Libelle = t.Libelle, ValeurHeures = t.ValeurHeures })
             .ToListAsync(cancellationToken);
 
+        var moduleVisibilities = await dbContext.CoordinatorModuleVisibilities.AsNoTracking().ToListAsync(cancellationToken);
+        var coordinatorModules = CoordinatorModuleKeys.Labels.Select(kv => new CoordinatorModuleVisibilityDto
+        {
+            Cle = kv.Key,
+            Label = kv.Value,
+            // Absent de la table = visible par défaut (voir CoordinatorModuleVisibility).
+            EstVisible = moduleVisibilities.FirstOrDefault(m => m.Cle == kv.Key)?.EstVisible ?? true
+        }).ToList();
+
         return new ParametrageDto
         {
             GeneralSettings = new GeneralSettingsDto
@@ -78,7 +87,8 @@ public class GetParametrageQueryHandler(
             ReferenceLists = referenceLists,
             Gantries = gantries,
             EmailTemplates = emailTemplates,
-            AlertThresholds = thresholds
+            AlertThresholds = thresholds,
+            CoordinatorModules = coordinatorModules
         };
     }
 }

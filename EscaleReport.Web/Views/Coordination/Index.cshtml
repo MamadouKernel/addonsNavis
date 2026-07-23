@@ -1,5 +1,6 @@
 @using EscaleReport.Web.Application.Coordination.Queries.GetCoordinatorDashboard
 @using EscaleReport.Web.Domain.Escales
+@using EscaleReport.Web.Domain.Settings
 @model CoordinatorDashboardDto
 @{
     ViewData["Title"] = "Coordinateur Control Room";
@@ -36,6 +37,8 @@
 
 <!-- ============ VUE CONSOLIDEE (§12.1-12.7) ============ -->
 <section id="tab-vue" class="coord-panel">
+    @if (Model.ModulesVisibles.Contains(CoordinatorModuleKeys.Navires))
+    {
     <section class="card mb-6">
         <h2 class="card-title mb-1">Synthèse navires</h2>
         <p class="card-subtitle mb-5">Une bulle vide peut simplement indiquer une activité sur une autre date/shift.</p>
@@ -84,8 +87,11 @@
             </div>
         </div>
     </section>
+    }
 
     <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        @if (Model.ModulesVisibles.Contains(CoordinatorModuleKeys.Sts))
+        {
         <section class="card">
             <h2 class="card-title mb-5">Synthèse STS</h2>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -115,7 +121,10 @@
                 <p class="mt-4 text-sm text-slate-500">Navires concernés : @string.Join(", ", Model.SyntheseSts.NaviresConcernes)</p>
             }
         </section>
+        }
 
+        @if (Model.ModulesVisibles.Contains(CoordinatorModuleKeys.Tt))
+        {
         <section class="card">
             <h2 class="card-title mb-5">Synthèse TT</h2>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -141,7 +150,10 @@
                 </div>
             </div>
         </section>
+        }
 
+        @if (Model.ModulesVisibles.Contains(CoordinatorModuleKeys.RtgAutresEngins))
+        {
         <section class="card">
             <h2 class="card-title mb-5">Synthèse RTG et autres engins</h2>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -179,7 +191,10 @@
                 </div>
             </div>
         </section>
+        }
 
+        @if (Model.ModulesVisibles.Contains(CoordinatorModuleKeys.Yard))
+        {
         <section class="card">
             <h2 class="card-title mb-5">Synthèse Yard</h2>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -201,7 +216,10 @@
                 </div>
             </div>
         </section>
+        }
 
+        @if (Model.ModulesVisibles.Contains(CoordinatorModuleKeys.Itt))
+        {
         <section class="card">
             <h2 class="card-title mb-5">Synthèse ITT</h2>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -223,8 +241,11 @@
                 </div>
             </div>
         </section>
+        }
     </div>
 
+    @if (Model.ModulesVisibles.Contains(CoordinatorModuleKeys.Cargo))
+    {
     <section class="card">
         <h2 class="card-title mb-5">Synthèse Cargo</h2>
         <div class="table-shell">
@@ -264,6 +285,7 @@
             </div>
         </div>
     </section>
+    }
 </section>
 
 <!-- ============ INCIDENTS DU COORDINATEUR (§12.8) ============ -->

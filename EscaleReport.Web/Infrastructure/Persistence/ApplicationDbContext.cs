@@ -69,6 +69,7 @@ public abstract class ApplicationDbContext(
     public DbSet<GeneralSettings> GeneralSettings => Set<GeneralSettings>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<AlertThreshold> AlertThresholds => Set<AlertThreshold>();
+    public DbSet<CoordinatorModuleVisibility> CoordinatorModuleVisibilities => Set<CoordinatorModuleVisibility>();
     public DbSet<AuditLogEntry> AuditLogEntries => Set<AuditLogEntry>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

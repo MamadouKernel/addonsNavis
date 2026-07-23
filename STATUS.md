@@ -35,7 +35,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §11.2 | Yard Planner — plans navire et zones de débarquement | ✅ | Zones paramétrables |
 | §11.3 | Yard Planner — transferts Out | ✅ | |
 | §11.4 | Yard Planner — housekeeping | ✅ | |
-| §12.1-12.7 | Coordinateur — vue consolidée (Navires/STS/TT/RTG+autres engins/Cargo/Yard/ITT) | ✅ | Choix des modules affichés par l'admin non implémenté (dépend de §15) |
+| §12.1-12.7 | Coordinateur — vue consolidée (Navires/STS/TT/RTG+autres engins/Cargo/Yard/ITT) | ✅ | Choix des modules affichés par l'admin implémenté (Paramétrage > Modules Coordinateur) : un module masqué n'est ni calculé ni affiché |
 | §12.8 | Coordinateur — incidents propres | ✅ | |
 | §13.1 | ITT Controller — suivi des transferts | ✅ | Restant/avancement calculés automatiquement |
 | §13.2 | ITT Controller — incidents de transfert | ✅ | |
@@ -75,7 +75,7 @@ Audit interne (revue de code + tests manuels) suivi de corrections, toutes véri
 | Pas de limitation de débit sur `/Account/Login` (seul le verrouillage par compte protégeait) | Rate limiting par IP (`Microsoft.AspNetCore.RateLimiting`, 10 req/min) sur l'action `Login` |
 | CSP autorisait `'unsafe-inline'` en `script-src` (annule une bonne partie de la protection anti-XSS) | Nonce CSP par requête (`CspNonceExtensions`) posé sur les 10 `<script>` inline de l'app ; les 11 attributs `onclick`/`onchange` ont été remplacés par des gestionnaires délégués dans `_Layout.cshtml`. `style-src` garde `'unsafe-inline'` (utilisé par des centaines d'attributs `style=""` Tailwind — refactor disproportionné, risque bien moindre qu'un script injecté) |
 | Export Excel : champs libres (commentaires, observations...) écrits tels quels, risque de "formula injection" si un champ commence par `=`/`+`/`-`/`@` | `SafeText()` préfixe d'une apostrophe dans `ClosedXmlEscaleExcelReportGenerator.cs` |
-| `AllowedHosts` = `"*"` dans `appsettings.json` | **Non corrigé volontairement** : le nom d'hôte réel de production n'est pas connu de cette session. À restreindre à l'hôte réel (`appsettings.Production.json` ou variable d'environnement `AllowedHosts`) avant la mise en production |
+| `AllowedHosts` = `"*"` dans `appsettings.json` | **Non corrigé volontairement** : aucun nom de domaine de production n'est encore attribué. **Procédure à suivre dès que l'hébergement est connu** : soit ajouter `"AllowedHosts": "votre-domaine.ci"` dans un `appsettings.Production.json` (chargé automatiquement quand `ASPNETCORE_ENVIRONMENT=Production`), soit définir la variable d'environnement `AllowedHosts` sur le serveur/conteneur — cette dernière option évite de committer le nom de domaine dans le dépôt. Plusieurs hôtes séparés par `;` si nécessaire (ex. `www.domaine.ci;domaine.ci`). Sans cette étape, Kestrel accepte n'importe quel en-tête `Host`, ce qui autorise des requêtes Host-header non filtrées par le framework |
 
 ## Comptes de démonstration (environnement de développement)
 

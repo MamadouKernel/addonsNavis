@@ -4,6 +4,10 @@ namespace EscaleReport.Web.Application.Coordination.Queries.GetCoordinatorDashbo
 
 public class CoordinatorDashboardDto
 {
+    // CDC §12 : modules choisis par l'Administrateur (Paramétrage > Modules Coordinateur).
+    // Une clé absente de l'ensemble = masquée ; voir GetCoordinatorDashboardQueryHandler pour
+    // la résolution du défaut "visible" au niveau des paramètres eux-mêmes.
+    public IReadOnlySet<string> ModulesVisibles { get; set; } = new HashSet<string>();
     public IReadOnlyList<NavireSyntheseDto> SyntheseNavires { get; set; } = [];
     public StsSyntheseDto SyntheseSts { get; set; } = new();
     public TtSyntheseDto SyntheseTt { get; set; } = new();
