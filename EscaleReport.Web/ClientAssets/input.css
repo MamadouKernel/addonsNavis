@@ -6,6 +6,13 @@
 @source "../Controllers";
 @source "../wwwroot/js";
 
+/* CDC §15.2 "Personnalisation de l'interface" : mode clair/mode sombre. Variante
+   pilotée par un attribut (data-theme="dark" sur <html>, posé côté serveur depuis un
+   cookie) plutôt que par prefers-color-scheme, pour que le choix de l'utilisateur soit
+   explicite et persistant, indépendamment des réglages système du poste (pertinent en
+   Control Room où plusieurs utilisateurs partagent parfois un même poste). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   /* Ombre douce unique pour toute l'appli (cartes, boutons) — cohérence visuelle
      "moderne/clean/soft" plutôt que les shadow-md par défaut de Tailwind, plus dures. */
@@ -33,7 +40,8 @@
            border border-slate-200 bg-white text-slate-700
            hover:border-slate-300 hover:bg-slate-50
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 focus-visible:ring-offset-2
-           disabled:cursor-not-allowed disabled:opacity-50;
+           disabled:cursor-not-allowed disabled:opacity-50
+           dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700;
   }
   .btn-danger {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
@@ -41,40 +49,46 @@
            border border-rose-200 bg-white text-rose-600
            hover:bg-rose-50
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200 focus-visible:ring-offset-2
-           disabled:cursor-not-allowed disabled:opacity-50;
+           disabled:cursor-not-allowed disabled:opacity-50
+           dark:border-rose-900 dark:bg-slate-800 dark:text-rose-400 dark:hover:bg-slate-700;
   }
   .btn-link {
-    @apply text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline;
+    @apply text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline
+           dark:text-indigo-400 dark:hover:text-indigo-300;
   }
 
   .card {
-    @apply rounded-2xl border border-slate-200/70 bg-white p-6 shadow-soft;
+    @apply rounded-2xl border border-slate-200/70 bg-white p-6 shadow-soft
+           dark:border-slate-800 dark:bg-slate-900;
   }
   .card-title {
-    @apply text-base font-bold text-slate-900;
+    @apply text-base font-bold text-slate-900 dark:text-slate-100;
   }
   .card-subtitle {
-    @apply mt-0.5 text-sm text-slate-500;
+    @apply mt-0.5 text-sm text-slate-500 dark:text-slate-400;
   }
 
   .field-label {
-    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400;
   }
   .input-field {
     @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800
            placeholder:text-slate-400 transition-colors
-           focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-50;
+           focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-50
+           dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500
+           dark:focus:ring-indigo-950;
   }
 
-  .badge-neutral  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600; }
-  .badge-info     { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-sky-50 text-sky-700; }
-  .badge-success  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700; }
-  .badge-warning  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700; }
-  .badge-danger   { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-rose-50 text-rose-700; }
-  .badge-brand    { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700; }
+  .badge-neutral  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300; }
+  .badge-info     { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300; }
+  .badge-success  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300; }
+  .badge-warning  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300; }
+  .badge-danger   { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300; }
+  .badge-brand    { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300; }
 
   .table-shell {
-    @apply overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-soft;
+    @apply overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-soft
+           dark:border-slate-800 dark:bg-slate-900;
   }
   /* Sur mobile, la table défile horizontalement plutôt que de casser la mise en page —
      .table-shell garde les coins arrondis, .table-scroll gère le défilement à l'intérieur. */
@@ -85,38 +99,41 @@
     @apply w-full text-left text-sm;
   }
   .table-modern thead {
-    @apply bg-slate-50;
+    @apply bg-slate-50 dark:bg-slate-800/60;
   }
   .table-modern th {
-    @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200;
+    @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200
+           dark:text-slate-400 dark:border-slate-800;
   }
   .table-modern td {
-    @apply px-4 py-3 border-b border-slate-100 text-slate-700;
+    @apply px-4 py-3 border-b border-slate-100 text-slate-700 dark:border-slate-800 dark:text-slate-300;
   }
   .table-modern tbody tr {
-    @apply transition-colors hover:bg-slate-50/80;
+    @apply transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40;
   }
   .table-modern tbody tr:last-child td {
     @apply border-b-0;
   }
 
   .page-title {
-    @apply text-2xl font-bold tracking-tight text-slate-900;
+    @apply text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100;
   }
   .page-subtitle {
-    @apply mt-1 text-sm text-slate-500;
+    @apply mt-1 text-sm text-slate-500 dark:text-slate-400;
   }
 
   .alert-error {
-    @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700;
+    @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700
+           dark:border-rose-900 dark:bg-rose-950/60 dark:text-rose-300;
   }
 
   .tab-btn {
     @apply inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5
-           text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100;
+           text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100
+           dark:text-slate-400 dark:hover:bg-slate-800;
   }
   .tab-btn.active {
-    @apply bg-slate-900 text-white hover:bg-slate-900;
+    @apply bg-slate-900 text-white hover:bg-slate-900 dark:bg-indigo-600 dark:hover:bg-indigo-600;
   }
   .tab-count {
     @apply rounded-full bg-black/10 px-1.5 py-0.5 text-[11px] font-bold;
