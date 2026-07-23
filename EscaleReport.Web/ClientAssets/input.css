@@ -52,6 +52,175 @@
   --shadow-soft-lg: 0 2px 4px rgba(0,0,0,.3), 0 20px 44px -12px rgba(0,0,0,.6);
 }
 
+/* CDC §15.2 "bibliothèque de thèmes" : palettes nommées additionnelles, chacune
+   déclinée clair/sombre. --coral reste volontairement proche d'une teinte
+   rouge-corail dans toutes les palettes (code couleur des alertes/erreurs,
+   reconnaissable indépendamment du thème choisi). */
+:root[data-palette="ocean"]{
+  --ink:#0A2E4A;
+  --steel:#14507A;
+  --steel-2:#1B6B9E;
+  --sea:#2E86AB;
+  --amber:#2E86AB;
+  --amber-soft:#5FB3D6;
+  --coral:#E0666A;
+  --surface:#EEF5FA;
+  --card:#FFFFFF;
+  --line:#D8E7F0;
+  --text:#0F2C3D;
+  --text-soft:#527086;
+  --shadow-soft: 0 1px 2px rgba(10,46,74,.05), 0 12px 28px -8px rgba(10,46,74,.12);
+  --shadow-soft-lg: 0 2px 4px rgba(10,46,74,.06), 0 20px 44px -12px rgba(10,46,74,.20);
+}
+:root[data-palette="ocean"][data-theme="dark"]{
+  --ink:#E8F4FA;
+  --steel:#0B2536;
+  --steel-2:#103349;
+  --sea:#4FB3DB;
+  --amber:#4FB3DB;
+  --amber-soft:#7ECBE8;
+  --coral:#FF8A8E;
+  --surface:#071923;
+  --card:#0B2431;
+  --line:#1A3B4C;
+  --text:#E4F1F7;
+  --text-soft:#7FA6BC;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -8px rgba(0,0,0,.5);
+  --shadow-soft-lg: 0 2px 4px rgba(0,0,0,.3), 0 20px 44px -12px rgba(0,0,0,.6);
+}
+
+:root[data-palette="corail"]{
+  --ink:#4A2410;
+  --steel:#7A3D1A;
+  --steel-2:#9E5024;
+  --sea:#D9714A;
+  --amber:#D9714A;
+  --amber-soft:#E89D7C;
+  --coral:#E0666A;
+  --surface:#FAF1EC;
+  --card:#FFFFFF;
+  --line:#F0DCD0;
+  --text:#3D2013;
+  --text-soft:#86645A;
+  --shadow-soft: 0 1px 2px rgba(74,36,16,.05), 0 12px 28px -8px rgba(74,36,16,.12);
+  --shadow-soft-lg: 0 2px 4px rgba(74,36,16,.06), 0 20px 44px -12px rgba(74,36,16,.20);
+}
+:root[data-palette="corail"][data-theme="dark"]{
+  --ink:#FAEEE8;
+  --steel:#36190C;
+  --steel-2:#49220F;
+  --sea:#E89163;
+  --amber:#E89163;
+  --amber-soft:#EFB194;
+  --coral:#FF8A8E;
+  --surface:#23110A;
+  --card:#301A0F;
+  --line:#4C2A1A;
+  --text:#F5E9E2;
+  --text-soft:#BC9484;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -8px rgba(0,0,0,.5);
+  --shadow-soft-lg: 0 2px 4px rgba(0,0,0,.3), 0 20px 44px -12px rgba(0,0,0,.6);
+}
+
+:root[data-palette="ambre"]{
+  --ink:#4A3B0A;
+  --steel:#7A6414;
+  --steel-2:#9E8419;
+  --sea:#C99A2E;
+  --amber:#C99A2E;
+  --amber-soft:#E3C168;
+  --coral:#E0666A;
+  --surface:#FAF6EA;
+  --card:#FFFFFF;
+  --line:#EFE4C4;
+  --text:#3D3208;
+  --text-soft:#8A7A4C;
+  --shadow-soft: 0 1px 2px rgba(74,59,10,.05), 0 12px 28px -8px rgba(74,59,10,.12);
+  --shadow-soft-lg: 0 2px 4px rgba(74,59,10,.06), 0 20px 44px -12px rgba(74,59,10,.20);
+}
+:root[data-palette="ambre"][data-theme="dark"]{
+  --ink:#F7F0DD;
+  --steel:#332905;
+  --steel-2:#463807;
+  --sea:#D9B655;
+  --amber:#D9B655;
+  --amber-soft:#E7CB84;
+  --coral:#FF8A8E;
+  --surface:#211B06;
+  --card:#2E2508;
+  --line:#4A3D14;
+  --text:#F2EAD3;
+  --text-soft:#B8A876;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -8px rgba(0,0,0,.5);
+  --shadow-soft-lg: 0 2px 4px rgba(0,0,0,.3), 0 20px 44px -12px rgba(0,0,0,.6);
+}
+
+:root[data-palette="foret"]{
+  --ink:#0C3A22;
+  --steel:#155C36;
+  --steel-2:#1C7846;
+  --sea:#2FA66B;
+  --amber:#2FA66B;
+  --amber-soft:#66C994;
+  --coral:#E0666A;
+  --surface:#EDF7F0;
+  --card:#FFFFFF;
+  --line:#D4ECDD;
+  --text:#0F2E1D;
+  --text-soft:#537C63;
+  --shadow-soft: 0 1px 2px rgba(12,58,34,.05), 0 12px 28px -8px rgba(12,58,34,.12);
+  --shadow-soft-lg: 0 2px 4px rgba(12,58,34,.06), 0 20px 44px -12px rgba(12,58,34,.20);
+}
+:root[data-palette="foret"][data-theme="dark"]{
+  --ink:#E7F7EC;
+  --steel:#0A2818;
+  --steel-2:#0E3A22;
+  --sea:#54C58A;
+  --amber:#54C58A;
+  --amber-soft:#84D8AA;
+  --coral:#FF8A8E;
+  --surface:#06170E;
+  --card:#0B2417;
+  --line:#193C28;
+  --text:#E2F3E8;
+  --text-soft:#7BAF8F;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -8px rgba(0,0,0,.5);
+  --shadow-soft-lg: 0 2px 4px rgba(0,0,0,.3), 0 20px 44px -12px rgba(0,0,0,.6);
+}
+
+:root[data-palette="violet"]{
+  --ink:#2E1A4A;
+  --steel:#4A2C7A;
+  --steel-2:#603A9E;
+  --sea:#8354C9;
+  --amber:#8354C9;
+  --amber-soft:#AD86DE;
+  --coral:#E0666A;
+  --surface:#F5F1FA;
+  --card:#FFFFFF;
+  --line:#E2D6F0;
+  --text:#2A1740;
+  --text-soft:#75658A;
+  --shadow-soft: 0 1px 2px rgba(46,26,74,.05), 0 12px 28px -8px rgba(46,26,74,.12);
+  --shadow-soft-lg: 0 2px 4px rgba(46,26,74,.06), 0 20px 44px -12px rgba(46,26,74,.20);
+}
+:root[data-palette="violet"][data-theme="dark"]{
+  --ink:#F1EBFA;
+  --steel:#231433;
+  --steel-2:#331D49;
+  --sea:#A57FE0;
+  --amber:#A57FE0;
+  --amber-soft:#C1A6EC;
+  --coral:#FF8A8E;
+  --surface:#160D22;
+  --card:#20132F;
+  --line:#3A2650;
+  --text:#EDE6F7;
+  --text-soft:#A793BE;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -8px rgba(0,0,0,.5);
+  --shadow-soft-lg: 0 2px 4px rgba(0,0,0,.3), 0 20px 44px -12px rgba(0,0,0,.6);
+}
+
 html{
   scroll-behavior:smooth;
 }
@@ -224,6 +393,10 @@ body{
   .tab-btn.active { background: var(--ink); color: var(--card); }
 
   .tab-count { @apply rounded-full px-1.5 py-0.5 text-[11px] font-bold; background: color-mix(in srgb, black 12%, transparent); }
+
+  .zone-chip { @apply select-none transition-transform; }
+  .zone-chip:active { cursor: grabbing; transform: scale(0.95); }
+  .zone-drop-active { outline: 2px dashed var(--sea); outline-offset: 2px; background: color-mix(in srgb, var(--sea) 12%, transparent); }
 
   .sidebar-link {
     @apply flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors;

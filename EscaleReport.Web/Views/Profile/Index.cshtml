@@ -72,4 +72,31 @@
             <button type="submit" class="btn-primary w-full">Mettre à jour le mot de passe</button>
         </form>
     </section>
+
+    <section class="card lg:col-span-2">
+        <h2 class="card-title mb-1">Apparence</h2>
+        <p class="card-subtitle mb-4">Choisissez la palette de couleurs de l'interface (clair et sombre s'adaptent automatiquement).</p>
+
+        <div class="flex flex-wrap gap-3">
+            @{
+                var currentPalette = PaletteCatalog.FromCookie(Context.Request.Cookies["palette"]);
+            }
+            @foreach (var p in PaletteCatalog.All)
+            {
+                var isActive = p.Key == currentPalette;
+                <form asp-controller="Theme" asp-action="SetPalette" method="post">
+                    <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                    <input type="hidden" name="palette" value="@p.Key" />
+                    <button type="submit"
+                            class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition"
+                            style="border-color:@(isActive ? "var(--sea)" : "var(--line)"); background:@(isActive ? "var(--surface)" : "var(--card)"); color:var(--ink)"
+                            aria-pressed="@(isActive ? "true" : "false")"
+                            title="Palette @p.Label">
+                        <span class="h-4 w-4 flex-none rounded-full" style="background:@p.SwatchHex; box-shadow: 0 0 0 2px var(--card), 0 0 0 3px @(isActive ? "var(--sea)" : "transparent")"></span>
+                        @p.Label
+                    </button>
+                </form>
+            }
+        </div>
+    </section>
 </div>

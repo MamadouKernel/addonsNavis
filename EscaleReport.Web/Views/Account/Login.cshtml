@@ -3,9 +3,10 @@
     ViewData["Title"] = "Connexion";
     Layout = null;
     var theme = Context.Request.Cookies["theme"] == "dark" ? "dark" : "light";
+    var palette = PaletteCatalog.FromCookie(Context.Request.Cookies["palette"]);
 }
 <!DOCTYPE html>
-<html lang="fr" data-theme="@theme" class="overflow-x-hidden">
+<html lang="fr" data-theme="@theme" data-palette="@palette" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -1,3 +1,4 @@
+using EscaleReport.Web.Web.Theming;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,20 @@ public class ThemeController : Controller
         var next = current == "dark" ? "light" : "dark";
 
         Response.Cookies.Append("theme", next, new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+            HttpOnly = false,
+            SameSite = SameSiteMode.Lax
+        });
+
+        return LocalRedirect(string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl) ? "/" : returnUrl);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult SetPalette(string palette, string? returnUrl)
+    {
+        Response.Cookies.Append("palette", PaletteCatalog.FromCookie(palette), new CookieOptions
         {
             Expires = DateTimeOffset.UtcNow.AddYears(1),
             HttpOnly = false,

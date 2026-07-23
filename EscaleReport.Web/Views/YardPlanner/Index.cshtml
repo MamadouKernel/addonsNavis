@@ -143,6 +143,17 @@
         </div>
     </div>
 
+    @if (Model.ZonesDisponibles.Any())
+    {
+        <div class="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-dashed p-3" style="border-color:var(--line)">
+            <span class="text-xs font-medium" style="color:var(--text-soft)">Zones (glisser-déposer sur le champ « Zone de débarquement ») :</span>
+            @foreach (var z in Model.ZonesDisponibles)
+            {
+                <span class="zone-chip badge-brand" draggable="true" data-zone="@z" style="cursor:grab">@z</span>
+            }
+        </div>
+    }
+
     <form asp-controller="YardPlanner" asp-action="AddVesselYardPlan" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
         <div>
@@ -157,7 +168,7 @@
         <div><label class="field-label">Service maritime</label><input name="ServiceMaritime" required class="input-field" /></div>
         <div>
             <label class="field-label">Zone de débarquement</label>
-            <select name="ZoneDebarquement" class="input-field">
+            <select id="zoneDebarquementSelect" name="ZoneDebarquement" class="input-field">
                 @foreach (var z in Model.ZonesDisponibles)
                 {
                     <option value="@z">@z</option>
@@ -328,6 +339,38 @@
                     var panel = document.getElementById('tab-' + btn.dataset.tab);
                     if (panel) { panel.classList.remove('hidden'); }
                 });
+            });
+        })();
+
+        // Glisser-déposer d'une zone sur le champ "Zone de débarquement" (§15.2 : interaction tactile,
+        // alternative rapide à la sélection dans la liste déroulante quand on connaît déjà la zone visée).
+        (function () {
+            var select = document.getElementById('zoneDebarquementSelect');
+            if (!select) { return; }
+
+            document.querySelectorAll('.zone-chip').forEach(function (chip) {
+                chip.addEventListener('dragstart', function (e) {
+                    e.dataTransfer.setData('text/plain', chip.dataset.zone);
+                    e.dataTransfer.effectAllowed = 'copy';
+                });
+            });
+
+            select.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+                select.classList.add('zone-drop-active');
+            });
+            select.addEventListener('dragleave', function () {
+                select.classList.remove('zone-drop-active');
+            });
+            select.addEventListener('drop', function (e) {
+                e.preventDefault();
+                select.classList.remove('zone-drop-active');
+                var zone = e.dataTransfer.getData('text/plain');
+                if (zone) {
+                    select.value = zone;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             });
         })();
     </script>

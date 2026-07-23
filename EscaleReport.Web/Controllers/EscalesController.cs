@@ -7,6 +7,7 @@ using EscaleReport.Web.Application.Escales.Queries.GenerateEscaleExcelExport;
 using EscaleReport.Web.Application.Escales.Queries.GenerateEscaleReport;
 using EscaleReport.Web.Application.Escales.Queries.GetEscaleDetail;
 using EscaleReport.Web.Application.Escales.Queries.GetEscales;
+using EscaleReport.Web.Domain.Escales;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -65,6 +66,14 @@ public class EscalesController(ISender mediator) : Controller
     public async Task<IActionResult> ChangeStatutOperations(ChangeEscaleStatutOperationsCommand command, CancellationToken cancellationToken)
     {
         await mediator.Send(command, cancellationToken);
+
+        // CDC §15.2 "effets visuels" : petit moment de célébration à la fin effective des opérations,
+        // affiché une seule fois via TempData (le select se soumet en rechargement de page complet).
+        if (command.NouveauStatut == StatutOperations.Terminees)
+        {
+            TempData["EscaleTerminee"] = true;
+        }
+
         return RedirectToAction(nameof(Details), new { id = command.EscaleId });
     }
 
