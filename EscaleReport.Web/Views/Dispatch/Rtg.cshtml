@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchRtg
 @using EscaleReport.Web.Domain.Dispatch
 @model DispatchRtgDto
@@ -6,10 +7,10 @@
 
     static string DureeLabel(TimeSpan? d) => d.HasValue ? $"{(int)d.Value.TotalHours}h{Math.Abs(d.Value.Minutes):D2}" : "—";
 
-    var pannesEnCours = Model.Pannes.Count(p => !p.EstResolue);
-    var clashsEnCours = Model.Clashes.Count(c => !c.EstResolu);
-    var gateEnCours = Model.GateTruckIssues.Count(g => !g.EstResolu);
-    var incidentsStsEnCours = Model.StsIncidents.Count(i => !i.EstResolu);
+    var pannesEnCours = Model.PannesEnCoursCount;
+    var clashsEnCours = Model.ClashsEnCoursCount;
+    var gateEnCours = Model.GateEnCoursCount;
+    var incidentsStsEnCours = Model.IncidentsStsEnCoursCount;
 }
 
 <div class="mb-8">
@@ -85,11 +86,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Pannes.Any())
+                @if (!Model.Pannes.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune panne RTG.</td></tr>
                 }
-                @foreach (var p in Model.Pannes)
+                @foreach (var p in Model.Pannes.Items)
                 {
                     <tr>
                         <td class="font-mono font-semibold text-slate-900">@p.Engin</td>
@@ -116,6 +117,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Pannes, "pannesPage"))
 
     <form asp-controller="Dispatch" asp-action="AddRtgPanne" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -153,11 +155,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Clashes.Any())
+                @if (!Model.Clashes.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun clash enregistré.</td></tr>
                 }
-                @foreach (var c in Model.Clashes)
+                @foreach (var c in Model.Clashes.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@c.Lieu</td>
@@ -184,6 +186,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Clashes, "clashesPage"))
 
     <form asp-controller="Dispatch" asp-action="AddRtgClash" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -216,11 +219,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.GateTruckIssues.Any())
+                @if (!Model.GateTruckIssues.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun problème signalé.</td></tr>
                 }
-                @foreach (var g in Model.GateTruckIssues)
+                @foreach (var g in Model.GateTruckIssues.Items)
                 {
                     <tr>
                         <td>
@@ -250,6 +253,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.GateTruckIssues, "gateTruckIssuesPage"))
 
     <form asp-controller="Dispatch" asp-action="AddGateTruckIssue" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -288,11 +292,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.StsIncidents.Any())
+                @if (!Model.StsIncidents.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun incident STS.</td></tr>
                 }
-                @foreach (var i in Model.StsIncidents)
+                @foreach (var i in Model.StsIncidents.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@i.Navire</td>
@@ -310,6 +314,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.StsIncidents, "stsIncidentsPage"))
 </section>
 
 @section Scripts {

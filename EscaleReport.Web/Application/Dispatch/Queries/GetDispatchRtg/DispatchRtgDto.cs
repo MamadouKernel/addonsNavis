@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Application.Dispatch.Dtos;
 using EscaleReport.Web.Domain.Dispatch;
 
@@ -6,13 +7,19 @@ namespace EscaleReport.Web.Application.Dispatch.Queries.GetDispatchRtg;
 public class DispatchRtgDto
 {
     public RtgEffectifDto Effectif { get; set; } = new();
-    public IReadOnlyList<RtgPanneDto> Pannes { get; set; } = [];
-    public IReadOnlyList<RtgClashDto> Clashes { get; set; } = [];
-    public IReadOnlyList<GateTruckIssueDto> GateTruckIssues { get; set; } = [];
+    public PagedResult<RtgPanneDto> Pannes { get; set; } = new();
+    public PagedResult<RtgClashDto> Clashes { get; set; } = new();
+    public PagedResult<GateTruckIssueDto> GateTruckIssues { get; set; } = new();
 
     // CDC §8.2 : incidents STS du même shift, en lecture seule (contexte navire pour le
     // dispatcher RTG, sans lui donner la main pour les modifier — ce périmètre appartient à STS).
-    public IReadOnlyList<StsIncidentDto> StsIncidents { get; set; } = [];
+    public PagedResult<StsIncidentDto> StsIncidents { get; set; } = new();
+
+    // Comptes "en cours" pour les pastilles d'onglet : calculés sur l'ensemble des enregistrements.
+    public int PannesEnCoursCount { get; set; }
+    public int ClashsEnCoursCount { get; set; }
+    public int GateEnCoursCount { get; set; }
+    public int IncidentsStsEnCoursCount { get; set; }
 }
 
 public class RtgEffectifDto

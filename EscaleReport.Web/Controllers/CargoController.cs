@@ -12,9 +12,9 @@ namespace EscaleReport.Web.Controllers;
 [Authorize]
 public class CargoController(ISender mediator) : Controller
 {
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int page = 1, CancellationToken cancellationToken = default)
     {
-        var rows = await mediator.Send(new GetCargoDashboardQuery(), cancellationToken);
+        var rows = await mediator.Send(new GetCargoDashboardQuery(page), cancellationToken);
         return View(rows);
     }
 

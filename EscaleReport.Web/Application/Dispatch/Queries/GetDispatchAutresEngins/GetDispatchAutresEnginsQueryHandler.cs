@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
@@ -86,9 +87,11 @@ public class GetDispatchAutresEnginsQueryHandler(
                 RetireEmptyHandlers = RetirePour(CategorieEngin.EmptyHandler),
                 RetireAutres = RetirePour(CategorieEngin.Autre)
             },
-            Problemes = problemes,
-            Deconnexions = deconnexions,
-            Remplacements = remplacements
+            Problemes = PagedResult<EnginProblemeDto>.Create(problemes, request.ProblemesPage),
+            Deconnexions = PagedResult<EnginDeconnexionDto>.Create(deconnexions, request.DeconnexionsPage),
+            Remplacements = PagedResult<RemplacementOperateurDto>.Create(remplacements, request.RemplacementsPage),
+            ProblemesEnCoursCount = problemes.Count(p => !p.EstResolu),
+            DeconnexionsEnCoursCount = deconnexions.Count(d => !d.EstResolu)
         };
     }
 }

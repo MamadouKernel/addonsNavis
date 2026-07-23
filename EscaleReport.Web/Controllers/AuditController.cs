@@ -10,11 +10,11 @@ namespace EscaleReport.Web.Controllers;
 public class AuditController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(
-        string? userName, string? actionType, DateOnly? dateDebut, DateOnly? dateFin,
-        CancellationToken cancellationToken)
+        string? userName, string? actionType, DateOnly? dateDebut, DateOnly? dateFin, int page = 1,
+        CancellationToken cancellationToken = default)
     {
         var dto = await mediator.Send(
-            new GetAuditLogQuery(userName, actionType, dateDebut, dateFin), cancellationToken);
+            new GetAuditLogQuery(userName, actionType, dateDebut, dateFin, page), cancellationToken);
         return View(dto);
     }
 }

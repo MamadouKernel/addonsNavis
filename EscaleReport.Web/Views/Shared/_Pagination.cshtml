@@ -1,0 +1,39 @@
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Primitives
+@model EscaleReport.Web.Models.PaginationViewModel
+@{
+    string PageUrl(int page)
+    {
+        var query = new Dictionary<string, StringValues>();
+        foreach (var kv in Context.Request.Query)
+        {
+            query[kv.Key] = kv.Value;
+        }
+        query[Model.PageParam] = page.ToString();
+        return Context.Request.Path + QueryString.Create(query);
+    }
+}
+@if (Model.TotalCount > 0)
+{
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm" style="color:var(--text-soft)">
+        <span>@Model.TotalCount résultat(s) — page @Model.Page sur @Model.TotalPages</span>
+        <div class="flex items-center gap-2">
+            @if (Model.Page > 1)
+            {
+                <a href="@PageUrl(Model.Page - 1)" class="btn-secondary !px-3 !py-1.5 text-xs">‹ Précédent</a>
+            }
+            else
+            {
+                <span class="btn-secondary !px-3 !py-1.5 text-xs opacity-50 pointer-events-none" aria-disabled="true">‹ Précédent</span>
+            }
+            @if (Model.Page < Model.TotalPages)
+            {
+                <a href="@PageUrl(Model.Page + 1)" class="btn-secondary !px-3 !py-1.5 text-xs">Suivant ›</a>
+            }
+            else
+            {
+                <span class="btn-secondary !px-3 !py-1.5 text-xs opacity-50 pointer-events-none" aria-disabled="true">Suivant ›</span>
+            }
+        </div>
+    </div>
+}

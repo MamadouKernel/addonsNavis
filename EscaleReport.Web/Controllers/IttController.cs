@@ -16,9 +16,13 @@ namespace EscaleReport.Web.Controllers;
 [Authorize]
 public class IttController(ISender mediator) : Controller
 {
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(
+        int transfersPage = 1, int incidentsPage = 1, int pannesPage = 1,
+        CancellationToken cancellationToken = default)
     {
-        var dto = await mediator.Send(new GetIttDashboardQuery(), cancellationToken);
+        var dto = await mediator.Send(
+            new GetIttDashboardQuery(transfersPage, incidentsPage, pannesPage),
+            cancellationToken);
         return View(dto);
     }
 

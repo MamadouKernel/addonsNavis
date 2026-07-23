@@ -1,5 +1,6 @@
 @using EscaleReport.Web.Application.Cargo.Dtos
-@model IReadOnlyList<CargoDashboardRowDto>
+@using EscaleReport.Web.Application.Common.Models
+@model PagedResult<CargoDashboardRowDto>
 @{
     ViewData["Title"] = "Cargo Control";
 }
@@ -24,11 +25,11 @@
                 </tr>
             </thead>
             <tbody>
-            @if (!Model.Any())
+            @if (!Model.Items.Any())
             {
                 <tr><td colspan="7" class="!text-center text-slate-400 py-10">Aucune escale.</td></tr>
             }
-            @foreach (var r in Model)
+            @foreach (var r in Model.Items)
             {
                 <tr class="cursor-pointer js-row-link" data-href="@Url.Action("Detail", new { id = r.EscaleId })">
                     <td class="font-semibold text-slate-900">@r.Navire</td>
@@ -64,3 +65,4 @@
         </table>
     </div>
 </div>
+@await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model))

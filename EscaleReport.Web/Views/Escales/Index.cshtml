@@ -1,6 +1,7 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Escales.Dtos
 @using EscaleReport.Web.Domain.Escales
-@model IReadOnlyList<EscaleDto>
+@model PagedResult<EscaleDto>
 @{
     ViewData["Title"] = "Escales";
 
@@ -45,16 +46,16 @@
     </a>
 </div>
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
     <div class="table-shell p-10 text-center" style="color:var(--text-soft)">
-        Aucune escale. Créez la première fiche pour commencer.
+        @(Model.TotalCount == 0 ? "Aucune escale. Créez la première fiche pour commencer." : "Aucune escale sur cette page.")
     </div>
 }
 else
 {
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        @foreach (var e in Model)
+        @foreach (var e in Model.Items)
         {
             <a asp-action="Details" asp-route-id="@e.Id" class="esc-card no-underline @OpsCardClass(e.StatutOperations)">
                 <div class="flex items-start justify-between gap-2 pl-2">
@@ -82,4 +83,5 @@ else
             </a>
         }
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model))
 }

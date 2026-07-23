@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Itt.Queries.GetIttDashboard
 @model IttDashboardDto
 @{
@@ -5,8 +6,8 @@
 
     static string DureeLabel(TimeSpan? d) => d.HasValue ? $"{(int)d.Value.TotalHours}h{Math.Abs(d.Value.Minutes):D2}" : "—";
 
-    var incidentsEnCours = Model.TransferIncidents.Count(i => !i.EstResolu);
-    var pannesEnCours = Model.EnginPannes.Count(p => !p.EstResolue);
+    var incidentsEnCours = Model.IncidentsEnCoursCount;
+    var pannesEnCours = Model.PannesEnCoursCount;
 }
 
 <div class="mb-8">
@@ -43,11 +44,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Transfers.Any())
+                @if (!Model.Transfers.Items.Any())
                 {
                     <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucun transfert ITT enregistré.</td></tr>
                 }
-                @foreach (var t in Model.Transfers)
+                @foreach (var t in Model.Transfers.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@t.NavireConnexion</td>
@@ -76,6 +77,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Transfers, "transfersPage"))
 
     <form asp-controller="Itt" asp-action="AddTransfer" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -108,11 +110,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.TransferIncidents.Any())
+                @if (!Model.TransferIncidents.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun incident de transfert.</td></tr>
                 }
-                @foreach (var i in Model.TransferIncidents)
+                @foreach (var i in Model.TransferIncidents.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@i.DifficulteOuObjet</td>
@@ -138,6 +140,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.TransferIncidents, "incidentsPage"))
 
     <form asp-controller="Itt" asp-action="AddTransferIncident" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -200,11 +203,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.EnginPannes.Any())
+                @if (!Model.EnginPannes.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune panne enregistrée.</td></tr>
                 }
-                @foreach (var p in Model.EnginPannes)
+                @foreach (var p in Model.EnginPannes.Items)
                 {
                     <tr>
                         <td class="font-mono font-semibold text-slate-900">@p.Engin</td>
@@ -231,6 +234,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.EnginPannes, "pannesPage"))
 
     <form asp-controller="Itt" asp-action="AddEnginPanne" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">

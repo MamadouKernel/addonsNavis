@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchSts
 @using EscaleReport.Web.Domain.Dispatch
 @model DispatchStsDto
@@ -22,9 +23,9 @@
         _ => "Indisponible"
     };
 
-    var incidentsEnCours = Model.Incidents.Count(i => !i.EstResolu);
-    var pointeursActifs = Model.Pointeurs.Count(p => !p.HeureFinUtc.HasValue);
-    var ropnEnCours = Model.RopnEntries.Count(r => r.Statut == RopnStatus.EnCours);
+    var incidentsEnCours = Model.IncidentsEnCoursCount;
+    var pointeursActifs = Model.PointeursActifsCount;
+    var ropnEnCours = Model.RopnEnCoursCount;
 }
 
 <div class="mb-8">
@@ -155,11 +156,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if (!Model.Assignments.Any())
+                    @if (!Model.Assignments.Items.Any())
                     {
                         <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune affectation.</td></tr>
                     }
-                    @foreach (var a in Model.Assignments)
+                    @foreach (var a in Model.Assignments.Items)
                     {
                         <tr>
                             <td class="font-mono font-semibold text-slate-900">@a.GantryCode</td>
@@ -192,6 +193,7 @@
                 </table>
             </div>
         </div>
+        @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Assignments, "assignmentsPage"))
 
         <form asp-controller="Dispatch" asp-action="AssignGantry" method="post"
               class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -251,11 +253,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Incidents.Any())
+                @if (!Model.Incidents.Items.Any())
                 {
                     <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucun incident STS.</td></tr>
                 }
-                @foreach (var i in Model.Incidents)
+                @foreach (var i in Model.Incidents.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@i.Navire</td>
@@ -283,6 +285,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Incidents, "incidentsPage"))
 
     <form asp-controller="Dispatch" asp-action="AddStsIncident" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -352,11 +355,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Pointeurs.Any())
+                @if (!Model.Pointeurs.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun pointeur affecté.</td></tr>
                 }
-                @foreach (var p in Model.Pointeurs)
+                @foreach (var p in Model.Pointeurs.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@p.Nom</td>
@@ -379,6 +382,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Pointeurs, "pointeursPage"))
 
     <form asp-controller="Dispatch" asp-action="AddStsPointeur" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -410,11 +414,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.RopnEntries.Any())
+                @if (!Model.RopnEntries.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune observation ROPN.</td></tr>
                 }
-                @foreach (var r in Model.RopnEntries)
+                @foreach (var r in Model.RopnEntries.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@r.Nom</td>
@@ -440,6 +444,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.RopnEntries, "ropnPage"))
 
     <form asp-controller="Dispatch" asp-action="AddRopnEntry" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">

@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchAutresEngins
 @using EscaleReport.Web.Domain.Dispatch
 @model DispatchAutresEnginsDto
@@ -13,8 +14,8 @@
         _ => "Autre"
     };
 
-    var problemesEnCours = Model.Problemes.Count(p => !p.EstResolu);
-    var deconnexionsEnCours = Model.Deconnexions.Count(d => !d.EstResolu);
+    var problemesEnCours = Model.ProblemesEnCoursCount;
+    var deconnexionsEnCours = Model.DeconnexionsEnCoursCount;
 }
 
 <div class="mb-8">
@@ -92,11 +93,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Problemes.Any())
+                @if (!Model.Problemes.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun problème d'engin.</td></tr>
                 }
-                @foreach (var p in Model.Problemes)
+                @foreach (var p in Model.Problemes.Items)
                 {
                     <tr>
                         <td class="font-mono font-semibold text-slate-900">@p.Engin</td>
@@ -123,6 +124,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Problemes, "problemesPage"))
 
     <form asp-controller="Dispatch" asp-action="AddEnginProbleme" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -169,11 +171,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Deconnexions.Any())
+                @if (!Model.Deconnexions.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune déconnexion signalée.</td></tr>
                 }
-                @foreach (var d in Model.Deconnexions)
+                @foreach (var d in Model.Deconnexions.Items)
                 {
                     <tr>
                         <td class="font-mono font-semibold text-slate-900">@d.Engin</td>
@@ -200,6 +202,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Deconnexions, "deconnexionsPage"))
 
     <form asp-controller="Dispatch" asp-action="AddEnginDeconnexion" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -229,11 +232,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Remplacements.Any())
+                @if (!Model.Remplacements.Items.Any())
                 {
                     <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucun remplacement enregistré.</td></tr>
                 }
-                @foreach (var r in Model.Remplacements)
+                @foreach (var r in Model.Remplacements.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@r.Operateur</td>
@@ -247,6 +250,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Remplacements, "remplacementsPage"))
 
     <form asp-controller="Dispatch" asp-action="AddRemplacementOperateur" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">

@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Domain.Settings;
@@ -218,14 +219,15 @@ public class GetCoordinatorDashboardQueryHandler(
         return new CoordinatorDashboardDto
         {
             ModulesVisibles = modulesVisibles,
-            SyntheseNavires = syntheseNavires,
+            SyntheseNavires = PagedResult<NavireSyntheseDto>.Create(syntheseNavires, request.NaviresPage),
             SyntheseSts = syntheseSts,
             SyntheseTt = syntheseTt,
             SyntheseRtgAutresEngins = syntheseRtgAutresEngins,
-            SyntheseCargo = syntheseCargo,
+            SyntheseCargo = PagedResult<CargoSyntheseDto>.Create(syntheseCargo, request.CargoPage),
             SyntheseYard = syntheseYard,
             SyntheseItt = syntheseItt,
-            Incidents = incidents
+            Incidents = PagedResult<CoordinatorIncidentDto>.Create(incidents, request.IncidentsPage),
+            IncidentsEnCoursCount = incidents.Count(i => !i.EstResolu)
         };
     }
 }

@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -67,8 +68,8 @@ public class GetIttDashboardQueryHandler(
 
         return new IttDashboardDto
         {
-            Transfers = transfers,
-            TransferIncidents = incidents,
+            Transfers = PagedResult<IttTransferDto>.Create(transfers, request.TransfersPage),
+            TransferIncidents = PagedResult<IttTransferIncidentDto>.Create(incidents, request.IncidentsPage),
             EquipementEffectif = effectif is null
                 ? new IttEquipementEffectifDto()
                 : new IttEquipementEffectifDto
@@ -78,7 +79,9 @@ public class GetIttDashboardQueryHandler(
                     EnPanne = effectif.EnPanne,
                     Observations = effectif.Observations
                 },
-            EnginPannes = pannes
+            EnginPannes = PagedResult<IttEnginPanneDto>.Create(pannes, request.PannesPage),
+            IncidentsEnCoursCount = incidents.Count(i => !i.EstResolu),
+            PannesEnCoursCount = pannes.Count(p => !p.EstResolue)
         };
     }
 }

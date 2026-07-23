@@ -52,7 +52,6 @@
 <section class="card">
     <div class="mb-4 flex items-center justify-between">
         <h2 class="card-title">Actions enregistrées</h2>
-        <span class="text-sm text-slate-500">@Model.TotalCount résultat(s) — 500 derniers affichés au maximum</span>
     </div>
     <div class="table-shell">
         <div class="table-scroll">
@@ -66,11 +65,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Entries.Any())
+                @if (!Model.Entries.Items.Any())
                 {
                     <tr><td colspan="4" class="!text-center text-slate-400 py-8">Aucune action enregistrée pour ces filtres.</td></tr>
                 }
-                @foreach (var e in Model.Entries)
+                @foreach (var e in Model.Entries.Items)
                 {
                     <tr>
                         <td class="font-mono text-xs">@e.DateUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
@@ -83,4 +82,5 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Entries))
 </section>

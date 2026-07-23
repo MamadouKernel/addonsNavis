@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Dispatch;
 
 namespace EscaleReport.Web.Application.Dispatch.Queries.GetDispatchAutresEngins;
@@ -5,9 +6,13 @@ namespace EscaleReport.Web.Application.Dispatch.Queries.GetDispatchAutresEngins;
 public class DispatchAutresEnginsDto
 {
     public AutresEnginsEffectifDto Effectif { get; set; } = new();
-    public IReadOnlyList<EnginProblemeDto> Problemes { get; set; } = [];
-    public IReadOnlyList<EnginDeconnexionDto> Deconnexions { get; set; } = [];
-    public IReadOnlyList<RemplacementOperateurDto> Remplacements { get; set; } = [];
+    public PagedResult<EnginProblemeDto> Problemes { get; set; } = new();
+    public PagedResult<EnginDeconnexionDto> Deconnexions { get; set; } = new();
+    public PagedResult<RemplacementOperateurDto> Remplacements { get; set; } = new();
+
+    // Comptes "en cours" pour les pastilles d'onglet : calculés sur l'ensemble des enregistrements.
+    public int ProblemesEnCoursCount { get; set; }
+    public int DeconnexionsEnCoursCount { get; set; }
 }
 
 public class AutresEnginsEffectifDto

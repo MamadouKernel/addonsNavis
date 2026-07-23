@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Application.Dispatch.Dtos;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
@@ -105,10 +106,14 @@ public class GetDispatchRtgQueryHandler(
                     EnPanne = effectif.EnPanne,
                     Retire = effectif.Retire
                 },
-            Pannes = pannes,
-            Clashes = clashes,
-            GateTruckIssues = gateIssues,
-            StsIncidents = stsIncidents
+            Pannes = PagedResult<RtgPanneDto>.Create(pannes, request.PannesPage),
+            Clashes = PagedResult<RtgClashDto>.Create(clashes, request.ClashesPage),
+            GateTruckIssues = PagedResult<GateTruckIssueDto>.Create(gateIssues, request.GateTruckIssuesPage),
+            StsIncidents = PagedResult<StsIncidentDto>.Create(stsIncidents, request.StsIncidentsPage),
+            PannesEnCoursCount = pannes.Count(p => !p.EstResolue),
+            ClashsEnCoursCount = clashes.Count(c => !c.EstResolu),
+            GateEnCoursCount = gateIssues.Count(g => !g.EstResolu),
+            IncidentsStsEnCoursCount = stsIncidents.Count(i => !i.EstResolu)
         };
     }
 }

@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Application.Dispatch.Dtos;
 using EscaleReport.Web.Domain.Common;
 using EscaleReport.Web.Domain.Dispatch;
@@ -126,12 +127,15 @@ public class GetDispatchStsQueryHandler(
         return new DispatchStsDto
         {
             Gantries = gantries.Select(GantryDto.FromEntity).ToList(),
-            Assignments = assignments,
+            Assignments = PagedResult<GantryAssignmentDto>.Create(assignments, request.AssignmentsPage),
             EscalesDisponibles = escalesDisponibles,
-            Incidents = incidents,
+            Incidents = PagedResult<StsIncidentDto>.Create(incidents, request.IncidentsPage),
             TypesIncidentDisponibles = typesIncident,
-            Pointeurs = pointeurs.Select(StsPointeurDto.FromEntity).ToList(),
-            RopnEntries = ropn.Select(RopnEntryDto.FromEntity).ToList(),
+            Pointeurs = PagedResult<StsPointeurDto>.Create(pointeurs.Select(StsPointeurDto.FromEntity).ToList(), request.PointeursPage),
+            RopnEntries = PagedResult<RopnEntryDto>.Create(ropn.Select(RopnEntryDto.FromEntity).ToList(), request.RopnPage),
+            IncidentsEnCoursCount = incidents.Count(i => !i.EstResolu),
+            PointeursActifsCount = pointeurs.Count(p => p.HeureFinUtc == null),
+            RopnEnCoursCount = ropn.Count(r => r.Statut == RopnStatus.EnCours),
             SelectedDate = selectedDate,
             SelectedShift = request.Shift,
             ShiftsDisponibles = shiftsDisponibles,

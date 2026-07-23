@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Application.Dispatch.Dtos;
 
 namespace EscaleReport.Web.Application.Dispatch.Queries.GetDispatchSts;
@@ -5,14 +6,20 @@ namespace EscaleReport.Web.Application.Dispatch.Queries.GetDispatchSts;
 public class DispatchStsDto
 {
     public IReadOnlyList<GantryDto> Gantries { get; set; } = [];
-    public IReadOnlyList<GantryAssignmentDto> Assignments { get; set; } = [];
+    public PagedResult<GantryAssignmentDto> Assignments { get; set; } = new();
     public IReadOnlyList<EscaleOptionDto> EscalesDisponibles { get; set; } = [];
 
-    public IReadOnlyList<StsIncidentDto> Incidents { get; set; } = [];
+    public PagedResult<StsIncidentDto> Incidents { get; set; } = new();
     public IReadOnlyList<string> TypesIncidentDisponibles { get; set; } = [];
 
-    public IReadOnlyList<StsPointeurDto> Pointeurs { get; set; } = [];
-    public IReadOnlyList<RopnEntryDto> RopnEntries { get; set; } = [];
+    public PagedResult<StsPointeurDto> Pointeurs { get; set; } = new();
+    public PagedResult<RopnEntryDto> RopnEntries { get; set; } = new();
+
+    // Comptes "en cours" pour les pastilles d'onglet : calculés sur l'ensemble des enregistrements,
+    // pas seulement la page affichée par Incidents/Pointeurs/RopnEntries.
+    public int IncidentsEnCoursCount { get; set; }
+    public int PointeursActifsCount { get; set; }
+    public int RopnEnCoursCount { get; set; }
 
     // CDC §6.1 "Sélection du shift".
     public DateOnly SelectedDate { get; set; }

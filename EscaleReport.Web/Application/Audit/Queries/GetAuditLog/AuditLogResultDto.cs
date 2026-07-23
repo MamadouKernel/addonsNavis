@@ -1,11 +1,12 @@
+using EscaleReport.Web.Application.Common.Models;
+
 namespace EscaleReport.Web.Application.Audit.Queries.GetAuditLog;
 
 public class AuditLogResultDto
 {
-    public IReadOnlyList<AuditLogEntryDto> Entries { get; init; } = [];
+    public PagedResult<AuditLogEntryDto> Entries { get; init; } = new();
     public IReadOnlyList<string> Utilisateurs { get; init; } = [];
     public IReadOnlyList<string> Actions { get; init; } = [];
-    public int TotalCount { get; init; }
 }
 
 public class AuditLogEntryDto

@@ -27,15 +27,31 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditLoggingBehaviour<,>));
 
+// Un déploiement IIS peut tourner en HTTP pur (intranet local, pas de certificat) : forcer
+// Secure=Always sur le cookie / HSTS / la redirection HTTPS y casserait le login. Piloté par
+// config plutôt que par IsDevelopment() seul, pour que le même binaire publié s'adapte à la
+// cible réelle via appsettings.Production.json (RequireHttps=false y est déjà positionné pour
+// le serveur IIS local prévu — voir STATUS.md) sans recompilation.
+var requireHttps = !builder.Environment.IsDevelopment()
+    && builder.Configuration.GetValue("Security:RequireHttps", true);
+
+// Par défaut, Identity ne revalide le security stamp (donc IsActive/mot de passe/rôle) que
+// toutes les 30 minutes — un compte désactivé pendant qu'un utilisateur est déjà connecté
+// resterait donc utilisable jusqu'à 30 min de plus. Réduit à 2 min : UsersController.ToggleActive
+// change le stamp à la désactivation, ce qui invalide le cookie dès la prochaine revalidation.
+builder.Services.Configure<Microsoft.AspNetCore.Identity.SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.FromMinutes(2);
+});
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(8); // CDC §2.4 "expiration des sessions"
-    // SameAsRequest en Dev : pas d'endpoint https dans launchSettings, Always casserait le login local.
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
-        ? CookieSecurePolicy.SameAsRequest
-        : CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = requireHttps
+        ? CookieSecurePolicy.Always
+        : CookieSecurePolicy.SameAsRequest;
 });
 
 // CDC §2.4 : le verrouillage de compte (5 échecs/15 min, voir Infrastructure/DependencyInjection.cs)
@@ -88,10 +104,16 @@ if (app.Environment.IsDevelopment())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    if (requireHttps)
+    {
+        app.UseHsts();
+    }
 }
 
-app.UseHttpsRedirection();
+if (requireHttps)
+{
+    app.UseHttpsRedirection();
+}
 
 // En-têtes de sécurité applicatifs (CDC §27). script-src utilise un nonce par requête (posé ici
 // et lu par les vues via Context.GetOrCreateCspNonce()) plutôt que 'unsafe-inline' : un <script>

@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Application.Dispatch.Dtos;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
@@ -71,9 +72,9 @@ public class GetDispatchTtQueryHandler(
                     Disponibles = effectif.Disponibles,
                     Retires = effectif.Retires
                 },
-            Assignments = assignments,
+            Assignments = PagedResult<TtVesselAssignmentDto>.Create(assignments, request.AssignmentsPage),
             EscalesDisponibles = escalesDisponibles,
-            Deconnexions = deconnexions
+            Deconnexions = PagedResult<TtDeconnexionDto>.Create(deconnexions, request.DeconnexionsPage)
         };
     }
 }

@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Escales;
 
 namespace EscaleReport.Web.Application.Coordination.Queries.GetCoordinatorDashboard;
@@ -8,14 +9,15 @@ public class CoordinatorDashboardDto
     // Une clé absente de l'ensemble = masquée ; voir GetCoordinatorDashboardQueryHandler pour
     // la résolution du défaut "visible" au niveau des paramètres eux-mêmes.
     public IReadOnlySet<string> ModulesVisibles { get; set; } = new HashSet<string>();
-    public IReadOnlyList<NavireSyntheseDto> SyntheseNavires { get; set; } = [];
+    public PagedResult<NavireSyntheseDto> SyntheseNavires { get; set; } = new();
     public StsSyntheseDto SyntheseSts { get; set; } = new();
     public TtSyntheseDto SyntheseTt { get; set; } = new();
     public RtgAutresEnginsSyntheseDto SyntheseRtgAutresEngins { get; set; } = new();
-    public IReadOnlyList<CargoSyntheseDto> SyntheseCargo { get; set; } = [];
+    public PagedResult<CargoSyntheseDto> SyntheseCargo { get; set; } = new();
     public YardSyntheseDto SyntheseYard { get; set; } = new();
     public IttSyntheseDto SyntheseItt { get; set; } = new();
-    public IReadOnlyList<CoordinatorIncidentDto> Incidents { get; set; } = [];
+    public PagedResult<CoordinatorIncidentDto> Incidents { get; set; } = new();
+    public int IncidentsEnCoursCount { get; set; }
 }
 
 // CDC §12 "Synthèse navires" — PointsAttention est une valeur dérivée (anomalies + incidents

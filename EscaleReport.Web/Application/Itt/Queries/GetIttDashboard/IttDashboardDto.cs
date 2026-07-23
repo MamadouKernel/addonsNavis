@@ -1,11 +1,16 @@
+using EscaleReport.Web.Application.Common.Models;
+
 namespace EscaleReport.Web.Application.Itt.Queries.GetIttDashboard;
 
 public class IttDashboardDto
 {
-    public IReadOnlyList<IttTransferDto> Transfers { get; set; } = [];
-    public IReadOnlyList<IttTransferIncidentDto> TransferIncidents { get; set; } = [];
+    public PagedResult<IttTransferDto> Transfers { get; set; } = new();
+    public PagedResult<IttTransferIncidentDto> TransferIncidents { get; set; } = new();
     public IttEquipementEffectifDto EquipementEffectif { get; set; } = new();
-    public IReadOnlyList<IttEnginPanneDto> EnginPannes { get; set; } = [];
+    public PagedResult<IttEnginPanneDto> EnginPannes { get; set; } = new();
+
+    public int IncidentsEnCoursCount { get; set; }
+    public int PannesEnCoursCount { get; set; }
 }
 
 public class IttTransferDto

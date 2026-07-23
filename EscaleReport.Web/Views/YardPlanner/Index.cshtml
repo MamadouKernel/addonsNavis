@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.YardPlanning.Queries.GetYardPlannerDashboard
 @using EscaleReport.Web.Domain.Escales
 @using EscaleReport.Web.Domain.YardPlanning
@@ -33,8 +34,8 @@
         _ => "À faire"
     };
 
-    var transfertsEnCours = Model.TransfertsOut.Count(t => !t.EstTermine);
-    var tachesEnCours = Model.HousekeepingTasks.Count(t => t.Statut is HousekeepingStatus.AFaire or HousekeepingStatus.EnCours);
+    var transfertsEnCours = Model.TransfertsEnCoursCount;
+    var tachesEnCours = Model.TachesEnCoursCount;
 }
 
 <div class="mb-8">
@@ -69,11 +70,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.NaviresEnCours.Any())
+                @if (!Model.NaviresEnCours.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune escale enregistrée.</td></tr>
                 }
-                @foreach (var n in Model.NaviresEnCours)
+                @foreach (var n in Model.NaviresEnCours.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@n.Navire</td>
@@ -89,6 +90,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.NaviresEnCours, "naviresPage"))
 </section>
 
 <!-- ============ PLANS NAVIRE ET ZONES DE DEBARQUEMENT (§11.2) ============ -->
@@ -112,11 +114,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.VesselYardPlans.Any())
+                @if (!Model.VesselYardPlans.Items.Any())
                 {
                     <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucun plan enregistré.</td></tr>
                 }
-                @foreach (var p in Model.VesselYardPlans)
+                @foreach (var p in Model.VesselYardPlans.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@p.Navire</td>
@@ -142,6 +144,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.VesselYardPlans, "plansPage"))
 
     @if (Model.ZonesDisponibles.Any())
     {
@@ -204,11 +207,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.TransfertsOut.Any())
+                @if (!Model.TransfertsOut.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun transfert Out.</td></tr>
                 }
-                @foreach (var t in Model.TransfertsOut)
+                @foreach (var t in Model.TransfertsOut.Items)
                 {
                     <tr>
                         <td class="font-mono font-semibold text-slate-900">@t.Bay</td>
@@ -235,6 +238,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.TransfertsOut, "transfertsPage"))
 
     <form asp-controller="YardPlanner" asp-action="AddTransfertOut" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -268,11 +272,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.HousekeepingTasks.Any())
+                @if (!Model.HousekeepingTasks.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune tâche de housekeeping.</td></tr>
                 }
-                @foreach (var t in Model.HousekeepingTasks)
+                @foreach (var t in Model.HousekeepingTasks.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@t.Description</td>
@@ -304,6 +308,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.HousekeepingTasks, "housekeepingPage"))
 
     <form asp-controller="YardPlanner" asp-action="AddHousekeepingTask" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">

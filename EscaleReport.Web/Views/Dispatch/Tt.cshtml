@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt
 @model DispatchTtDto
 @{
@@ -74,11 +75,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Assignments.Any())
+                @if (!Model.Assignments.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune affectation.</td></tr>
                 }
-                @foreach (var a in Model.Assignments)
+                @foreach (var a in Model.Assignments.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@a.Navire</td>
@@ -106,6 +107,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Assignments, "assignmentsPage"))
 
     <form asp-controller="Dispatch" asp-action="AssignTt" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -162,11 +164,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Deconnexions.Any())
+                @if (!Model.Deconnexions.Items.Any())
                 {
                     <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucune déconnexion signalée.</td></tr>
                 }
-                @foreach (var d in Model.Deconnexions)
+                @foreach (var d in Model.Deconnexions.Items)
                 {
                     <tr>
                         <td class="font-mono font-semibold text-slate-900">@d.NumeroTt</td>
@@ -194,6 +196,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Deconnexions, "deconnexionsPage"))
 
     <form asp-controller="Dispatch" asp-action="AddTtDeconnexion" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">

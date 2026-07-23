@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Coordination.Queries.GetCoordinatorDashboard
 @using EscaleReport.Web.Domain.Escales
 @using EscaleReport.Web.Domain.Settings
@@ -21,7 +22,7 @@
 
     static string DureeLabel(TimeSpan? d) => d.HasValue ? $"{(int)d.Value.TotalHours}h{Math.Abs(d.Value.Minutes):D2}" : "—";
 
-    var incidentsEnCours = Model.Incidents.Count(i => !i.EstResolu);
+    var incidentsEnCours = Model.IncidentsEnCoursCount;
 }
 
 <div class="mb-8">
@@ -60,11 +61,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if (!Model.SyntheseNavires.Any())
+                    @if (!Model.SyntheseNavires.Items.Any())
                     {
                         <tr><td colspan="10" class="!text-center text-slate-400 py-8">Aucune escale enregistrée.</td></tr>
                     }
-                    @foreach (var n in Model.SyntheseNavires)
+                    @foreach (var n in Model.SyntheseNavires.Items)
                     {
                         <tr>
                             <td class="font-semibold text-slate-900">@n.Navire</td>
@@ -86,6 +87,7 @@
                 </table>
             </div>
         </div>
+        @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.SyntheseNavires, "naviresPage"))
     </section>
     }
 
@@ -262,11 +264,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if (!Model.SyntheseCargo.Any())
+                    @if (!Model.SyntheseCargo.Items.Any())
                     {
                         <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucune consolidation Cargo enregistrée.</td></tr>
                     }
-                    @foreach (var c in Model.SyntheseCargo)
+                    @foreach (var c in Model.SyntheseCargo.Items)
                     {
                         <tr>
                             <td class="font-semibold text-slate-900">@c.Navire</td>
@@ -284,6 +286,7 @@
                 </table>
             </div>
         </div>
+        @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.SyntheseCargo, "cargoPage"))
     </section>
     }
 </section>
@@ -306,11 +309,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Incidents.Any())
+                @if (!Model.Incidents.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun incident Coordinateur.</td></tr>
                 }
-                @foreach (var i in Model.Incidents)
+                @foreach (var i in Model.Incidents.Items)
                 {
                     <tr>
                         <td class="font-semibold text-slate-900">@i.Objet</td>
@@ -336,6 +339,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Incidents, "incidentsPage"))
 
     <form asp-controller="Coordination" asp-action="AddIncident" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">

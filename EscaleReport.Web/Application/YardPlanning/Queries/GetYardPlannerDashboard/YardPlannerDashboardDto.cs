@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.YardPlanning;
 
@@ -5,12 +6,16 @@ namespace EscaleReport.Web.Application.YardPlanning.Queries.GetYardPlannerDashbo
 
 public class YardPlannerDashboardDto
 {
-    public IReadOnlyList<NavireEnCoursDto> NaviresEnCours { get; set; } = [];
-    public IReadOnlyList<VesselYardPlanDto> VesselYardPlans { get; set; } = [];
-    public IReadOnlyList<TransfertOutDto> TransfertsOut { get; set; } = [];
-    public IReadOnlyList<HousekeepingTaskDto> HousekeepingTasks { get; set; } = [];
+    public PagedResult<NavireEnCoursDto> NaviresEnCours { get; set; } = new();
+    public PagedResult<VesselYardPlanDto> VesselYardPlans { get; set; } = new();
+    public PagedResult<TransfertOutDto> TransfertsOut { get; set; } = new();
+    public PagedResult<HousekeepingTaskDto> HousekeepingTasks { get; set; } = new();
     public IReadOnlyList<EscaleYardOptionDto> EscalesDisponibles { get; set; } = [];
     public IReadOnlyList<string> ZonesDisponibles { get; set; } = [];
+
+    // Comptes pour les pastilles d'onglet, calculés sur l'ensemble des enregistrements.
+    public int TransfertsEnCoursCount { get; set; }
+    public int TachesEnCoursCount { get; set; }
 }
 
 // CDC §11.1 "Navires en cours à quai".

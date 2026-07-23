@@ -38,9 +38,14 @@ namespace EscaleReport.Web.Controllers;
 public class DispatchController(ISender mediator) : Controller
 {
     // Tableau de bord Dispatch STS (CDC §6). Sélection du shift (§6.1) via querystring.
-    public async Task<IActionResult> Sts(DateOnly? date, string? shift, CancellationToken cancellationToken)
+    public async Task<IActionResult> Sts(
+        DateOnly? date, string? shift,
+        int assignmentsPage = 1, int incidentsPage = 1, int pointeursPage = 1, int ropnPage = 1,
+        CancellationToken cancellationToken = default)
     {
-        var dto = await mediator.Send(new GetDispatchStsQuery(date, shift), cancellationToken);
+        var dto = await mediator.Send(
+            new GetDispatchStsQuery(date, shift, assignmentsPage, incidentsPage, pointeursPage, ropnPage),
+            cancellationToken);
         return View(dto);
     }
 
@@ -126,9 +131,9 @@ public class DispatchController(ISender mediator) : Controller
     }
 
     // Tableau de bord Dispatch TT (CDC §7).
-    public async Task<IActionResult> Tt(CancellationToken cancellationToken)
+    public async Task<IActionResult> Tt(int assignmentsPage = 1, int deconnexionsPage = 1, CancellationToken cancellationToken = default)
     {
-        var dto = await mediator.Send(new GetDispatchTtQuery(), cancellationToken);
+        var dto = await mediator.Send(new GetDispatchTtQuery(assignmentsPage, deconnexionsPage), cancellationToken);
         return View(dto);
     }
 
@@ -178,9 +183,13 @@ public class DispatchController(ISender mediator) : Controller
     }
 
     // Tableau de bord Dispatch RTG (CDC §8).
-    public async Task<IActionResult> Rtg(CancellationToken cancellationToken)
+    public async Task<IActionResult> Rtg(
+        int pannesPage = 1, int clashesPage = 1, int gateTruckIssuesPage = 1, int stsIncidentsPage = 1,
+        CancellationToken cancellationToken = default)
     {
-        var dto = await mediator.Send(new GetDispatchRtgQuery(), cancellationToken);
+        var dto = await mediator.Send(
+            new GetDispatchRtgQuery(pannesPage, clashesPage, gateTruckIssuesPage, stsIncidentsPage),
+            cancellationToken);
         return View(dto);
     }
 
@@ -250,9 +259,13 @@ public class DispatchController(ISender mediator) : Controller
     }
 
     // Tableau de bord Dispatch des autres engins (CDC §9).
-    public async Task<IActionResult> AutresEngins(CancellationToken cancellationToken)
+    public async Task<IActionResult> AutresEngins(
+        int problemesPage = 1, int deconnexionsPage = 1, int remplacementsPage = 1,
+        CancellationToken cancellationToken = default)
     {
-        var dto = await mediator.Send(new GetDispatchAutresEnginsQuery(), cancellationToken);
+        var dto = await mediator.Send(
+            new GetDispatchAutresEnginsQuery(problemesPage, deconnexionsPage, remplacementsPage),
+            cancellationToken);
         return View(dto);
     }
 

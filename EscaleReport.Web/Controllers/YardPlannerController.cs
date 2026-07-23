@@ -15,9 +15,13 @@ namespace EscaleReport.Web.Controllers;
 [Authorize]
 public class YardPlannerController(ISender mediator) : Controller
 {
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(
+        int naviresPage = 1, int plansPage = 1, int transfertsPage = 1, int housekeepingPage = 1,
+        CancellationToken cancellationToken = default)
     {
-        var dto = await mediator.Send(new GetYardPlannerDashboardQuery(), cancellationToken);
+        var dto = await mediator.Send(
+            new GetYardPlannerDashboardQuery(naviresPage, plansPage, transfertsPage, housekeepingPage),
+            cancellationToken);
         return View(dto);
     }
 

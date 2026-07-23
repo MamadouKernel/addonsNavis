@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Application.Dispatch.Dtos;
 
 namespace EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt;
@@ -5,9 +6,9 @@ namespace EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt;
 public class DispatchTtDto
 {
     public TtEffectifDto Effectif { get; set; } = new();
-    public IReadOnlyList<TtVesselAssignmentDto> Assignments { get; set; } = [];
+    public PagedResult<TtVesselAssignmentDto> Assignments { get; set; } = new();
     public IReadOnlyList<EscaleOptionDto> EscalesDisponibles { get; set; } = [];
-    public IReadOnlyList<TtDeconnexionDto> Deconnexions { get; set; } = [];
+    public PagedResult<TtDeconnexionDto> Deconnexions { get; set; } = new();
 }
 
 public class TtDeconnexionDto

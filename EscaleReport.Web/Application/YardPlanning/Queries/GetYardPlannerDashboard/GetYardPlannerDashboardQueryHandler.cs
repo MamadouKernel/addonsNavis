@@ -1,6 +1,8 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Common;
+using EscaleReport.Web.Domain.YardPlanning;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -97,12 +99,14 @@ public class GetYardPlannerDashboardQueryHandler(
 
         return new YardPlannerDashboardDto
         {
-            NaviresEnCours = naviresEnCours,
-            VesselYardPlans = vesselYardPlans,
-            TransfertsOut = transfertsOut,
-            HousekeepingTasks = housekeepingTasks,
+            NaviresEnCours = PagedResult<NavireEnCoursDto>.Create(naviresEnCours, request.NaviresPage),
+            VesselYardPlans = PagedResult<VesselYardPlanDto>.Create(vesselYardPlans, request.PlansPage),
+            TransfertsOut = PagedResult<TransfertOutDto>.Create(transfertsOut, request.TransfertsPage),
+            HousekeepingTasks = PagedResult<HousekeepingTaskDto>.Create(housekeepingTasks, request.HousekeepingPage),
             EscalesDisponibles = escalesDisponibles,
-            ZonesDisponibles = zonesDisponibles
+            ZonesDisponibles = zonesDisponibles,
+            TransfertsEnCoursCount = transfertsOut.Count(t => !t.EstTermine),
+            TachesEnCoursCount = housekeepingTasks.Count(t => t.Statut is HousekeepingStatus.AFaire or HousekeepingStatus.EnCours)
         };
     }
 }

@@ -11,9 +11,13 @@ namespace EscaleReport.Web.Controllers;
 [Authorize]
 public class CoordinationController(ISender mediator) : Controller
 {
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(
+        int naviresPage = 1, int cargoPage = 1, int incidentsPage = 1,
+        CancellationToken cancellationToken = default)
     {
-        var dto = await mediator.Send(new GetCoordinatorDashboardQuery(), cancellationToken);
+        var dto = await mediator.Send(
+            new GetCoordinatorDashboardQuery(naviresPage, cargoPage, incidentsPage),
+            cancellationToken);
         return View(dto);
     }
 

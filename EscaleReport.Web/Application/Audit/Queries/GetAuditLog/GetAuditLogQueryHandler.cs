@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +11,6 @@ public class GetAuditLogQueryHandler(
     IApplicationDbContext dbContext,
     ICurrentUserService currentUser) : IRequestHandler<GetAuditLogQuery, AuditLogResultDto>
 {
-    private const int MaxResults = 500;
-
     public async Task<AuditLogResultDto> Handle(GetAuditLogQuery request, CancellationToken cancellationToken)
     {
         if (!currentUser.HasPermission(Permissions.ConsulterJournalAudit))
@@ -44,10 +43,12 @@ public class GetAuditLogQueryHandler(
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
+        var (page, skip, pageSize, _) = Paging.Resolve(request.Page, request.PageSize, totalCount);
 
         var entries = await query
             .OrderByDescending(a => a.DateUtc)
-            .Take(MaxResults)
+            .Skip(skip)
+            .Take(pageSize)
             .Select(a => new AuditLogEntryDto
             {
                 Id = a.Id,
@@ -73,10 +74,15 @@ public class GetAuditLogQueryHandler(
 
         return new AuditLogResultDto
         {
-            Entries = entries,
+            Entries = new PagedResult<AuditLogEntryDto>
+            {
+                Items = entries,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            },
             Utilisateurs = utilisateurs,
-            Actions = actions,
-            TotalCount = totalCount
+            Actions = actions
         };
     }
 }

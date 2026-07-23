@@ -102,6 +102,17 @@ public class UsersController(
         {
             user.IsActive = !user.IsActive;
             await userManager.UpdateAsync(user);
+
+            // Une désactivation ne doit pas laisser une session déjà ouverte utilisable : IsActive
+            // n'est vérifié qu'à la connexion (AccountController.Login), donc sans ce coup de pouce
+            // le cookie déjà émis resterait valide jusqu'à expiration. Changer le security stamp
+            // invalide ce cookie dès la prochaine revalidation périodique (voir
+            // SecurityStampValidatorOptions.ValidationInterval dans Program.cs).
+            if (!user.IsActive)
+            {
+                await userManager.UpdateSecurityStampAsync(user);
+            }
+
             await LogAuditAsync(user.IsActive ? "ActivateUser" : "DeactivateUser", id.ToString(), cancellationToken);
         }
 

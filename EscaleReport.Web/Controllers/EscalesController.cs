@@ -18,9 +18,9 @@ namespace EscaleReport.Web.Controllers;
 public class EscalesController(ISender mediator) : Controller
 {
     // Tableau de bord des escales (CDC §4.1).
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int page = 1, CancellationToken cancellationToken = default)
     {
-        var escales = await mediator.Send(new GetEscalesQuery(), cancellationToken);
+        var escales = await mediator.Send(new GetEscalesQuery(page), cancellationToken);
         return View(escales);
     }
 
