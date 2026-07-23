@@ -58,15 +58,15 @@ Palette "lagune" alignée sur le prototype HTML de référence (bleu-nuit du qua
 
 ## Comptes de démonstration (environnement de développement)
 
-Créés par le seeder au premier démarrage (mot de passe généré et affiché une seule fois dans les logs si non fourni via configuration) :
+Créés par le seeder au premier démarrage. Mot de passe fixé en développement (`appsettings.Development.json`) pour les 3 comptes les plus utilisés en démo ; les autres restent générés aléatoirement et affichés une seule fois dans les logs si non fournis via configuration :
 
-| Compte | Rôle |
-|---|---|
-| `admin` | Administrateur |
-| `vplanner` | Vessel Planner |
-| `dispatcher1` | Dispatcher |
-| `cargo1` | Cargo Controller |
-| `yardplanner1` | Yard Planner |
-| `coordinateur1` | Coordinateur Control Room |
-| `ittcontroller1` | ITT Controller |
-| `shiftmanager1` | Shift Manager |
+| Compte | Rôle | Mot de passe (dev) |
+|---|---|---|
+| `admin` | Administrateur | `Bonjour@2027` |
+| `vplanner` | Vessel Planner | `Bonjour@2027` |
+| `dispatcher1` | Dispatcher | `Bonjour@2027` |
+| `cargo1` | Cargo Controller | généré (voir logs) |
+| `yardplanner1` | Yard Planner | généré (voir logs) |
+| `coordinateur1` | Coordinateur Control Room | généré (voir logs) |
+| `ittcontroller1` | ITT Controller | généré (voir logs) |
+| `shiftmanager1` | Shift Manager | généré (voir logs) |
