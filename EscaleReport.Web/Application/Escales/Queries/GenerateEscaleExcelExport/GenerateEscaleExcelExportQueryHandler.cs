@@ -18,7 +18,7 @@ public class GenerateEscaleExcelExportQueryHandler(
             throw new ForbiddenAccessException(Permissions.GenererExcel);
         }
 
-        var detail = await mediator.Send(new GetEscaleDetailQuery(request.EscaleId), cancellationToken);
+        var detail = await mediator.Send(new GetEscaleDetailQuery(request.EscaleId, Unbounded: true), cancellationToken);
         if (detail is null)
         {
             return null;

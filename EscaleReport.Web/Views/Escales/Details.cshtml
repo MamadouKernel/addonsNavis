@@ -1,3 +1,4 @@
+@using EscaleReport.Web.Application.Common.Models
 @using EscaleReport.Web.Application.Escales.Queries.GetEscaleDetail
 @using EscaleReport.Web.Domain.Escales
 @using EscaleReport.Web.Domain.VesselPlanning
@@ -27,13 +28,13 @@
         _ => "À suivre"
     };
 
-    var incidentsEnCours = Model.Incidents.Count(i => i.Statut == IncidentStatus.EnCours);
-    var additionnelsEnAttente = Model.ConteneursAdditionnels.Count(c => c.Decision == AdditionalContainerDecision.EnAttente);
-    var dangereuxAlertes = Model.ConteneursDangereux.Count(c => c.AlerteRenouvellement);
+    var incidentsEnCours = Model.IncidentsEnCoursCount;
+    var additionnelsEnAttente = Model.AdditionnelsEnAttenteCount;
+    var dangereuxAlertes = Model.DangereuxAlertesCount;
 
     // CDC §4.3 : points d'attention à signaler lorsque l'escale passe au statut "Terminées".
-    var anomaliesNonResolues = Model.Anomalies.Count(a => a.Statut == AnomalyStatus.NonResolu);
-    var dangereuxNonRegularises = Model.ConteneursDangereux.Count(c => c.StatutOperationnel == DangerousContainerStatus.ASuivre);
+    var anomaliesNonResolues = Model.AnomaliesNonResoluesCount;
+    var dangereuxNonRegularises = Model.DangereuxNonRegularisesCount;
     var additionnelsNonTraites = additionnelsEnAttente;
     var pointsAttentionCloture = anomaliesNonResolues + dangereuxNonRegularises + additionnelsNonTraites;
 
@@ -184,8 +185,8 @@
 </section>
 
 <div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="vpTabs">
-    <button type="button" class="tab-btn active" data-tab="anomalies">Anomalies <span class="tab-count">@Model.Anomalies.Count</span></button>
-    <button type="button" class="tab-btn" data-tab="vides">Vides <span class="tab-count">@Model.ConteneursVides.Count</span></button>
+    <button type="button" class="tab-btn active" data-tab="anomalies">Anomalies <span class="tab-count">@Model.Anomalies.TotalCount</span></button>
+    <button type="button" class="tab-btn" data-tab="vides">Vides <span class="tab-count">@Model.ConteneursVides.TotalCount</span></button>
     <button type="button" class="tab-btn" data-tab="incidents">Incidents <span class="tab-count">@incidentsEnCours</span></button>
     <button type="button" class="tab-btn" data-tab="additionnels">Additionnels <span class="tab-count">@additionnelsEnAttente</span></button>
     <button type="button" class="tab-btn" data-tab="dangereux">Dangereux <span class="tab-count">@dangereuxAlertes</span></button>
@@ -210,11 +211,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Anomalies.Any())
+                @if (!Model.Anomalies.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucune anomalie déclarée.</td></tr>
                 }
-                @foreach (var a in Model.Anomalies)
+                @foreach (var a in Model.Anomalies.Items)
                 {
                     <tr>
                         <td class="font-mono font-semibold text-slate-900">@a.NumeroConteneur</td>
@@ -248,6 +249,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Anomalies, "anomaliesPage"))
 
     <form asp-controller="VesselPlanning" asp-action="AddAnomaly" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-6">
@@ -286,12 +288,12 @@
     <p class="card-subtitle mb-5">Reste calculé automatiquement (souhaité + ajouté − embarqué − coupé)</p>
 
     @{
-        var totSouh = Model.ConteneursVides.Sum(v => v.QuantiteSouhaitee);
-        var totAjout = Model.ConteneursVides.Sum(v => v.QuantiteAjoutee);
-        var totPlan = Model.ConteneursVides.Sum(v => v.QuantitePlanifiee);
-        var totEmb = Model.ConteneursVides.Sum(v => v.QuantiteEmbarquee);
-        var totCoupe = Model.ConteneursVides.Sum(v => v.QuantiteCoupee);
-        var totReste = Model.ConteneursVides.Sum(v => v.QuantiteRestante);
+        var totSouh = Model.VidesSouhaiteTotal;
+        var totAjout = Model.VidesAjouteTotal;
+        var totPlan = Model.VidesPlanifieTotal;
+        var totEmb = Model.VidesEmbarqueTotal;
+        var totCoupe = Model.VidesCoupeTotal;
+        var totReste = Model.VidesResteTotal;
     }
     <div class="mb-6 grid grid-cols-3 gap-3 sm:grid-cols-6">
         <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
@@ -321,11 +323,11 @@
     </div>
 
     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        @if (!Model.ConteneursVides.Any())
+        @if (!Model.ConteneursVides.Items.Any())
         {
             <p class="text-sm text-slate-400 sm:col-span-2 lg:col-span-3">Aucun objectif de conteneurs vides.</p>
         }
-        @foreach (var v in Model.ConteneursVides)
+        @foreach (var v in Model.ConteneursVides.Items)
         {
             <form asp-controller="VesselPlanning" asp-action="UpdateEmptyTarget" method="post" class="rounded-xl border border-slate-200 p-4">
                 <input type="hidden" name="Id" value="@v.Id" />
@@ -351,6 +353,7 @@
             </form>
         }
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.ConteneursVides, "videsPage"))
 
     <form asp-controller="VesselPlanning" asp-action="AddEmptyTarget" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -382,11 +385,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.Incidents.Any())
+                @if (!Model.Incidents.Items.Any())
                 {
                     <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun incident déclaré.</td></tr>
                 }
-                @foreach (var i in Model.Incidents)
+                @foreach (var i in Model.Incidents.Items)
                 {
                     <tr class="@(i.Gravite == IncidentGravite.Critique ? "bg-rose-50/60" : "")">
                         <td class="font-semibold text-slate-900">@i.Categorie</td>
@@ -418,6 +421,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Incidents, "incidentsPage"))
 
     <form asp-controller="VesselPlanning" asp-action="AddIncident" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -470,11 +474,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.ConteneursAdditionnels.Any())
+                @if (!Model.ConteneursAdditionnels.Items.Any())
                 {
                     <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun conteneur additionnel.</td></tr>
                 }
-                @foreach (var c in Model.ConteneursAdditionnels)
+                @foreach (var c in Model.ConteneursAdditionnels.Items)
                 {
                     <tr class="@(c.Decision == AdditionalContainerDecision.EnAttente ? "bg-amber-50/60" : "")">
                         <td class="font-mono font-semibold text-slate-900">@c.NumeroConteneur</td>
@@ -511,6 +515,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.ConteneursAdditionnels, "additionnelsPage"))
 
     <form asp-controller="VesselPlanning" asp-action="AddAdditional" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-6">
@@ -549,11 +554,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if (!Model.ConteneursDangereux.Any())
+                @if (!Model.ConteneursDangereux.Items.Any())
                 {
                     <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucun conteneur dangereux.</td></tr>
                 }
-                @foreach (var c in Model.ConteneursDangereux)
+                @foreach (var c in Model.ConteneursDangereux.Items)
                 {
                     <tr class="@(c.AlerteRenouvellement ? "bg-rose-50/60" : "")">
                         <td class="font-mono font-semibold text-slate-900">@c.NumeroConteneur</td>
@@ -602,6 +607,7 @@
             </table>
         </div>
     </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.ConteneursDangereux, "dangereuxPage"))
 
     <form asp-controller="VesselPlanning" asp-action="AddDangerous" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">

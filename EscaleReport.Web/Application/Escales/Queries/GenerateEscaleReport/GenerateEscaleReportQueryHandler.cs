@@ -18,7 +18,7 @@ public class GenerateEscaleReportQueryHandler(
             throw new ForbiddenAccessException(Permissions.GenererPdf);
         }
 
-        var detail = await mediator.Send(new GetEscaleDetailQuery(request.EscaleId), cancellationToken);
+        var detail = await mediator.Send(new GetEscaleDetailQuery(request.EscaleId, Unbounded: true), cancellationToken);
         if (detail is null)
         {
             return null;

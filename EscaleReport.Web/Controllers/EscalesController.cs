@@ -49,9 +49,14 @@ public class EscalesController(ISender mediator) : Controller
     }
 
     // Détail escale + module Vessel Planning (anomalies conteneurs, CDC §5.1).
-    public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Details(
+        Guid id,
+        int anomaliesPage = 1, int videsPage = 1, int incidentsPage = 1, int additionnelsPage = 1, int dangereuxPage = 1,
+        CancellationToken cancellationToken = default)
     {
-        var detail = await mediator.Send(new GetEscaleDetailQuery(id), cancellationToken);
+        var detail = await mediator.Send(
+            new GetEscaleDetailQuery(id, anomaliesPage, videsPage, incidentsPage, additionnelsPage, dangereuxPage),
+            cancellationToken);
         if (detail is null)
         {
             return NotFound();

@@ -1,6 +1,7 @@
 using EscaleReport.Web.Application.Cargo.Dtos;
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Common.Models;
 using EscaleReport.Web.Application.Dispatch.Dtos;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt;
 using EscaleReport.Web.Application.Escales.Dtos;
@@ -136,16 +137,42 @@ public class GetEscaleDetailQueryHandler(
                 EstResolu = i.EstResolu
             }).ToListAsync(cancellationToken);
 
+        var anomaliesDto = anomalies.Select(ContainerAnomalyDto.FromEntity).ToList();
+        var videsDto = vides.Select(EmptyContainerTargetDto.FromEntity).ToList();
+        var incidentsDto = incidents.Select(OperationalIncidentDto.FromEntity).ToList();
+        var additionnelsDto = additionnels.Select(AdditionalContainerDto.FromEntity).ToList();
+        var dangereuxDto = dangereux.Select(DangerousContainerDto.FromEntity).ToList();
+
+        // Voir le commentaire sur GetEscaleDetailQuery.Unbounded : la génération PDF/Excel a
+        // besoin de tout, pas d'une page de 20 lignes.
+        var pageSize = request.Unbounded ? int.MaxValue : Paging.DefaultPageSize;
+
         return new EscaleDetailDto
         {
             Escale = EscaleDto.FromEntity(escale),
-            Anomalies = anomalies.Select(ContainerAnomalyDto.FromEntity).ToList(),
+            Anomalies = PagedResult<ContainerAnomalyDto>.Create(anomaliesDto, request.AnomaliesPage, pageSize),
             RaisonsDisponibles = raisons,
-            ConteneursVides = vides.Select(EmptyContainerTargetDto.FromEntity).ToList(),
-            Incidents = incidents.Select(OperationalIncidentDto.FromEntity).ToList(),
+            AnomaliesNonResoluesCount = anomaliesDto.Count(a => a.Statut == Domain.VesselPlanning.AnomalyStatus.NonResolu),
+
+            ConteneursVides = PagedResult<EmptyContainerTargetDto>.Create(videsDto, request.VidesPage, pageSize),
+            VidesSouhaiteTotal = videsDto.Sum(v => v.QuantiteSouhaitee),
+            VidesAjouteTotal = videsDto.Sum(v => v.QuantiteAjoutee),
+            VidesPlanifieTotal = videsDto.Sum(v => v.QuantitePlanifiee),
+            VidesEmbarqueTotal = videsDto.Sum(v => v.QuantiteEmbarquee),
+            VidesCoupeTotal = videsDto.Sum(v => v.QuantiteCoupee),
+            VidesResteTotal = videsDto.Sum(v => v.QuantiteRestante),
+
+            Incidents = PagedResult<OperationalIncidentDto>.Create(incidentsDto, request.IncidentsPage, pageSize),
             CategoriesIncidentDisponibles = categoriesIncident,
-            ConteneursAdditionnels = additionnels.Select(AdditionalContainerDto.FromEntity).ToList(),
-            ConteneursDangereux = dangereux.Select(DangerousContainerDto.FromEntity).ToList(),
+            IncidentsEnCoursCount = incidentsDto.Count(i => i.Statut == Domain.VesselPlanning.IncidentStatus.EnCours),
+
+            ConteneursAdditionnels = PagedResult<AdditionalContainerDto>.Create(additionnelsDto, request.AdditionnelsPage, pageSize),
+            AdditionnelsEnAttenteCount = additionnelsDto.Count(c => c.Decision == Domain.VesselPlanning.AdditionalContainerDecision.EnAttente),
+
+            ConteneursDangereux = PagedResult<DangerousContainerDto>.Create(dangereuxDto, request.DangereuxPage, pageSize),
+            DangereuxAlertesCount = dangereuxDto.Count(c => c.AlerteRenouvellement),
+            DangereuxNonRegularisesCount = dangereuxDto.Count(c => c.StatutOperationnel == Domain.VesselPlanning.DangerousContainerStatus.ASuivre),
+
             Cargo = cargo,
             RessourcesSts = ressourcesSts,
             RessourcesTt = ressourcesTt,

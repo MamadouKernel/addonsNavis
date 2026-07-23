@@ -76,13 +76,13 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
             });
 
             SectionTitle(col, "Conteneurs en anomalie");
-            if (detail.Anomalies.Count == 0)
+            if (detail.Anomalies.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucune anomalie déclarée.");
             }
             else
             {
-                Table(col, ["Conteneur", "Sens", "Ligne", "Position", "Raison", "Statut"], detail.Anomalies.Select(a => new[]
+                Table(col, ["Conteneur", "Sens", "Ligne", "Position", "Raison", "Statut"], detail.Anomalies.Items.Select(a => new[]
                 {
                     a.NumeroConteneur,
                     a.Sens == Sens.Debarquement ? "Débarquement" : "Embarquement",
@@ -94,13 +94,13 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
             }
 
             SectionTitle(col, "Conteneurs vides");
-            if (detail.ConteneursVides.Count == 0)
+            if (detail.ConteneursVides.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucune cible de conteneurs vides.");
             }
             else
             {
-                Table(col, ["Ligne", "Type", "Souhaitée", "Planifiée", "Embarquée", "Coupée", "Restante"], detail.ConteneursVides.Select(v => new[]
+                Table(col, ["Ligne", "Type", "Souhaitée", "Planifiée", "Embarquée", "Coupée", "Restante"], detail.ConteneursVides.Items.Select(v => new[]
                 {
                     v.LigneMaritime,
                     v.TypeConteneur,
@@ -113,13 +113,13 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
             }
 
             SectionTitle(col, "Incidents opérationnels");
-            if (detail.Incidents.Count == 0)
+            if (detail.Incidents.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucun incident opérationnel déclaré.");
             }
             else
             {
-                Table(col, ["Catégorie", "Localisation", "Début", "Statut", "Description"], detail.Incidents.Select(i => new[]
+                Table(col, ["Catégorie", "Localisation", "Début", "Statut", "Description"], detail.Incidents.Items.Select(i => new[]
                 {
                     i.Categorie,
                     i.Localisation ?? "—",
@@ -146,13 +146,13 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
             }
 
             SectionTitle(col, "Conteneurs additionnels");
-            if (detail.ConteneursAdditionnels.Count == 0)
+            if (detail.ConteneursAdditionnels.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucun conteneur additionnel déclaré.");
             }
             else
             {
-                Table(col, ["Conteneur", "Ligne", "Sens", "Décision"], detail.ConteneursAdditionnels.Select(c => new[]
+                Table(col, ["Conteneur", "Ligne", "Sens", "Décision"], detail.ConteneursAdditionnels.Items.Select(c => new[]
                 {
                     c.NumeroConteneur,
                     c.LigneMaritime ?? "—",
@@ -162,13 +162,13 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
             }
 
             SectionTitle(col, "Conteneurs dangereux");
-            if (detail.ConteneursDangereux.Count == 0)
+            if (detail.ConteneursDangereux.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucun conteneur dangereux déclaré.");
             }
             else
             {
-                Table(col, ["Conteneur", "Classe IMO", "Statut BADT", "Statut opérationnel"], detail.ConteneursDangereux.Select(c => new[]
+                Table(col, ["Conteneur", "Classe IMO", "Statut BADT", "Statut opérationnel"], detail.ConteneursDangereux.Items.Select(c => new[]
                 {
                     c.NumeroConteneur,
                     c.ClasseImo ?? "—",
@@ -235,18 +235,18 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
     // synthétisés à partir des données déjà saisies, jamais ressaisis.
     private static void ComposeSynthese(ColumnDescriptor col, EscaleDetailDto detail)
     {
-        var difficultes = detail.Incidents.Where(i => i.Statut == IncidentStatus.EnCours).Select(i => $"{i.Categorie} : {i.Description ?? "—"}")
+        var difficultes = detail.Incidents.Items.Where(i => i.Statut == IncidentStatus.EnCours).Select(i => $"{i.Categorie} : {i.Description ?? "—"}")
             .Concat(detail.IncidentsSts.Where(i => !i.EstResolu).Select(i => $"Incident STS ({i.GantryCode ?? "—"}) : {i.TypeIncident}"))
             .ToList();
 
-        var actions = detail.Incidents.Where(i => !string.IsNullOrWhiteSpace(i.ActionRealisee)).Select(i => $"{i.Categorie} : {i.ActionRealisee}")
+        var actions = detail.Incidents.Items.Where(i => !string.IsNullOrWhiteSpace(i.ActionRealisee)).Select(i => $"{i.Categorie} : {i.ActionRealisee}")
             .Concat(detail.IncidentsSts.Where(i => !string.IsNullOrWhiteSpace(i.ConditionsReprise)).Select(i => $"Incident STS : {i.ConditionsReprise}"))
             .ToList();
 
-        var pointsOuverts = detail.Anomalies.Count(a => a.Statut == AnomalyStatus.NonResolu)
-            + detail.ConteneursDangereux.Count(c => c.StatutOperationnel == DangerousContainerStatus.ASuivre)
-            + detail.ConteneursAdditionnels.Count(c => c.Decision == AdditionalContainerDecision.EnAttente)
-            + detail.Incidents.Count(i => i.Statut == IncidentStatus.EnCours);
+        var pointsOuverts = detail.Anomalies.Items.Count(a => a.Statut == AnomalyStatus.NonResolu)
+            + detail.ConteneursDangereux.Items.Count(c => c.StatutOperationnel == DangerousContainerStatus.ASuivre)
+            + detail.ConteneursAdditionnels.Items.Count(c => c.Decision == AdditionalContainerDecision.EnAttente)
+            + detail.Incidents.Items.Count(i => i.Statut == IncidentStatus.EnCours);
 
         SectionTitle(col, "Difficultés rencontrées");
         if (difficultes.Count == 0)

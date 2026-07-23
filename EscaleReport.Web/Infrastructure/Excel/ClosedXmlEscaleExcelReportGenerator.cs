@@ -88,7 +88,7 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         WriteHeaders(sheet, ["Conteneur", "Sens", "Ligne maritime", "Position", "Raison", "Statut", "Résolu par", "Date résolution", "Commentaire"]);
 
         var row = 2;
-        foreach (var a in detail.Anomalies)
+        foreach (var a in detail.Anomalies.Items)
         {
             sheet.Cell(row, 1).Value = SafeText(a.NumeroConteneur);
             sheet.Cell(row, 2).Value = a.Sens == Sens.Debarquement ? "Débarquement" : "Embarquement";
@@ -110,7 +110,7 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         WriteHeaders(sheet, ["Ligne maritime", "Type conteneur", "Souhaitée", "Ajoutée", "Planifiée", "Embarquée", "Coupée", "Motif coupure", "Restante"]);
 
         var row = 2;
-        foreach (var v in detail.ConteneursVides)
+        foreach (var v in detail.ConteneursVides.Items)
         {
             sheet.Cell(row, 1).Value = SafeText(v.LigneMaritime);
             sheet.Cell(row, 2).Value = SafeText(v.TypeConteneur);
@@ -132,7 +132,7 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         WriteHeaders(sheet, ["Catégorie", "Localisation", "Début", "Fin", "Durée", "Gravité", "Statut", "Description", "Action réalisée", "Déclaré par"]);
 
         var row = 2;
-        foreach (var i in detail.Incidents)
+        foreach (var i in detail.Incidents.Items)
         {
             sheet.Cell(row, 1).Value = SafeText(i.Categorie);
             sheet.Cell(row, 2).Value = SafeText(i.Localisation);
@@ -175,7 +175,7 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         WriteHeaders(sheet, ["Conteneur", "Ligne maritime", "Sens", "Position", "Décision", "Commentaire"]);
 
         var row = 2;
-        foreach (var c in detail.ConteneursAdditionnels)
+        foreach (var c in detail.ConteneursAdditionnels.Items)
         {
             sheet.Cell(row, 1).Value = SafeText(c.NumeroConteneur);
             sheet.Cell(row, 2).Value = SafeText(c.LigneMaritime);
@@ -194,7 +194,7 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         WriteHeaders(sheet, ["Conteneur", "Ligne maritime", "Classe IMO", "Position", "Statut BADT", "Date validité BADT", "Statut opérationnel", "Commentaire"]);
 
         var row = 2;
-        foreach (var c in detail.ConteneursDangereux)
+        foreach (var c in detail.ConteneursDangereux.Items)
         {
             sheet.Cell(row, 1).Value = SafeText(c.NumeroConteneur);
             sheet.Cell(row, 2).Value = SafeText(c.LigneMaritime);
