@@ -1,0 +1,74 @@
+@using EscaleReport.Web.Application.Notifications.Queries.GetActiveAlerts
+@model ActiveAlertsResultDto
+@{
+    ViewData["Title"] = "Notifications et alertes";
+    static string SeverityBadgeClass(AlertSeverite s) => s switch
+    {
+        AlertSeverite.Critique => "badge-neutral",
+        AlertSeverite.Avertissement => "badge-brand",
+        _ => "badge-neutral opacity-60"
+    };
+    static string SeverityLabel(AlertSeverite s) => s switch
+    {
+        AlertSeverite.Critique => "Critique",
+        AlertSeverite.Avertissement => "Avertissement",
+        _ => "Info"
+    };
+}
+
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div>
+        <h1 class="page-title">Notifications et alertes</h1>
+        <p class="page-subtitle">Situations à surveiller, calculées en direct — CDC §16</p>
+    </div>
+    <a asp-controller="Notifications" asp-action="SendByEmail" class="btn-secondary">Envoyer par e-mail</a>
+</div>
+
+<div class="mb-6 flex flex-wrap gap-3">
+    <span class="badge-neutral">@Model.Alertes.Count alerte(s) active(s)</span>
+    @if (Model.NombreCritiques > 0)
+    {
+        <span class="badge-neutral" style="color:#b91c1c">@Model.NombreCritiques critique(s)</span>
+    }
+</div>
+
+<section class="card">
+    <div class="table-shell">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Sévérité</th>
+                        <th>Type</th>
+                        <th>Message</th>
+                        <th>Navire</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Alertes.Any())
+                {
+                    <tr><td colspan="4" class="!text-center text-slate-400 py-8">Aucune alerte active. Tout est à jour.</td></tr>
+                }
+                @foreach (var a in Model.Alertes)
+                {
+                    <tr>
+                        <td><span class="@SeverityBadgeClass(a.Severite)">@SeverityLabel(a.Severite)</span></td>
+                        <td class="font-semibold text-slate-900">@a.Type</td>
+                        <td>@a.Message</td>
+                        <td>
+                            @if (a.EscaleId is not null)
+                            {
+                                <a asp-controller="Escales" asp-action="Details" asp-route-id="@a.EscaleId" class="btn-link">@a.Navire</a>
+                            }
+                            else
+                            {
+                                <span class="text-slate-400">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
