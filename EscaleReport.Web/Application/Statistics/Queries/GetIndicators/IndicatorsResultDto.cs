@@ -8,6 +8,9 @@ public class IndicatorsResultDto
     public IReadOnlyList<string> QuaisDisponibles { get; set; } = [];
     public IReadOnlyList<string> ShiftsDisponibles { get; set; } = [];
     public IReadOnlyList<string> CategoriesIncidentDisponibles { get; set; } = [];
+    public IReadOnlyList<string> EquipementsDisponibles { get; set; } = [];
+    public IReadOnlyList<string> UtilisateursDisponibles { get; set; } = [];
+    public IReadOnlyList<string> EquipesDisponibles { get; set; } = [];
 
     // Escales.
     public int NombreEscales { get; set; }

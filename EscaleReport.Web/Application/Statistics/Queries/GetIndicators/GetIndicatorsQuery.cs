@@ -9,4 +9,7 @@ public record GetIndicatorsQuery(
     string? Navire,
     string? LigneMaritime,
     string? Quai,
-    string? TypeIncident) : IRequest<IndicatorsResultDto>;
+    string? TypeIncident,
+    string? Equipement,
+    string? Utilisateur,
+    string? Equipe) : IRequest<IndicatorsResultDto>;

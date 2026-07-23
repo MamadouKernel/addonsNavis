@@ -15,15 +15,42 @@ namespace EscaleReport.Web.Application.Statistics.Queries.GetIndicators;
 // d'incident. Les effectifs STS/TT/RTG/autres engins suivent le principe "courant" déjà en
 // place pour ces modules (pas d'historique par shift) : leurs ratios de disponibilité restent
 // donc un instantané global, non filtrable par période — cohérent avec §6-9.
+// Filtres équipement/utilisateur/équipe (extension) : "équipement" matche le code de portique
+// (Gantry.Code) ou le champ libre "Engin" des pannes RTG/autres engins/ITT ; "utilisateur"
+// matche BaseAuditableEntity.CreatedBy, déjà renseigné automatiquement par
+// AuditableEntitySaveChangesInterceptor sur chaque enregistrement, sans aucune migration ;
+// "équipe" résout CreatedBy vers ApplicationUser.Equipe via IUserDirectoryService.
 public class GetIndicatorsQueryHandler(
     IApplicationDbContext dbContext,
-    ICurrentUserService currentUser) : IRequestHandler<GetIndicatorsQuery, IndicatorsResultDto>
+    ICurrentUserService currentUser,
+    IUserDirectoryService userDirectory) : IRequestHandler<GetIndicatorsQuery, IndicatorsResultDto>
 {
     public async Task<IndicatorsResultDto> Handle(GetIndicatorsQuery request, CancellationToken cancellationToken)
     {
         if (!currentUser.HasPermission(Permissions.ConsulterStatistiques))
         {
             throw new ForbiddenAccessException(Permissions.ConsulterStatistiques);
+        }
+
+        var equipesByUser = await userDirectory.GetEquipesByUserNameAsync(cancellationToken);
+
+        IEnumerable<T> ParUtilisateurEtEquipe<T>(IEnumerable<T> items) where T : BaseAuditableEntity
+        {
+            var filtered = items;
+            if (!string.IsNullOrWhiteSpace(request.Utilisateur))
+            {
+                filtered = filtered.Where(i => i.CreatedBy == request.Utilisateur);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Equipe))
+            {
+                filtered = filtered.Where(i =>
+                    i.CreatedBy is not null &&
+                    equipesByUser.TryGetValue(i.CreatedBy, out var equipe) &&
+                    equipe == request.Equipe);
+            }
+
+            return filtered;
         }
 
         var escalesQuery = dbContext.Escales.AsNoTracking().AsQueryable();
@@ -37,43 +64,52 @@ public class GetIndicatorsQueryHandler(
         var escales = await escalesQuery.ToListAsync(cancellationToken);
         var escaleIds = escales.Select(e => e.Id).ToHashSet();
 
-        var anomalies = await dbContext.ContainerAnomalies.AsNoTracking()
-            .Where(a => escaleIds.Contains(a.EscaleId)).ToListAsync(cancellationToken);
+        var anomalies = ParUtilisateurEtEquipe(await dbContext.ContainerAnomalies.AsNoTracking()
+            .Where(a => escaleIds.Contains(a.EscaleId)).ToListAsync(cancellationToken)).ToList();
 
         var incidentsQuery = dbContext.OperationalIncidents.AsNoTracking().Where(i => escaleIds.Contains(i.EscaleId));
         if (!string.IsNullOrWhiteSpace(request.TypeIncident)) { incidentsQuery = incidentsQuery.Where(i => i.Categorie == request.TypeIncident); }
-        var incidents = await incidentsQuery.ToListAsync(cancellationToken);
+        var incidents = ParUtilisateurEtEquipe(await incidentsQuery.ToListAsync(cancellationToken)).ToList();
 
-        var additionnels = await dbContext.AdditionalContainers.AsNoTracking()
-            .Where(a => escaleIds.Contains(a.EscaleId)).CountAsync(cancellationToken);
-        var dangereux = await dbContext.DangerousContainers.AsNoTracking()
-            .Where(d => escaleIds.Contains(d.EscaleId)).CountAsync(cancellationToken);
-        var videsTargets = await dbContext.EmptyContainerTargets.AsNoTracking()
-            .Where(v => escaleIds.Contains(v.EscaleId)).ToListAsync(cancellationToken);
-        var cargoConsommations = await dbContext.CargoConsommations.AsNoTracking()
-            .Where(c => escaleIds.Contains(c.EscaleId)).ToListAsync(cancellationToken);
-        var reportLogs = await dbContext.ReportEmailLogs.AsNoTracking()
-            .Where(r => escaleIds.Contains(r.EscaleId) && r.ReportType == "RapportEscale").ToListAsync(cancellationToken);
+        var additionnels = ParUtilisateurEtEquipe(await dbContext.AdditionalContainers.AsNoTracking()
+            .Where(a => escaleIds.Contains(a.EscaleId)).ToListAsync(cancellationToken)).Count();
+        var dangereux = ParUtilisateurEtEquipe(await dbContext.DangerousContainers.AsNoTracking()
+            .Where(d => escaleIds.Contains(d.EscaleId)).ToListAsync(cancellationToken)).Count();
+        var videsTargets = ParUtilisateurEtEquipe(await dbContext.EmptyContainerTargets.AsNoTracking()
+            .Where(v => escaleIds.Contains(v.EscaleId)).ToListAsync(cancellationToken)).ToList();
+        var cargoConsommations = ParUtilisateurEtEquipe(await dbContext.CargoConsommations.AsNoTracking()
+            .Where(c => escaleIds.Contains(c.EscaleId)).ToListAsync(cancellationToken)).ToList();
+        var reportLogs = ParUtilisateurEtEquipe(await dbContext.ReportEmailLogs.AsNoTracking()
+            .Where(r => escaleIds.Contains(r.EscaleId) && r.ReportType == "RapportEscale").ToListAsync(cancellationToken)).ToList();
 
         // Effectifs "courants" (instantané global, cf. commentaire de classe).
         var rtg = await dbContext.RtgEffectifs.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
         var tt = await dbContext.TtEffectifs.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
         var autresEngins = await dbContext.AutresEnginsEffectifs.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
-        var gantries = await dbContext.Gantries.AsNoTracking().ToListAsync(cancellationToken);
-        var gantryAssignmentsOuvertes = await dbContext.GantryAssignments.AsNoTracking().CountAsync(a => a.HeureFin == null, cancellationToken);
 
-        var rtgPannes = await dbContext.RtgPannes.AsNoTracking().ToListAsync(cancellationToken);
-        var enginPannes = await dbContext.EnginProblemes.AsNoTracking().ToListAsync(cancellationToken);
-        var ittPannes = await dbContext.IttEnginPannes.AsNoTracking().ToListAsync(cancellationToken);
+        var gantriesTous = await dbContext.Gantries.AsNoTracking().ToListAsync(cancellationToken);
+        var gantries = string.IsNullOrWhiteSpace(request.Equipement)
+            ? gantriesTous
+            : gantriesTous.Where(g => g.Code == request.Equipement).ToList();
+        var gantryIds = gantries.Select(g => g.Id).ToHashSet();
+        var gantryAssignmentsOuvertes = await dbContext.GantryAssignments.AsNoTracking()
+            .CountAsync(a => a.HeureFin == null && gantryIds.Contains(a.GantryId), cancellationToken);
+
+        var rtgPannes = ParUtilisateurEtEquipe(await dbContext.RtgPannes.AsNoTracking().ToListAsync(cancellationToken))
+            .Where(p => string.IsNullOrWhiteSpace(request.Equipement) || p.Engin == request.Equipement).ToList();
+        var enginPannes = ParUtilisateurEtEquipe(await dbContext.EnginProblemes.AsNoTracking().ToListAsync(cancellationToken))
+            .Where(p => string.IsNullOrWhiteSpace(request.Equipement) || p.Engin == request.Equipement).ToList();
+        var ittPannes = ParUtilisateurEtEquipe(await dbContext.IttEnginPannes.AsNoTracking().ToListAsync(cancellationToken))
+            .Where(p => string.IsNullOrWhiteSpace(request.Equipement) || p.Engin == request.Equipement).ToList();
         var nombrePannes = rtgPannes.Count + enginPannes.Count + ittPannes.Count;
         var dureeTotalePannesHeures =
             rtgPannes.Sum(p => (p.DateFinUtc ?? DateTime.UtcNow).Subtract(p.DateDebutUtc).TotalHours) +
             enginPannes.Sum(p => (p.DateFinUtc ?? DateTime.UtcNow).Subtract(p.DateDebutUtc).TotalHours) +
             ittPannes.Sum(p => (p.DateFinUtc ?? DateTime.UtcNow).Subtract(p.DateDebutUtc).TotalHours);
 
-        var transferts = await dbContext.IttTransfers.AsNoTracking().ToListAsync(cancellationToken);
-        var tachesYardRealisees = await dbContext.HousekeepingTasks.AsNoTracking()
-            .CountAsync(h => h.Statut == HousekeepingStatus.Termine, cancellationToken);
+        var transferts = ParUtilisateurEtEquipe(await dbContext.IttTransfers.AsNoTracking().ToListAsync(cancellationToken)).ToList();
+        var tachesYardRealisees = ParUtilisateurEtEquipe(await dbContext.HousekeepingTasks.AsNoTracking()
+            .Where(h => h.Statut == HousekeepingStatus.Termine).ToListAsync(cancellationToken)).Count();
 
         var naviresDisponibles = await dbContext.Escales.AsNoTracking().Select(e => e.Navire).Distinct().OrderBy(n => n).ToListAsync(cancellationToken);
         var lignesDisponibles = await dbContext.Escales.AsNoTracking().Select(e => e.LigneMaritime).Where(l => l != "").Distinct().OrderBy(l => l).ToListAsync(cancellationToken);
@@ -82,6 +118,14 @@ public class GetIndicatorsQueryHandler(
             .Where(r => r.ListKey == ReferenceListKeys.Shift && r.IsActive).OrderBy(r => r.SortOrder).Select(r => r.Value).ToListAsync(cancellationToken);
         var categoriesIncident = await dbContext.ReferenceValues.AsNoTracking()
             .Where(r => r.ListKey == ReferenceListKeys.IncidentCategory && r.IsActive).OrderBy(r => r.SortOrder).Select(r => r.Value).ToListAsync(cancellationToken);
+
+        var equipementsDisponibles = gantriesTous.Select(g => g.Code)
+            .Concat(await dbContext.RtgPannes.AsNoTracking().Select(p => p.Engin).ToListAsync(cancellationToken))
+            .Concat(await dbContext.EnginProblemes.AsNoTracking().Select(p => p.Engin).ToListAsync(cancellationToken))
+            .Concat(await dbContext.IttEnginPannes.AsNoTracking().Select(p => p.Engin).ToListAsync(cancellationToken))
+            .Where(e => !string.IsNullOrWhiteSpace(e)).Distinct().OrderBy(e => e).ToList();
+        var utilisateursDisponibles = equipesByUser.Keys.OrderBy(u => u).ToList();
+        var equipesDisponibles = await userDirectory.GetEquipesDisponiblesAsync(cancellationToken);
 
         var anomaliesResolues = anomalies.Where(a => a.DateResolutionUtc is not null).ToList();
 
@@ -92,6 +136,9 @@ public class GetIndicatorsQueryHandler(
             QuaisDisponibles = quaisDisponibles,
             ShiftsDisponibles = shiftsDisponibles,
             CategoriesIncidentDisponibles = categoriesIncident,
+            EquipementsDisponibles = equipementsDisponibles,
+            UtilisateursDisponibles = utilisateursDisponibles,
+            EquipesDisponibles = equipesDisponibles,
 
             NombreEscales = escales.Count,
             NombreEscalesTerminees = escales.Count(e => e.StatutOperations == StatutOperations.Terminees),

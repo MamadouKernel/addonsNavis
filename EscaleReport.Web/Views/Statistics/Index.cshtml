@@ -11,6 +11,9 @@
     var ligneMaritime = Context.Request.Query["ligneMaritime"].ToString();
     var quai = Context.Request.Query["quai"].ToString();
     var typeIncident = Context.Request.Query["typeIncident"].ToString();
+    var equipement = Context.Request.Query["equipement"].ToString();
+    var utilisateur = Context.Request.Query["utilisateur"].ToString();
+    var equipe = Context.Request.Query["equipe"].ToString();
 
     // TagBuilder.InnerHtml.Append encode value/label (contrairement à Html.Raw précédemment
     // utilisé ici) : ces valeurs sont aujourd'hui toujours numériques/fixes, mais ce pattern
@@ -76,6 +79,27 @@
             <select name="typeIncident" class="input-field">
                 <option value="">Tous</option>
                 @foreach (var c in Model.CategoriesIncidentDisponibles) { <option value="@c" selected="@(c == typeIncident)">@c</option> }
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Équipement</label>
+            <select name="equipement" class="input-field">
+                <option value="">Tous</option>
+                @foreach (var e in Model.EquipementsDisponibles) { <option value="@e" selected="@(e == equipement)">@e</option> }
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Utilisateur</label>
+            <select name="utilisateur" class="input-field">
+                <option value="">Tous</option>
+                @foreach (var u in Model.UtilisateursDisponibles) { <option value="@u" selected="@(u == utilisateur)">@u</option> }
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Équipe</label>
+            <select name="equipe" class="input-field">
+                <option value="">Toutes</option>
+                @foreach (var eq in Model.EquipesDisponibles) { <option value="@eq" selected="@(eq == equipe)">@eq</option> }
             </select>
         </div>
         <div><button type="submit" class="btn-primary w-full">Filtrer</button></div>

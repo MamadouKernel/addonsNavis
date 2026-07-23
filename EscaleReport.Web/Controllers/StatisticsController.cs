@@ -12,10 +12,11 @@ public class StatisticsController(ISender mediator) : Controller
     public async Task<IActionResult> Index(
         DateOnly? dateDebut, DateOnly? dateFin, string? shift, string? navire,
         string? ligneMaritime, string? quai, string? typeIncident,
+        string? equipement, string? utilisateur, string? equipe,
         CancellationToken cancellationToken)
     {
         var dto = await mediator.Send(
-            new GetIndicatorsQuery(dateDebut, dateFin, shift, navire, ligneMaritime, quai, typeIncident),
+            new GetIndicatorsQuery(dateDebut, dateFin, shift, navire, ligneMaritime, quai, typeIncident, equipement, utilisateur, equipe),
             cancellationToken);
         return View(dto);
     }
