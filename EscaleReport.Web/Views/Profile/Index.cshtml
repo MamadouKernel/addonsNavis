@@ -1,6 +1,14 @@
 @model ProfileViewModel
 @{
     ViewData["Title"] = "Mon profil";
+
+    // Deux formulaires indépendants partagent le même ModelState : un résumé "asp-validation-summary=All"
+    // afficherait les erreurs de l'un dans la carte de l'autre. On ne montre donc, dans chaque carte,
+    // que les erreurs dont la clé commence par le préfixe du formulaire correspondant.
+    IEnumerable<string> ErrorsFor(string prefix) => ViewData.ModelState
+        .Where(kv => kv.Key.StartsWith(prefix, StringComparison.Ordinal))
+        .SelectMany(kv => kv.Value!.Errors)
+        .Select(e => e.ErrorMessage);
 }
 
 <div class="mb-8">
@@ -10,50 +18,71 @@
 
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <section class="card">
-        <h2 class="card-title mb-4">Informations du compte</h2>
-        <dl class="space-y-3 text-sm">
+        <h2 class="card-title mb-1">Informations du compte</h2>
+        <p class="card-subtitle mb-4">L'identifiant et le rôle sont gérés par un Administrateur (page Comptes &amp; permissions).</p>
+
+        <dl class="mb-4 space-y-3 text-sm">
             <div class="flex items-center justify-between gap-3">
                 <dt style="color:var(--text-soft)">Identifiant</dt>
                 <dd class="font-semibold" style="color:var(--ink)">@Model.UserName</dd>
             </div>
-            @if (!string.IsNullOrEmpty(Model.Email))
-            {
-                <div class="flex items-center justify-between gap-3">
-                    <dt style="color:var(--text-soft)">E-mail</dt>
-                    <dd class="font-semibold" style="color:var(--ink)">@Model.Email</dd>
-                </div>
-            }
             <div class="flex items-center justify-between gap-3">
                 <dt style="color:var(--text-soft)">Rôle</dt>
                 <dd><span class="badge-brand">@Model.Role</span></dd>
             </div>
-            @if (!string.IsNullOrEmpty(Model.PosteParDefaut))
-            {
-                <div class="flex items-center justify-between gap-3">
-                    <dt style="color:var(--text-soft)">Poste</dt>
-                    <dd class="font-semibold" style="color:var(--ink)">@Model.PosteParDefaut</dd>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(Model.Equipe))
-            {
-                <div class="flex items-center justify-between gap-3">
-                    <dt style="color:var(--text-soft)">Équipe</dt>
-                    <dd class="font-semibold" style="color:var(--ink)">@Model.Equipe</dd>
-                </div>
-            }
         </dl>
-        <p class="mt-4 text-xs" style="color:var(--text-soft)">
-            Le rôle, le poste et l'équipe sont gérés par un Administrateur (page Comptes &amp; permissions).
-        </p>
+
+        @{ var updateProfileErrors = ErrorsFor("UpdateProfile").ToList(); }
+        @if (updateProfileErrors.Count > 0)
+        {
+            <div class="alert-error mb-4">
+                <ul>
+                    @foreach (var error in updateProfileErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <form asp-controller="Profile" asp-action="UpdateProfile" method="post" class="space-y-4">
+            <div>
+                <label asp-for="UpdateProfile.Email" class="field-label"></label>
+                <input asp-for="UpdateProfile.Email" class="input-field" />
+            </div>
+            <div>
+                <label asp-for="UpdateProfile.PosteParDefaut" class="field-label"></label>
+                <select asp-for="UpdateProfile.PosteParDefaut" class="input-field">
+                    <option value="">—</option>
+                    @foreach (var p in Model.DispatchPosts)
+                    {
+                        <option value="@p" selected="@(p == Model.UpdateProfile.PosteParDefaut)">@p</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label asp-for="UpdateProfile.Equipe" class="field-label"></label>
+                <input asp-for="UpdateProfile.Equipe" class="input-field" />
+            </div>
+            <button type="submit" class="btn-primary w-full">Enregistrer</button>
+        </form>
     </section>
 
     <section class="card">
         <h2 class="card-title mb-1">Changer le mot de passe</h2>
         <p class="card-subtitle mb-4">Vous resterez connecté après la modification.</p>
 
-        @if (!ViewData.ModelState.IsValid)
+        @{ var changePasswordErrors = ErrorsFor("ChangePassword").ToList(); }
+        @if (changePasswordErrors.Count > 0)
         {
-            <div asp-validation-summary="All" class="alert-error mb-4"></div>
+            <div class="alert-error mb-4">
+                <ul>
+                    @foreach (var error in changePasswordErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
         }
 
         <form asp-controller="Profile" asp-action="ChangePassword" method="post" class="space-y-4">

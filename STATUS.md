@@ -4,7 +4,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 
 | § CDC | Module | Statut | Détail |
 |---|---|---|---|
-| §2 | Utilisateurs, rôles, permissions | ✅ | Identity + rôles (dont Shift Manager, lecture seule + validation du rapport de shift) + permissions décorrélées des rôles (claims), UI admin "Comptes & permissions" (créer/désactiver/réinitialiser mot de passe/rôle/poste/équipe/permissions individuelles), journal d'audit consultable et filtrable (traçabilité automatique de toutes les commandes), 8 comptes de démo seedés |
+| §2 | Utilisateurs, rôles, permissions | ✅ | Identity + rôles (dont Shift Manager, lecture seule + validation du rapport de shift) + permissions décorrélées des rôles (claims), UI admin "Comptes & permissions" (créer/désactiver/réinitialiser mot de passe/rôle/poste/équipe/permissions individuelles), journal d'audit consultable et filtrable (traçabilité automatique de toutes les commandes), 8 comptes de démo seedés. Page "Mon profil" en libre-service : chaque utilisateur peut modifier son propre e-mail/poste/équipe et son mot de passe ; l'identifiant de connexion et le rôle restent réservés à l'Administrateur (identifiant utilisé tel quel dans `CreatedBy`/filtres §17, un renommage romprait l'historique) |
 | §4.1 | Escales — tableau de bord | ✅ | Liste + filtres |
 | §4.2 | Escales — création | ✅ | Formulaire, brouillon tant que champs obligatoires manquants |
 | §4.3 | Escales — statuts | ✅ | Changement de statut opérations/planification, passage "Terminées" réservé à la permission dédiée, alerte des points d'attention (anomalies/dangereux/additionnels non traités) à la clôture |
