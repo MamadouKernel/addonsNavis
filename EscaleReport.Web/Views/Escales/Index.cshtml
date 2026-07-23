@@ -10,6 +10,18 @@
         StatutOperations.Terminees => "Terminée",
         _ => "Pas encore débutée"
     };
+    static string OpsCardClass(StatutOperations s) => s switch
+    {
+        StatutOperations.Terminees => "ops-term",
+        StatutOperations.PasEncoreDebutees => "ops-pas",
+        _ => ""
+    };
+    static string OpsBadgeClass(StatutOperations s) => s switch
+    {
+        StatutOperations.Terminees => "badge-success",
+        StatutOperations.PasEncoreDebutees => "badge-neutral",
+        _ => "badge-warning"
+    };
     static string PlanifLabel(StatutPlanification s) => s switch
     {
         StatutPlanification.Planifie => "Planifié",
@@ -29,55 +41,41 @@
     </a>
 </div>
 
-<div class="table-shell">
-    <div class="table-scroll">
-        <table class="table-modern">
-            <thead>
-                <tr>
-                    <th>Navire</th>
-                    <th class="hidden sm:table-cell">Voyage</th>
-                    <th class="hidden md:table-cell">Ligne</th>
-                    <th class="hidden md:table-cell">Quai</th>
-                    <th>ETA</th>
-                    <th>Statut ops.</th>
-                    <th class="hidden lg:table-cell">Planification</th>
-                    <th>État</th>
-                </tr>
-            </thead>
-            <tbody>
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="8" class="!text-center text-slate-400 py-10">
-                        Aucune escale. Créez la première fiche pour commencer.
-                    </td>
-                </tr>
-            }
-            @foreach (var e in Model)
-            {
-                <tr class="cursor-pointer" onclick="location.href='@Url.Action("Details", new { id = e.Id })'">
-                    <td class="font-semibold text-slate-900">
-                        <a asp-action="Details" asp-route-id="@e.Id" class="hover:text-indigo-600 hover:underline">@e.Navire</a>
-                    </td>
-                    <td class="hidden sm:table-cell">@e.Voyage</td>
-                    <td class="hidden md:table-cell">@e.LigneMaritime</td>
-                    <td class="hidden md:table-cell">@e.Quai</td>
-                    <td class="whitespace-nowrap">@(e.Eta == default ? "—" : e.Eta.ToString("dd/MM/yy HH:mm"))</td>
-                    <td><span class="badge-info">@OpsLabel(e.StatutOperations)</span></td>
-                    <td class="hidden lg:table-cell"><span class="badge-neutral">@PlanifLabel(e.StatutPlanification)</span></td>
-                    <td>
-                        @if (e.IsDraft)
-                        {
-                            <span class="badge-warning">Brouillon</span>
-                        }
-                        else
-                        {
-                            <span class="badge-success">Complète</span>
-                        }
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+@if (!Model.Any())
+{
+    <div class="table-shell p-10 text-center" style="color:var(--text-soft)">
+        Aucune escale. Créez la première fiche pour commencer.
     </div>
-</div>
+}
+else
+{
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @foreach (var e in Model)
+        {
+            <a asp-action="Details" asp-route-id="@e.Id" class="esc-card no-underline @OpsCardClass(e.StatutOperations)">
+                <div class="flex items-start justify-between gap-2 pl-2">
+                    <span class="text-base font-extrabold leading-tight" style="color:var(--ink)">@e.Navire</span>
+                    <span class="@OpsBadgeClass(e.StatutOperations) whitespace-nowrap">@OpsLabel(e.StatutOperations)</span>
+                </div>
+                <div class="pl-2 text-sm font-semibold" style="color:var(--steel-2)">
+                    @e.Voyage · @e.LigneMaritime
+                </div>
+                <div class="pl-2 text-xs" style="color:var(--text-soft)">
+                    ETA @(e.Eta == default ? "—" : e.Eta.ToString("dd/MM/yy HH:mm"))
+                    @if (!string.IsNullOrEmpty(e.Quai)) { <text> · Quai @e.Quai</text> }
+                </div>
+                <div class="mt-1 flex flex-wrap gap-1.5 pl-2">
+                    <span class="badge-neutral">@PlanifLabel(e.StatutPlanification)</span>
+                    @if (e.IsDraft)
+                    {
+                        <span class="badge-warning">Brouillon</span>
+                    }
+                    else
+                    {
+                        <span class="badge-success">Complète</span>
+                    }
+                </div>
+            </a>
+        }
+    </div>
+}

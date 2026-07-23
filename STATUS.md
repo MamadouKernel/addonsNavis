@@ -52,6 +52,10 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §17 | Reporting et indicateurs transverses | ✅ | Tableau de bord d'indicateurs (escales, anomalies/incidents, disponibilité STS/TT/RTG/autres engins, pannes, taux d'affectation, conteneurs vides/additionnels/dangereux, réalisation Disch/Load, délai de production des rapports, transferts ITT, tâches Yard), filtrable par période/shift/navire/ligne/quai/type d'incident. Filtres équipement/utilisateur/équipe non repris (aucune dimension exploitable dans le modèle de données actuel pour ces axes) |
 | §18 | Règles de gestion transverses (unicité, conflits, complétude, relève) | ✅ | Avertissement de doublon probable à la création d'escale (Vessel Visit ou navire+voyage+ETA, avec confirmation possible) ; conflits de concurrence convertis en message convivial (filtre global) au lieu d'une exception brute ; date/auteur de dernière mise à jour affichés sur la fiche escale ; indicateur de complétude toujours visible (brouillon, anomalies/incidents/additionnels/dangereux non traités) ; confirmation de "prise de connaissance" par le shift entrant sur le rapport de fin de shift |
 
+## Identité visuelle
+
+Palette "lagune" alignée sur le prototype HTML de référence (bleu-nuit du quai, turquoise lagon, corail pour les alertes) — pilotée par variables CSS pour rester cohérente en mode clair et sombre, appliquée aux composants partagés (cartes, boutons, badges, tableaux, sidebar en dégradé, page de connexion). Tableau de bord des escales converti en grille de cartes avec bordure d'accent colorée selon le statut opérationnel. Les effets avancés du prototype (scène de grue animée, thèmes multiples, glisser-déposer, confettis) restent hors périmètre — le CDC §15.2 les qualifie lui-même d'indicatifs, sans impact sur les règles de gestion.
+
 ## Comptes de démonstration (environnement de développement)
 
 Créés par le seeder au premier démarrage (mot de passe généré et affiché une seule fois dans les logs si non fourni via configuration) :

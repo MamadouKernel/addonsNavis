@@ -1,149 +1,183 @@
 @import "tailwindcss";
 
-/* Tailwind v4 scanne le projet automatiquement, mais on épingle les sources
-   pertinentes explicitement pour un résultat reproductible en CI. */
+/* Tailwind v4 scanne le projet automatiquement, mais on epingle les sources
+   pertinentes explicitement pour un resultat reproductible en CI. */
 @source "../Views";
 @source "../Controllers";
 @source "../wwwroot/js";
 
-/* CDC §15.2 "Personnalisation de l'interface" : mode clair/mode sombre. Variante
-   pilotée par un attribut (data-theme="dark" sur <html>, posé côté serveur depuis un
-   cookie) plutôt que par prefers-color-scheme, pour que le choix de l'utilisateur soit
-   explicite et persistant, indépendamment des réglages système du poste (pertinent en
-   Control Room où plusieurs utilisateurs partagent parfois un même poste). */
+/* CDC 15.2 Personnalisation de interface : mode clair et mode sombre. Variante
+   pilotee par un attribut (data-theme=dark sur html, pose cote serveur depuis un
+   cookie) plutot que par prefers-color-scheme, pour que le choix de utilisateur
+   soit explicite et persistant, independamment des reglages systeme du poste
+   (pertinent en Control Room ou plusieurs utilisateurs partagent un meme poste). */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-@theme {
-  /* Ombre douce unique pour toute l'appli (cartes, boutons) — cohérence visuelle
-     "moderne/clean/soft" plutôt que les shadow-md par défaut de Tailwind, plus dures. */
-  --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 28px -8px rgba(15, 23, 42, 0.10);
-  --shadow-soft-lg: 0 2px 4px rgba(15, 23, 42, 0.04), 0 20px 40px -12px rgba(15, 23, 42, 0.16);
+/* Palette lagune, identite maritime : bleu-nuit du quai la nuit, turquoise
+   lagon (Abidjan, Cote Ivoire), corail pour les alertes. Pilotee par variables
+   CSS (comme le prototype de reference) plutot que par la palette Tailwind par
+   defaut, avec un jeu de valeurs propre au mode sombre : cest ce qui permet a
+   card, badge, table-modern etc. de sadapter aux deux modes sans dupliquer
+   chaque classe. */
+:root{
+  --ink:#06363F;
+  --steel:#0E5A6B;
+  --steel-2:#127C88;
+  --sea:#15B8A0;
+  --amber:#0EA5AC;
+  --amber-soft:#4FD6DC;
+  --coral:#E0666A;
+  --surface:#EFF8F8;
+  --card:#FFFFFF;
+  --line:#D6ECEC;
+  --text:#0A2E33;
+  --text-soft:#4C7B81;
+  --shadow-soft: 0 1px 2px rgba(6,54,63,.05), 0 12px 28px -8px rgba(6,54,63,.12);
+  --shadow-soft-lg: 0 2px 4px rgba(6,54,63,.06), 0 20px 44px -12px rgba(6,54,63,.20);
+}
+[data-theme="dark"]{
+  --ink:#EAF7F7;
+  --steel:#0B2A30;
+  --steel-2:#0E3941;
+  --sea:#2FD9C4;
+  --amber:#2FD9C4;
+  --amber-soft:#6EE9DA;
+  --coral:#FF8A8E;
+  --surface:#051A1F;
+  --card:#0A272D;
+  --line:#173D44;
+  --text:#E7F5F5;
+  --text-soft:#8FB9BE;
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -8px rgba(0,0,0,.5);
+  --shadow-soft-lg: 0 2px 4px rgba(0,0,0,.3), 0 20px 44px -12px rgba(0,0,0,.6);
 }
 
-/* ================= Design system — composants réutilisables =================
-   Un seul endroit à faire évoluer pour que tous les modules (présents et futurs)
-   restent visuellement cohérents, au lieu de répéter de longues chaînes utilitaires
-   dans chaque vue. Chaque classe est autonome (Tailwind v4 n'autorise pas @apply sur
-   une autre classe custom) : une seule classe suffit dans les vues, pas de chaînage. */
+html{
+  scroll-behavior:smooth;
+}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.animate-floaty{animation:floaty 4.5s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){
+  .animate-floaty{animation:none}
+}
+body{
+  background:var(--surface);
+  color:var(--text);
+}
+*{
+  transition:background-color .18s ease, border-color .18s ease, color .15s ease, box-shadow .2s ease, transform .15s ease;
+}
+
+/* Design system, composants reutilisables : un seul endroit a faire evoluer
+   pour que tous les modules restent visuellement coherents, au lieu de repeter
+   de longues chaines utilitaires dans chaque vue. Chaque classe est autonome
+   (Tailwind v4 nautorise pas apply sur une autre classe custom) : une seule
+   classe suffit dans les vues. Les couleurs passent par des variables CSS
+   plutot que par des utilitaires Tailwind statiques, pour suivre correctement
+   les deux themes. */
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
            text-sm font-semibold transition-all duration-150
-           bg-indigo-600 text-white shadow-soft
-           hover:bg-indigo-500 hover:-translate-y-0.5 hover:shadow-soft-lg
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2
+           hover:-translate-y-0.5
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
            disabled:cursor-not-allowed disabled:opacity-50;
+    background: linear-gradient(135deg, var(--amber), var(--amber-soft));
+    color: #04262a;
+    box-shadow: 0 6px 18px -4px color-mix(in srgb, var(--amber) 55%, transparent);
   }
+  .btn-primary:hover { box-shadow: 0 10px 26px -6px color-mix(in srgb, var(--amber) 65%, transparent); }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
            text-sm font-semibold transition-all duration-150
-           border border-slate-200 bg-white text-slate-700
-           hover:border-slate-300 hover:bg-slate-50
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 focus-visible:ring-offset-2
-           disabled:cursor-not-allowed disabled:opacity-50
-           dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700;
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-50;
+    background: var(--card); color: var(--text); border: 1px solid var(--line);
   }
+  .btn-secondary:hover { border-color: var(--sea); color: var(--steel); }
   .btn-danger {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
            text-sm font-semibold transition-all duration-150
-           border border-rose-200 bg-white text-rose-600
-           hover:bg-rose-50
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200 focus-visible:ring-offset-2
-           disabled:cursor-not-allowed disabled:opacity-50
-           dark:border-rose-900 dark:bg-slate-800 dark:text-rose-400 dark:hover:bg-slate-700;
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-50;
+    background: var(--card); color: var(--coral); border: 1px solid color-mix(in srgb, var(--coral) 40%, var(--line));
   }
+  .btn-danger:hover { background: color-mix(in srgb, var(--coral) 10%, var(--card)); }
   .btn-link {
-    @apply text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline
-           dark:text-indigo-400 dark:hover:text-indigo-300;
+    @apply text-xs font-semibold hover:underline;
+    color: var(--steel-2);
   }
+  .btn-link:hover { color: var(--sea); }
 
   .card {
-    @apply rounded-2xl border border-slate-200/70 bg-white p-6 shadow-soft
-           dark:border-slate-800 dark:bg-slate-900;
+    @apply rounded-2xl p-6;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft);
   }
-  .card-title {
-    @apply text-base font-bold text-slate-900 dark:text-slate-100;
-  }
-  .card-subtitle {
-    @apply mt-0.5 text-sm text-slate-500 dark:text-slate-400;
-  }
+  .card-title { @apply text-base font-bold; color: var(--ink); }
+  .card-subtitle { @apply mt-0.5 text-sm; color: var(--text-soft); }
 
-  .field-label {
-    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400;
-  }
+  .field-label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide; color: var(--text-soft); }
   .input-field {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800
-           placeholder:text-slate-400 transition-colors
-           focus:border-indigo-400 focus:outline-none focus:ring-4 focus:ring-indigo-50
-           dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500
-           dark:focus:ring-indigo-950;
+    @apply w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-4;
+    background: var(--card); border: 1px solid var(--line); color: var(--text);
   }
+  .input-field:focus { border-color: var(--sea); box-shadow: 0 0 0 4px color-mix(in srgb, var(--sea) 15%, transparent); }
+  .input-field::placeholder { color: var(--text-soft); opacity: .7; }
 
-  .badge-neutral  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300; }
-  .badge-info     { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300; }
-  .badge-success  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300; }
-  .badge-warning  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300; }
-  .badge-danger   { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300; }
-  .badge-brand    { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300; }
+  .badge-neutral  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--text-soft) 14%, transparent); color: var(--text-soft); }
+  .badge-info     { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--steel-2) 14%, transparent); color: var(--steel-2); }
+  .badge-success  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--sea) 16%, transparent); color: color-mix(in srgb, var(--sea) 70%, black); }
+  .badge-warning  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--amber) 16%, transparent); color: color-mix(in srgb, var(--amber) 55%, black); }
+  .badge-danger   { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--coral) 16%, transparent); color: color-mix(in srgb, var(--coral) 60%, black); }
+  .badge-brand    { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--amber) 18%, transparent); color: color-mix(in srgb, var(--amber) 55%, black); }
 
-  .table-shell {
-    @apply overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-soft
-           dark:border-slate-800 dark:bg-slate-900;
-  }
-  /* Sur mobile, la table défile horizontalement plutôt que de casser la mise en page —
-     .table-shell garde les coins arrondis, .table-scroll gère le défilement à l'intérieur. */
-  .table-scroll {
-    @apply overflow-x-auto;
-  }
-  .table-modern {
-    @apply w-full text-left text-sm;
-  }
-  .table-modern thead {
-    @apply bg-slate-50 dark:bg-slate-800/60;
-  }
+  .table-shell { @apply overflow-hidden rounded-2xl; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft); }
+  /* Sur mobile, la table defile horizontalement plutot que de casser la mise en
+     page : table-shell garde les coins arrondis, table-scroll gere le defilement. */
+  .table-scroll { @apply overflow-x-auto; }
+  .table-modern { @apply w-full text-left text-sm; }
+  .table-modern thead { background: var(--ink); }
   .table-modern th {
-    @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 border-b border-slate-200
-           dark:text-slate-400 dark:border-slate-800;
+    @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-wide;
+    color: color-mix(in srgb, var(--card) 85%, var(--sea) 15%);
   }
-  .table-modern td {
-    @apply px-4 py-3 border-b border-slate-100 text-slate-700 dark:border-slate-800 dark:text-slate-300;
-  }
-  .table-modern tbody tr {
-    @apply transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40;
-  }
-  .table-modern tbody tr:last-child td {
-    @apply border-b-0;
-  }
+  .table-modern td { @apply px-4 py-3 border-b; border-color: var(--line); color: var(--text); }
+  .table-modern tbody tr { @apply transition-colors; }
+  .table-modern tbody tr:hover { background: color-mix(in srgb, var(--sea) 6%, transparent); }
+  .table-modern tbody tr:last-child td { @apply border-b-0; }
 
-  .page-title {
-    @apply text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100;
-  }
-  .page-subtitle {
-    @apply mt-1 text-sm text-slate-500 dark:text-slate-400;
-  }
+  .page-title { @apply text-2xl font-bold tracking-tight; color: var(--ink); }
+  .page-subtitle { @apply mt-1 text-sm; color: var(--text-soft); }
 
   .alert-error {
-    @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700
-           dark:border-rose-900 dark:bg-rose-950/60 dark:text-rose-300;
+    @apply rounded-xl px-4 py-3 text-sm font-medium;
+    background: color-mix(in srgb, var(--coral) 12%, var(--card)); border: 1px solid color-mix(in srgb, var(--coral) 35%, var(--line)); color: color-mix(in srgb, var(--coral) 65%, black);
   }
 
   .tab-btn {
-    @apply inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5
-           text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100
-           dark:text-slate-400 dark:hover:bg-slate-800;
+    @apply inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors;
+    color: var(--text-soft);
   }
-  .tab-btn.active {
-    @apply bg-slate-900 text-white hover:bg-slate-900 dark:bg-indigo-600 dark:hover:bg-indigo-600;
-  }
-  .tab-count {
-    @apply rounded-full bg-black/10 px-1.5 py-0.5 text-[11px] font-bold;
-  }
+  .tab-btn:hover { background: color-mix(in srgb, var(--sea) 10%, transparent); }
+  .tab-btn.active { background: var(--ink); color: var(--card); }
+
+  .tab-count { @apply rounded-full px-1.5 py-0.5 text-[11px] font-bold; background: color-mix(in srgb, black 12%, transparent); }
 
   .sidebar-link {
-    @apply flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-400
-           transition-colors hover:bg-white/5 hover:text-white;
+    @apply flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors;
+    color: rgba(234,247,247,.65);
   }
-  .sidebar-link.active {
-    @apply bg-white/10 text-white;
+  .sidebar-link:hover { background: rgba(255,255,255,.07); color: #fff; }
+  .sidebar-link.active { background: rgba(255,255,255,.12); color: #fff; }
+
+  /* Carte escale : bordure daccent gauche coloree selon le statut operationnel,
+     meme logique visuelle que le prototype de reference (esc-card). */
+  .esc-card {
+    @apply relative flex flex-col gap-2 overflow-hidden rounded-2xl p-4 pl-5 transition-all duration-150;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft);
   }
+  .esc-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-soft-lg); border-color: var(--sea); }
+  .esc-card::before { content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background: linear-gradient(var(--amber), var(--amber-soft)); }
+  .esc-card.ops-term::before { background: linear-gradient(var(--sea), var(--steel-2)); }
+  .esc-card.ops-pas::before { background: linear-gradient(var(--text-soft), color-mix(in srgb, var(--text-soft) 60%, transparent)); }
 }
