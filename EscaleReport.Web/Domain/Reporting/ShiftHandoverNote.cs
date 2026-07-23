@@ -17,4 +17,10 @@ public class ShiftHandoverNote : BaseAuditableEntity
     public string? ValidePar { get; set; }
     public DateTime? ValideLeUtc { get; set; }
     public string? CommentaireValidation { get; set; }
+
+    // CDC §18 "Transmission entre shifts" : "Le shift entrant devra pouvoir confirmer la prise
+    // de connaissance." — distinct de la validation du Shift Manager ci-dessus : n'importe quel
+    // utilisateur du shift entrant peut confirmer avoir pris connaissance de la relève.
+    public string? PriseDeConnaissanceParUtilisateur { get; set; }
+    public DateTime? PriseDeConnaissanceLeUtc { get; set; }
 }

@@ -50,7 +50,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §15.2 | Personnalisation de l'interface (thèmes) | ⬜ | Hors périmètre de cette itération — nécessiterait un système de thèmes transverse (dark mode, palette par société), jugé orthogonal aux modules métier |
 | §16 | Notifications et alertes | ⬜ | Non commencé (alertes calculées existent en données, pas de notification poussée) |
 | §17 | Reporting et indicateurs transverses | ⬜ | Non commencé |
-| §18 | Règles de gestion transverses (unicité, conflits, complétude, relève) | ⬜ | Non commencé (concurrence optimiste déjà en place via UpdatedAtUtc, sans UX dédiée) |
+| §18 | Règles de gestion transverses (unicité, conflits, complétude, relève) | ✅ | Avertissement de doublon probable à la création d'escale (Vessel Visit ou navire+voyage+ETA, avec confirmation possible) ; conflits de concurrence convertis en message convivial (filtre global) au lieu d'une exception brute ; date/auteur de dernière mise à jour affichés sur la fiche escale ; indicateur de complétude toujours visible (brouillon, anomalies/incidents/additionnels/dangereux non traités) ; confirmation de "prise de connaissance" par le shift entrant sur le rapport de fin de shift |
 
 ## Comptes de démonstration (environnement de développement)
 

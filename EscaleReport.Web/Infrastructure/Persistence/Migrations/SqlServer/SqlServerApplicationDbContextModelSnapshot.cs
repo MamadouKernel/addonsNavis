@@ -1287,6 +1287,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
+                    b.Property<DateTime?>("PriseDeConnaissanceLeUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PriseDeConnaissanceParUtilisateur")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Shift")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");

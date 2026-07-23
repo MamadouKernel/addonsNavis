@@ -58,6 +58,10 @@
         <p class="page-subtitle">
             Voyage @Model.Escale.Voyage · @Model.Escale.LigneMaritime · Quai @(Model.Escale.Quai ?? "—")
         </p>
+        <p class="mt-1 text-xs text-slate-400">
+            Dernière mise à jour le @Model.Escale.UpdatedAtUtc.ToString("dd/MM/yyyy HH:mm") (UTC)
+            @(Model.Escale.UpdatedBy is { Length: > 0 } updatedBy ? $"par {updatedBy}" : "")
+        </p>
     </div>
     <div class="flex flex-wrap gap-3">
         <a asp-action="Report" asp-route-id="@Model.Escale.Id" class="btn-primary">
@@ -96,10 +100,6 @@
     </form>
 </dialog>
 
-@if (TempData["Error"] is string error)
-{
-    <div class="mb-6 alert-error">@error</div>
-}
 
 <!-- ============ STATUTS (§4.3) ============ -->
 <section class="card mb-6">
@@ -141,6 +141,33 @@
                 }
             </select>
         </form>
+    </div>
+
+    @{
+        // CDC §18 "Contrôle de complétude" : identifie les modules non renseignés, champs
+        // obligatoires manquants et anomalies non clôturées — toujours visible, pas seulement
+        // à la clôture (voir le message d'alerte dédié ci-dessous pour ce cas précis).
+        var pointsComplétude = new List<string>();
+        if (Model.Escale.IsDraft) { pointsComplétude.Add("champs obligatoires manquants (fiche en brouillon)"); }
+        if (anomaliesNonResolues > 0) { pointsComplétude.Add($"{anomaliesNonResolues} anomalie(s) non résolue(s)"); }
+        if (incidentsEnCours > 0) { pointsComplétude.Add($"{incidentsEnCours} incident(s) en cours"); }
+        if (additionnelsEnAttente > 0) { pointsComplétude.Add($"{additionnelsEnAttente} conteneur(s) additionnel(s) en attente de décision"); }
+        if (dangereuxNonRegularises > 0) { pointsComplétude.Add($"{dangereuxNonRegularises} conteneur(s) dangereux à suivre"); }
+        if (dangereuxAlertes > 0) { pointsComplétude.Add($"{dangereuxAlertes} BADT à renouveler"); }
+    }
+    <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
+        <span class="font-semibold text-slate-500">Complétude :</span>
+        @if (!pointsComplétude.Any())
+        {
+            <span class="badge-brand">✓ Complet</span>
+        }
+        else
+        {
+            foreach (var item in pointsComplétude)
+            {
+                <span class="badge-neutral">@item</span>
+            }
+        }
     </div>
 
     @if (Model.Escale.StatutOperations == StatutOperations.Terminees && pointsAttentionCloture > 0)

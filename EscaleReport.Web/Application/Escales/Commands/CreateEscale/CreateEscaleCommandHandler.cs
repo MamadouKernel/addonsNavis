@@ -3,6 +3,7 @@ using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Escales;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace EscaleReport.Web.Application.Escales.Commands.CreateEscale;
 
@@ -15,6 +16,22 @@ public class CreateEscaleCommandHandler(
         if (!currentUser.HasPermission(Permissions.CreerEscale))
         {
             throw new ForbiddenAccessException(Permissions.CreerEscale);
+        }
+
+        if (!request.ConfirmerDoublon)
+        {
+            var doublon = await dbContext.Escales.AsNoTracking()
+                .Where(e =>
+                    (!string.IsNullOrEmpty(request.VesselVisit) && e.VesselVisit == request.VesselVisit) ||
+                    (e.Navire == request.Navire && e.Voyage == (request.Voyage ?? string.Empty)
+                        && e.Eta == (request.Eta ?? default)))
+                .Select(e => new { e.Id, e.Navire, e.Voyage })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (doublon is not null)
+            {
+                throw new PossibleDuplicateEscaleException(doublon.Id, doublon.Navire, doublon.Voyage);
+            }
         }
 
         var escale = new Escale

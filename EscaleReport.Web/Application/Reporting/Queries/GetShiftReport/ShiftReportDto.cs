@@ -34,6 +34,10 @@ public class ShiftReportDto
     public DateTime? ValideLeUtc { get; set; }
     public string? CommentaireValidation { get; set; }
 
+    // CDC §18 "Transmission entre shifts" : confirmation de prise de connaissance par le shift entrant.
+    public string? PriseDeConnaissanceParUtilisateur { get; set; }
+    public DateTime? PriseDeConnaissanceLeUtc { get; set; }
+
     public IReadOnlyList<PlanificationNavireDto> Planification { get; set; } = [];
 
     public IReadOnlyList<EscaleOptionDto> EscalesDisponibles { get; set; } = [];

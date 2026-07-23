@@ -11,6 +11,13 @@
     {
         <div asp-validation-summary="ModelOnly" class="alert-error"></div>
     }
+    @if (ViewBag.DuplicateWarning is string duplicateWarning)
+    {
+        <div class="alert-error">
+            ⚠️ @duplicateWarning Vous pouvez confirmer la création malgré tout, ou modifier les champs ci-dessous.
+        </div>
+        <input type="hidden" asp-for="ConfirmerDoublon" value="true" />
+    }
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>

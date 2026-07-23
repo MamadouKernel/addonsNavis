@@ -13,4 +13,5 @@ public record CreateEscaleCommand(
     string? VesselVisit,
     string? Quai,
     string? Shift,
-    string? Planificateur) : IRequest<Guid>;
+    string? Planificateur,
+    bool ConfirmerDoublon = false) : IRequest<Guid>;

@@ -1,6 +1,7 @@
 using EscaleReport.Web.Application.Common.Behaviours;
 using EscaleReport.Web.Infrastructure;
 using EscaleReport.Web.Infrastructure.Persistence;
+using EscaleReport.Web.Web.Filters;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.Filters.Add<ConcurrencyExceptionFilter>());
 
 builder.Services.AddInfrastructure(builder.Configuration);
 

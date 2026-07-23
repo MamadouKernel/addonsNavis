@@ -16,10 +16,6 @@
     </a>
 </div>
 
-@if (TempData["Error"] is string error)
-{
-    <div class="mb-6 alert-error">@error</div>
-}
 
 <form asp-action="UpdateConsommation" method="post" class="card mb-8">
     <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />

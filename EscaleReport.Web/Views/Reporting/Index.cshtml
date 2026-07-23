@@ -31,10 +31,6 @@
     <p class="page-subtitle">Consolidation multi-postes — CDC §14.1</p>
 </div>
 
-@if (TempData["Error"] is string error)
-{
-    <div class="mb-6 alert-error">@error</div>
-}
 
 <!-- ============ SELECTION DATE / SHIFT / NAVIRE ============ -->
 <section class="card mb-6">
@@ -310,6 +306,26 @@
             <button type="submit" class="btn-primary">Enregistrer</button>
         </div>
     </form>
+
+    <div class="mt-5 border-t border-slate-200 pt-4">
+        <p class="card-subtitle mb-2">CDC §18 — le shift entrant confirme avoir pris connaissance de cette relève.</p>
+        @if (!string.IsNullOrWhiteSpace(Model.PriseDeConnaissanceParUtilisateur))
+        {
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                Prise de connaissance confirmée par <strong>@Model.PriseDeConnaissanceParUtilisateur</strong>
+                le @Model.PriseDeConnaissanceLeUtc?.ToString("dd/MM/yyyy HH:mm") (UTC).
+            </div>
+        }
+        else
+        {
+            <form asp-controller="Reporting" asp-action="ConfirmPriseDeConnaissance" method="post">
+                <input type="hidden" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" />
+                <input type="hidden" name="shift" value="@Model.Shift" />
+                <input type="hidden" name="escaleId" value="@(Model.NavireCourantMode ? Model.NaviresPresentsOuAttendus.FirstOrDefault()?.Id : null)" />
+                <button type="submit" class="btn-secondary">Confirmer la prise de connaissance</button>
+            </form>
+        }
+    </div>
 </section>
 
 <!-- ============ PLANIFICATION (affichée une seule fois, en fin de document) ============ -->

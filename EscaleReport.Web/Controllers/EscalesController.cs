@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Escales.Commands.ChangeEscaleStatutOperations;
 using EscaleReport.Web.Application.Escales.Commands.ChangeEscaleStatutPlanification;
 using EscaleReport.Web.Application.Escales.Commands.CreateEscale;
@@ -33,7 +34,16 @@ public class EscalesController(ISender mediator) : Controller
             return View(command);
         }
 
-        await mediator.Send(command, cancellationToken);
+        try
+        {
+            await mediator.Send(command, cancellationToken);
+        }
+        catch (PossibleDuplicateEscaleException ex)
+        {
+            ViewBag.DuplicateWarning = ex.Message;
+            return View(command with { ConfirmerDoublon = true });
+        }
+
         return RedirectToAction(nameof(Index));
     }
 

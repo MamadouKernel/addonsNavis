@@ -9,10 +9,6 @@
     <p class="page-subtitle">Listes de valeurs, portiques, modèles d'e-mail et seuils d'alerte — CDC §15.1</p>
 </div>
 
-@if (TempData["Error"] is string error)
-{
-    <div class="mb-6 alert-error">@error</div>
-}
 
 <div class="mb-6 flex gap-2 overflow-x-auto pb-1" id="paramTabs">
     <button type="button" class="tab-btn active" data-tab="general">Général</button>

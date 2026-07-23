@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Reporting.Commands.ConfirmPriseDeConnaissance;
 using EscaleReport.Web.Application.Reporting.Commands.UpsertEscalePlanificationNote;
 using EscaleReport.Web.Application.Reporting.Commands.UpsertShiftHandoverNote;
 using EscaleReport.Web.Application.Reporting.Commands.ValidateShiftReport;
@@ -44,6 +45,15 @@ public class ReportingController(ISender mediator) : Controller
         DateOnly date, string? shift, Guid? escaleId, string? commentaireValidation, CancellationToken cancellationToken)
     {
         await mediator.Send(new ValidateShiftReportCommand(date, shift, commentaireValidation), cancellationToken);
+        return RedirectToAction(nameof(Index), new { date, shift, escaleId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmPriseDeConnaissance(
+        DateOnly date, string? shift, Guid? escaleId, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ConfirmPriseDeConnaissanceCommand(date, shift), cancellationToken);
         return RedirectToAction(nameof(Index), new { date, shift, escaleId });
     }
 
