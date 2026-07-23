@@ -4,7 +4,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 
 | § CDC | Module | Statut | Détail |
 |---|---|---|---|
-| §2 | Utilisateurs, rôles, permissions | ✅ | Identity + rôles + permissions décorrélées des rôles (claims), 4 comptes de démo seedés |
+| §2 | Utilisateurs, rôles, permissions | ✅ | Identity + rôles (dont Shift Manager, lecture seule + validation du rapport de shift) + permissions décorrélées des rôles (claims), UI admin "Comptes & permissions" (créer/désactiver/réinitialiser mot de passe/rôle/poste/équipe/permissions individuelles), journal d'audit consultable et filtrable (traçabilité automatique de toutes les commandes), 8 comptes de démo seedés |
 | §4.1 | Escales — tableau de bord | ✅ | Liste + filtres |
 | §4.2 | Escales — création | ✅ | Formulaire, brouillon tant que champs obligatoires manquants |
 | §4.3 | Escales — statuts | ✅ | Changement de statut opérations/planification, passage "Terminées" réservé à la permission dédiée, alerte des points d'attention (anomalies/dangereux/additionnels non traités) à la clôture |
@@ -50,6 +50,7 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 | §15.2 | Personnalisation de l'interface (thèmes) | ⬜ | Hors périmètre de cette itération — nécessiterait un système de thèmes transverse (dark mode, palette par société), jugé orthogonal aux modules métier |
 | §16 | Notifications et alertes | ⬜ | Non commencé (alertes calculées existent en données, pas de notification poussée) |
 | §17 | Reporting et indicateurs transverses | ⬜ | Non commencé |
+| §18 | Règles de gestion transverses (unicité, conflits, complétude, relève) | ⬜ | Non commencé (concurrence optimiste déjà en place via UpdatedAtUtc, sans UX dédiée) |
 
 ## Comptes de démonstration (environnement de développement)
 

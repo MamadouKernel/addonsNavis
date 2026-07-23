@@ -4,6 +4,7 @@ using EscaleReport.Web.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 {
     [DbContext(typeof(SqlServerApplicationDbContext))]
-    partial class SqlServerApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260722211654_AddAuditLog")]
+    partial class AddAuditLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1271,9 +1274,6 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<string>("CommentaireValidation")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
@@ -1296,12 +1296,6 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ValideLeUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ValidePar")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

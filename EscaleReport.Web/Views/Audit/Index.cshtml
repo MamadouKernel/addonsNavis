@@ -1,0 +1,86 @@
+@using EscaleReport.Web.Application.Audit.Queries.GetAuditLog
+@model AuditLogResultDto
+@{
+    ViewData["Title"] = "Journal d'audit";
+    var userName = Context.Request.Query["userName"].ToString();
+    var actionType = Context.Request.Query["actionType"].ToString();
+    var dateDebut = Context.Request.Query["dateDebut"].ToString();
+    var dateFin = Context.Request.Query["dateFin"].ToString();
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Journal d'audit</h1>
+    <p class="page-subtitle">Traçabilité des actions effectuées dans l'application — CDC §2 / §18</p>
+</div>
+
+<section class="card mb-6">
+    <form method="get" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end">
+        <div>
+            <label class="field-label">Utilisateur</label>
+            <select name="userName" class="input-field">
+                <option value="">Tous</option>
+                @foreach (var u in Model.Utilisateurs)
+                {
+                    <option value="@u" selected="@(u == userName)">@u</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Action</label>
+            <select name="actionType" class="input-field">
+                <option value="">Toutes</option>
+                @foreach (var a in Model.Actions)
+                {
+                    <option value="@a" selected="@(a == actionType)">@a</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Du</label>
+            <input type="date" name="dateDebut" value="@dateDebut" class="input-field" />
+        </div>
+        <div>
+            <label class="field-label">Au</label>
+            <input type="date" name="dateFin" value="@dateFin" class="input-field" />
+        </div>
+        <div>
+            <button type="submit" class="btn-primary w-full">Filtrer</button>
+        </div>
+    </form>
+</section>
+
+<section class="card">
+    <div class="mb-4 flex items-center justify-between">
+        <h2 class="card-title">Actions enregistrées</h2>
+        <span class="text-sm text-slate-500">@Model.TotalCount résultat(s) — 500 derniers affichés au maximum</span>
+    </div>
+    <div class="table-shell">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Date (UTC)</th>
+                        <th>Utilisateur</th>
+                        <th>Action</th>
+                        <th>Cible</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Entries.Any())
+                {
+                    <tr><td colspan="4" class="!text-center text-slate-400 py-8">Aucune action enregistrée pour ces filtres.</td></tr>
+                }
+                @foreach (var e in Model.Entries)
+                {
+                    <tr>
+                        <td class="font-mono text-xs">@e.DateUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@(e.UserName ?? "—")</td>
+                        <td class="font-mono text-xs">@e.Action</td>
+                        <td class="font-mono text-xs">@(e.Cible ?? "—")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

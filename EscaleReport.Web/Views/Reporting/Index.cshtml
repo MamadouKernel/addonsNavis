@@ -361,3 +361,28 @@
         </div>
     </div>
 </section>
+
+@if (User.HasClaim("permission", "rapports.valider"))
+{
+    <section class="card mt-6">
+        <h2 class="card-title mb-1">Validation du rapport (Shift Manager)</h2>
+        <p class="card-subtitle mb-4">CDC §2 — "Valider ou commenter le rapport, selon le workflow retenu".</p>
+        @if (!string.IsNullOrWhiteSpace(Model.ValidePar))
+        {
+            <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                Validé par <strong>@Model.ValidePar</strong> le @Model.ValideLeUtc?.ToString("dd/MM/yyyy HH:mm") (UTC).
+                @if (!string.IsNullOrWhiteSpace(Model.CommentaireValidation))
+                {
+                    <div class="mt-1 italic">« @Model.CommentaireValidation »</div>
+                }
+            </div>
+        }
+        <form asp-controller="Reporting" asp-action="ValidateReport" method="post">
+            <input type="hidden" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="shift" value="@Model.Shift" />
+            <label class="field-label">Commentaire (facultatif)</label>
+            <textarea name="commentaireValidation" rows="3" class="input-field mb-3">@Model.CommentaireValidation</textarea>
+            <button type="submit" class="btn-primary">Valider le rapport</button>
+        </form>
+    </section>
+}

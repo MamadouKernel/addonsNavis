@@ -128,6 +128,21 @@ public static class DbSeeder
                 Permissions.SaisirDonneesModule,
                 Permissions.ModifierDonneesModule
             ]);
+
+        // Compte de démonstration pour le rôle Shift Manager (CDC §2) : accès lecture seule
+        // à la situation consolidée du shift, sans intervenir dans la saisie opérationnelle.
+        await SeedUserAsync(
+            userManager, dbContext, logger, configuration,
+            configKeyPrefix: "SeedShiftManager", defaultUserName: "shiftmanager1",
+            role: Roles.ShiftManager,
+            permissions:
+            [
+                Permissions.ConsulterEscales,
+                Permissions.ConsulterAutresModules,
+                Permissions.ConsulterRapportGeneral,
+                Permissions.ValiderRapport,
+                Permissions.ConsulterStatistiques
+            ]);
     }
 
     private static async Task SeedAnomalyReasonsAsync(IApplicationDbContext dbContext)

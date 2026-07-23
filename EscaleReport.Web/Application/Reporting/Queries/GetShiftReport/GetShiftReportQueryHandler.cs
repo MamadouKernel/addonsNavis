@@ -216,6 +216,9 @@ public class GetShiftReportQueryHandler(
             Incidents = incidents,
             ActionsEnCours = handover?.ActionsEnCours,
             PointsATransmettre = handover?.PointsATransmettre,
+            ValidePar = handover?.ValidePar,
+            ValideLeUtc = handover?.ValideLeUtc,
+            CommentaireValidation = handover?.CommentaireValidation,
             Planification = planification
         };
     }

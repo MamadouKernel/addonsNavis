@@ -29,6 +29,11 @@ public class ShiftReportDto
     public string? ActionsEnCours { get; set; }
     public string? PointsATransmettre { get; set; }
 
+    // CDC §2 "Shift Manager" : validation/commentaire de supervision sur le rapport de shift.
+    public string? ValidePar { get; set; }
+    public DateTime? ValideLeUtc { get; set; }
+    public string? CommentaireValidation { get; set; }
+
     public IReadOnlyList<PlanificationNavireDto> Planification { get; set; } = [];
 
     public IReadOnlyList<EscaleOptionDto> EscalesDisponibles { get; set; } = [];

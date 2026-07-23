@@ -22,6 +22,40 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("EscaleReport.Web.Domain.Audit.AuditLogEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Cible")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("DateUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DateUtc");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuditLogEntries");
+                });
+
             modelBuilder.Entity("EscaleReport.Web.Domain.Cargo.CargoConsommation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1237,6 +1271,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("CommentaireValidation")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -1259,6 +1296,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.Postgres
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ValideLeUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ValidePar")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Reporting.Commands.UpsertEscalePlanificationNote;
 using EscaleReport.Web.Application.Reporting.Commands.UpsertShiftHandoverNote;
+using EscaleReport.Web.Application.Reporting.Commands.ValidateShiftReport;
 using EscaleReport.Web.Application.Reporting.Queries.GenerateShiftReport;
 using EscaleReport.Web.Application.Reporting.Queries.GetShiftReport;
 using MediatR;
@@ -35,6 +36,15 @@ public class ReportingController(ISender mediator) : Controller
     {
         await mediator.Send(new UpsertEscalePlanificationNoteCommand(escaleId, commentaire), cancellationToken);
         return RedirectToAction(nameof(Index), new { date, shift, escaleId = currentEscaleId });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ValidateReport(
+        DateOnly date, string? shift, Guid? escaleId, string? commentaireValidation, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ValidateShiftReportCommand(date, shift, commentaireValidation), cancellationToken);
+        return RedirectToAction(nameof(Index), new { date, shift, escaleId });
     }
 
     public async Task<IActionResult> GeneratePdf(DateOnly date, string? shift, Guid? escaleId, CancellationToken cancellationToken)

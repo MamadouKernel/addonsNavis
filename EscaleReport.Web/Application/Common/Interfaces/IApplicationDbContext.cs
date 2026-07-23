@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Audit;
 using EscaleReport.Web.Domain.Cargo;
 using EscaleReport.Web.Domain.Common;
 using EscaleReport.Web.Domain.Coordination;
@@ -56,6 +57,7 @@ public interface IApplicationDbContext
     DbSet<GeneralSettings> GeneralSettings { get; }
     DbSet<EmailTemplate> EmailTemplates { get; }
     DbSet<AlertThreshold> AlertThresholds { get; }
+    DbSet<AuditLogEntry> AuditLogEntries { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

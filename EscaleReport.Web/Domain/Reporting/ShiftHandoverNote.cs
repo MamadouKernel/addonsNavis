@@ -11,4 +11,10 @@ public class ShiftHandoverNote : BaseAuditableEntity
     public string? Shift { get; set; }
     public string? ActionsEnCours { get; set; }
     public string? PointsATransmettre { get; set; }
+
+    // CDC §2 "Shift Manager" : "Valider ou commenter le rapport, selon le workflow retenu" —
+    // signature de supervision distincte de la rédaction du shift sortant ci-dessus.
+    public string? ValidePar { get; set; }
+    public DateTime? ValideLeUtc { get; set; }
+    public string? CommentaireValidation { get; set; }
 }

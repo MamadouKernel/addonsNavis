@@ -1,4 +1,5 @@
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Domain.Audit;
 using EscaleReport.Web.Domain.Cargo;
 using EscaleReport.Web.Domain.Common;
 using EscaleReport.Web.Domain.Coordination;
@@ -68,6 +69,7 @@ public abstract class ApplicationDbContext(
     public DbSet<GeneralSettings> GeneralSettings => Set<GeneralSettings>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<AlertThreshold> AlertThresholds => Set<AlertThreshold>();
+    public DbSet<AuditLogEntry> AuditLogEntries => Set<AuditLogEntry>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
