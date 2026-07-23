@@ -32,11 +32,11 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
     {
         var rows = new (string Label, string Value)[]
         {
-            ("Navire", detail.Escale.Navire),
-            ("Voyage", detail.Escale.Voyage),
-            ("Ligne maritime", detail.Escale.LigneMaritime),
-            ("Vessel Visit", detail.Escale.VesselVisit ?? ""),
-            ("Quai", detail.Escale.Quai ?? ""),
+            ("Navire", SafeText(detail.Escale.Navire)),
+            ("Voyage", SafeText(detail.Escale.Voyage)),
+            ("Ligne maritime", SafeText(detail.Escale.LigneMaritime)),
+            ("Vessel Visit", SafeText(detail.Escale.VesselVisit)),
+            ("Quai", SafeText(detail.Escale.Quai)),
             ("ETA", detail.Escale.Eta == default ? "" : detail.Escale.Eta.ToString("dd/MM/yyyy HH:mm")),
             ("ATA", detail.Escale.Ata?.ToString("dd/MM/yyyy HH:mm") ?? ""),
             ("ETC", detail.Escale.Etc?.ToString("dd/MM/yyyy HH:mm") ?? ""),
@@ -54,6 +54,15 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
 
         sheet.Columns(1, 2).AdjustToContents();
     }
+
+    // OWASP "CSV/Excel Formula Injection" : un champ libre (commentaire, observation...) qui
+    // commence par ces caractères serait interprété comme une formule par certains tableurs.
+    // On préfixe d'une apostrophe pour forcer un affichage en texte, comme le ferait Excel
+    // lui-même si l'utilisateur tapait cette valeur directement dans une cellule.
+    private static string SafeText(string? value) =>
+        string.IsNullOrEmpty(value) || value[0] is not ('=' or '+' or '-' or '@' or '\t' or '\r')
+            ? value ?? ""
+            : "'" + value;
 
     private static void WriteHeaders(IXLWorksheet sheet, string[] headers)
     {
@@ -81,15 +90,15 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         var row = 2;
         foreach (var a in detail.Anomalies)
         {
-            sheet.Cell(row, 1).Value = a.NumeroConteneur;
+            sheet.Cell(row, 1).Value = SafeText(a.NumeroConteneur);
             sheet.Cell(row, 2).Value = a.Sens == Sens.Debarquement ? "Débarquement" : "Embarquement";
-            sheet.Cell(row, 3).Value = a.LigneMaritime ?? "";
-            sheet.Cell(row, 4).Value = a.Position ?? "";
-            sheet.Cell(row, 5).Value = a.Raison;
+            sheet.Cell(row, 3).Value = SafeText(a.LigneMaritime);
+            sheet.Cell(row, 4).Value = SafeText(a.Position);
+            sheet.Cell(row, 5).Value = SafeText(a.Raison);
             sheet.Cell(row, 6).Value = a.Statut == AnomalyStatus.Resolu ? "Résolu" : "Non résolu";
-            sheet.Cell(row, 7).Value = a.ResoluPar ?? "";
+            sheet.Cell(row, 7).Value = SafeText(a.ResoluPar);
             sheet.Cell(row, 8).Value = a.DateResolutionUtc?.ToString("dd/MM/yyyy HH:mm") ?? "";
-            sheet.Cell(row, 9).Value = a.Commentaire ?? "";
+            sheet.Cell(row, 9).Value = SafeText(a.Commentaire);
             row++;
         }
 
@@ -103,14 +112,14 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         var row = 2;
         foreach (var v in detail.ConteneursVides)
         {
-            sheet.Cell(row, 1).Value = v.LigneMaritime;
-            sheet.Cell(row, 2).Value = v.TypeConteneur;
+            sheet.Cell(row, 1).Value = SafeText(v.LigneMaritime);
+            sheet.Cell(row, 2).Value = SafeText(v.TypeConteneur);
             sheet.Cell(row, 3).Value = v.QuantiteSouhaitee;
             sheet.Cell(row, 4).Value = v.QuantiteAjoutee;
             sheet.Cell(row, 5).Value = v.QuantitePlanifiee;
             sheet.Cell(row, 6).Value = v.QuantiteEmbarquee;
             sheet.Cell(row, 7).Value = v.QuantiteCoupee;
-            sheet.Cell(row, 8).Value = v.MotifCoupure ?? "";
+            sheet.Cell(row, 8).Value = SafeText(v.MotifCoupure);
             sheet.Cell(row, 9).Value = v.QuantiteRestante;
             row++;
         }
@@ -125,16 +134,16 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         var row = 2;
         foreach (var i in detail.Incidents)
         {
-            sheet.Cell(row, 1).Value = i.Categorie;
-            sheet.Cell(row, 2).Value = i.Localisation ?? "";
+            sheet.Cell(row, 1).Value = SafeText(i.Categorie);
+            sheet.Cell(row, 2).Value = SafeText(i.Localisation);
             sheet.Cell(row, 3).Value = i.DateDebutUtc.ToString("dd/MM/yyyy HH:mm");
             sheet.Cell(row, 4).Value = i.DateFinUtc?.ToString("dd/MM/yyyy HH:mm") ?? "";
             sheet.Cell(row, 5).Value = i.Duree.HasValue ? $"{(int)i.Duree.Value.TotalHours}h{Math.Abs(i.Duree.Value.Minutes):D2}" : "";
             sheet.Cell(row, 6).Value = i.Gravite.ToString();
             sheet.Cell(row, 7).Value = i.Statut == IncidentStatus.Resolu ? "Résolu" : "En cours";
-            sheet.Cell(row, 8).Value = i.Description ?? "";
-            sheet.Cell(row, 9).Value = i.ActionRealisee ?? "";
-            sheet.Cell(row, 10).Value = i.DeclarePar ?? "";
+            sheet.Cell(row, 8).Value = SafeText(i.Description);
+            sheet.Cell(row, 9).Value = SafeText(i.ActionRealisee);
+            sheet.Cell(row, 10).Value = SafeText(i.DeclarePar);
             row++;
         }
 
@@ -148,11 +157,11 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         var row = 2;
         foreach (var i in detail.IncidentsSts)
         {
-            sheet.Cell(row, 1).Value = i.GantryCode ?? "";
-            sheet.Cell(row, 2).Value = i.TypeIncident;
+            sheet.Cell(row, 1).Value = SafeText(i.GantryCode);
+            sheet.Cell(row, 2).Value = SafeText(i.TypeIncident);
             sheet.Cell(row, 3).Value = i.DateDebutUtc.ToString("dd/MM/yyyy HH:mm");
             sheet.Cell(row, 4).Value = i.DateFinUtc?.ToString("dd/MM/yyyy HH:mm") ?? "";
-            sheet.Cell(row, 5).Value = i.Cause ?? "";
+            sheet.Cell(row, 5).Value = SafeText(i.Cause);
             sheet.Cell(row, 6).Value = i.RetirePortiqueEffectif ? "Oui" : "Non";
             sheet.Cell(row, 7).Value = i.EstResolu ? "Repris" : "En cours";
             row++;
@@ -168,12 +177,12 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         var row = 2;
         foreach (var c in detail.ConteneursAdditionnels)
         {
-            sheet.Cell(row, 1).Value = c.NumeroConteneur;
-            sheet.Cell(row, 2).Value = c.LigneMaritime ?? "";
+            sheet.Cell(row, 1).Value = SafeText(c.NumeroConteneur);
+            sheet.Cell(row, 2).Value = SafeText(c.LigneMaritime);
             sheet.Cell(row, 3).Value = c.Sens == Sens.Debarquement ? "Débarquement" : "Embarquement";
-            sheet.Cell(row, 4).Value = c.Position ?? "";
+            sheet.Cell(row, 4).Value = SafeText(c.Position);
             sheet.Cell(row, 5).Value = c.Decision.ToString();
-            sheet.Cell(row, 6).Value = c.Commentaire ?? "";
+            sheet.Cell(row, 6).Value = SafeText(c.Commentaire);
             row++;
         }
 
@@ -187,14 +196,14 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         var row = 2;
         foreach (var c in detail.ConteneursDangereux)
         {
-            sheet.Cell(row, 1).Value = c.NumeroConteneur;
-            sheet.Cell(row, 2).Value = c.LigneMaritime ?? "";
-            sheet.Cell(row, 3).Value = c.ClasseImo ?? "";
-            sheet.Cell(row, 4).Value = c.Position ?? "";
+            sheet.Cell(row, 1).Value = SafeText(c.NumeroConteneur);
+            sheet.Cell(row, 2).Value = SafeText(c.LigneMaritime);
+            sheet.Cell(row, 3).Value = SafeText(c.ClasseImo);
+            sheet.Cell(row, 4).Value = SafeText(c.Position);
             sheet.Cell(row, 5).Value = c.StatutBadt.ToString();
             sheet.Cell(row, 6).Value = c.DateValiditeBadt?.ToString("dd/MM/yyyy") ?? "";
             sheet.Cell(row, 7).Value = c.StatutOperationnel.ToString();
-            sheet.Cell(row, 8).Value = c.Commentaire ?? "";
+            sheet.Cell(row, 8).Value = SafeText(c.Commentaire);
             row++;
         }
 
@@ -229,8 +238,8 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
             ("Total Load", c.LoadTotal.ToString()),
             ("Revised Load reçu", c.RevisedLoadRecu ? "Oui" : "Non"),
             ("Revised Load — date", c.RevisedLoadDateUtc?.ToString("dd/MM/yyyy HH:mm") ?? ""),
-            ("Revised Load — par", c.RevisedLoadPar ?? ""),
-            ("Revised Load — observations", c.RevisedLoadObservations ?? "")
+            ("Revised Load — par", SafeText(c.RevisedLoadPar)),
+            ("Revised Load — observations", SafeText(c.RevisedLoadObservations))
         };
 
         for (var i = 0; i < rows.Length; i++)
@@ -258,10 +267,10 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
         var row = 3;
         foreach (var a in detail.RessourcesSts)
         {
-            sheet.Cell(row, 1).Value = a.GantryCode;
+            sheet.Cell(row, 1).Value = SafeText(a.GantryCode);
             sheet.Cell(row, 2).Value = a.HeureDebut.ToString("dd/MM/yyyy HH:mm");
             sheet.Cell(row, 3).Value = a.HeureFin?.ToString("dd/MM/yyyy HH:mm") ?? "";
-            sheet.Cell(row, 4).Value = a.TacheOuZone ?? "";
+            sheet.Cell(row, 4).Value = SafeText(a.TacheOuZone);
             row++;
         }
 
@@ -283,7 +292,7 @@ public class ClosedXmlEscaleExcelReportGenerator : IEscaleExcelReportGenerator
             sheet.Cell(row, 2).Value = a.NombreAffecte;
             sheet.Cell(row, 3).Value = a.NombreOperationnel;
             sheet.Cell(row, 4).Value = a.Ecart;
-            sheet.Cell(row, 5).Value = a.Observations ?? "";
+            sheet.Cell(row, 5).Value = SafeText(a.Observations);
             row++;
         }
 

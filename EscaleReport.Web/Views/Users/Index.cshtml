@@ -90,7 +90,7 @@
             <form asp-controller="Users" asp-action="ChangeRole" method="post">
                 <input type="hidden" name="id" value="@u.Id" />
                 <label class="field-label">Rôle</label>
-                <select name="role" class="input-field" onchange="this.form.submit()">
+                <select name="role" class="js-auto-submit input-field">
                     @foreach (var r in Model.Roles)
                     {
                         <option value="@r" selected="@(r == u.Role)">@r</option>

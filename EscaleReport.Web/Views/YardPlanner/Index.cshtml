@@ -274,7 +274,7 @@
                         <td>
                             <form asp-controller="YardPlanner" asp-action="ChangeHousekeepingTaskStatus" method="post" class="inline-flex items-center gap-1">
                                 <input type="hidden" name="TaskId" value="@t.Id" />
-                                <select name="Statut" onchange="this.form.submit()" class="input-field py-1.5 text-xs">
+                                <select name="Statut" class="js-auto-submit input-field py-1.5 text-xs">
                                     @foreach (HousekeepingStatus s in Enum.GetValues<HousekeepingStatus>())
                                     {
                                         @if (s == t.Statut)
@@ -319,7 +319,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#yardTabs .tab-btn');
             tabs.forEach(function (btn) {

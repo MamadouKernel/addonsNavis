@@ -316,7 +316,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#rtgTabs .tab-btn');
             tabs.forEach(function (btn) {

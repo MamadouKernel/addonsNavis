@@ -264,7 +264,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#autresEnginsTabs .tab-btn');
             tabs.forEach(function (btn) {

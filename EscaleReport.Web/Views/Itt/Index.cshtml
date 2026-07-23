@@ -252,7 +252,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#ittTabs .tab-btn');
             tabs.forEach(function (btn) {

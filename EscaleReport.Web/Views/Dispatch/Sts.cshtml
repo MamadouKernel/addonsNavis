@@ -118,7 +118,7 @@
                 <span class="@StatusBadgeClass(g.Statut)">@StatusLabel(g.Statut)</span>
                 <form asp-controller="Dispatch" asp-action="ChangeGantryStatus" method="post" class="w-full">
                     <input type="hidden" name="GantryId" value="@g.Id" />
-                    <select name="Statut" onchange="this.form.submit()" class="input-field py-1.5 text-xs">
+                    <select name="Statut" class="js-auto-submit input-field py-1.5 text-xs">
                         @foreach (GantryStatus s in Enum.GetValues<GantryStatus>())
                         {
                             @if (s == g.Statut)
@@ -456,7 +456,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#stsTabs .tab-btn');
             tabs.forEach(function (btn) {

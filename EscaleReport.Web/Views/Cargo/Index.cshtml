@@ -30,7 +30,7 @@
             }
             @foreach (var r in Model)
             {
-                <tr class="cursor-pointer" onclick="location.href='@Url.Action("Detail", new { id = r.EscaleId })'">
+                <tr class="cursor-pointer js-row-link" data-href="@Url.Action("Detail", new { id = r.EscaleId })">
                     <td class="font-semibold text-slate-900">@r.Navire</td>
                     <td class="hidden sm:table-cell">@r.Voyage</td>
                     <td>

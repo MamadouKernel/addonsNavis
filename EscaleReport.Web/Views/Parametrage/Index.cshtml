@@ -163,7 +163,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#paramTabs .tab-btn');
             tabs.forEach(function (btn) {

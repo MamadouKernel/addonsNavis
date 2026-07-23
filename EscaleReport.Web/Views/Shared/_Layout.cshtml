@@ -215,7 +215,7 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var sidebar = document.getElementById('sidebar');
             var overlay = document.getElementById('sidebarOverlay');
@@ -238,6 +238,33 @@
             openBtn && openBtn.addEventListener('click', openSidebar);
             closeBtn && closeBtn.addEventListener('click', closeSidebar);
             overlay && overlay.addEventListener('click', closeSidebar);
+
+            // Gestionnaires délégués génériques (CDC §27, CSP sans 'unsafe-inline' sur
+            // script-src) : remplacent les attributs onclick/onchange inline, qui ne
+            // s'exécuteraient plus sous une CSP à base de nonce.
+            document.addEventListener('change', function (e) {
+                if (e.target.matches('.js-auto-submit')) {
+                    e.target.form.submit();
+                }
+            });
+            document.addEventListener('click', function (e) {
+                var openTrigger = e.target.closest('[data-dialog-open]');
+                if (openTrigger) {
+                    var dialog = document.getElementById(openTrigger.dataset.dialogOpen);
+                    dialog && dialog.showModal();
+                    return;
+                }
+                var closeTrigger = e.target.closest('[data-dialog-close]');
+                if (closeTrigger) {
+                    var dialogToClose = document.getElementById(closeTrigger.dataset.dialogClose);
+                    dialogToClose && dialogToClose.close();
+                    return;
+                }
+                var row = e.target.closest('.js-row-link');
+                if (row) {
+                    location.href = row.dataset.href;
+                }
+            });
         })();
     </script>
 </body>

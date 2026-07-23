@@ -328,7 +328,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#coordTabs .tab-btn');
             tabs.forEach(function (btn) {

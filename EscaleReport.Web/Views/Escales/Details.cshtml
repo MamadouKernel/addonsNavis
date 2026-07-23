@@ -72,7 +72,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M9.5 13l5 6M14.5 13l-5 6" /></svg>
             Export Excel
         </a>
-        <button type="button" class="btn-secondary" onclick="document.getElementById('emailPrompt').showModal()">
+        <button type="button" class="btn-secondary" data-dialog-open="emailPrompt">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" /><path d="m4 6 8 6 8-6" /></svg>
             Envoyer par e-mail
         </button>
@@ -94,7 +94,7 @@
         <label class="field-label">Destinataires (séparés par des virgules)</label>
         <input name="recipients" type="text" required placeholder="nom@exemple.com, autre@exemple.com" class="input-field" />
         <div class="mt-5 flex flex-wrap justify-end gap-3">
-            <button type="button" class="btn-secondary" onclick="document.getElementById('emailPrompt').close()">Annuler</button>
+            <button type="button" class="btn-secondary" data-dialog-close="emailPrompt">Annuler</button>
             <button type="submit" class="btn-primary">Ouvrir le brouillon</button>
         </div>
     </form>
@@ -110,7 +110,7 @@
         <form asp-controller="Escales" asp-action="ChangeStatutOperations" method="post">
             <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
             <label class="field-label">Statut des opérations</label>
-            <select name="NouveauStatut" onchange="this.form.submit()" class="input-field">
+            <select name="NouveauStatut" class="js-auto-submit input-field">
                 @foreach (StatutOperations s in Enum.GetValues<StatutOperations>())
                 {
                     @if (s == Model.Escale.StatutOperations)
@@ -127,7 +127,7 @@
         <form asp-controller="Escales" asp-action="ChangeStatutPlanification" method="post">
             <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
             <label class="field-label">Statut de planification</label>
-            <select name="NouveauStatut" onchange="this.form.submit()" class="input-field">
+            <select name="NouveauStatut" class="js-auto-submit input-field">
                 @foreach (StatutPlanification s in Enum.GetValues<StatutPlanification>())
                 {
                     @if (s == Model.Escale.StatutPlanification)
@@ -491,7 +491,7 @@
                             <form asp-controller="VesselPlanning" asp-action="SetAdditionalDecision" method="post" class="inline-flex items-center gap-2">
                                 <input type="hidden" name="containerId" value="@c.Id" />
                                 <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
-                                <select name="decision" onchange="this.form.submit()" class="input-field py-1 text-xs">
+                                <select name="decision" class="js-auto-submit input-field py-1 text-xs">
                                     @foreach (AdditionalContainerDecision d in Enum.GetValues<AdditionalContainerDecision>())
                                     {
                                         @if (d == c.Decision)
@@ -569,7 +569,7 @@
                             <form asp-controller="VesselPlanning" asp-action="UpdateDangerousStatus" method="post" class="flex flex-wrap items-center gap-2">
                                 <input type="hidden" name="containerId" value="@c.Id" />
                                 <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
-                                <select name="statutBadt" onchange="this.form.submit()" class="input-field py-1 text-xs">
+                                <select name="statutBadt" class="js-auto-submit input-field py-1 text-xs">
                                     @foreach (BadtStatus b in Enum.GetValues<BadtStatus>())
                                     {
                                         @if (b == c.StatutBadt)
@@ -582,7 +582,7 @@
                                         }
                                     }
                                 </select>
-                                <select name="statutOperationnel" onchange="this.form.submit()" class="input-field py-1 text-xs">
+                                <select name="statutOperationnel" class="js-auto-submit input-field py-1 text-xs">
                                     @foreach (DangerousContainerStatus s in Enum.GetValues<DangerousContainerStatus>())
                                     {
                                         @if (s == c.StatutOperationnel)
@@ -619,7 +619,7 @@
 </section>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.GetOrCreateCspNonce()">
         (function () {
             var tabs = document.querySelectorAll('#vpTabs .tab-btn');
             tabs.forEach(function (btn) {

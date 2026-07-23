@@ -5,6 +5,7 @@ using EscaleReport.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace EscaleReport.Web.Controllers;
 
@@ -19,6 +20,7 @@ public class AccountController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("login")]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)

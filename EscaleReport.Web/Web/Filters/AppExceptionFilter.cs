@@ -30,8 +30,7 @@ public class AppExceptionFilter(ITempDataDictionaryFactory tempDataFactory) : IE
         var tempData = tempDataFactory.GetTempData(context.HttpContext);
         tempData["Error"] = message;
 
-        var referer = context.HttpContext.Request.Headers.Referer.ToString();
-        context.Result = new RedirectResult(string.IsNullOrEmpty(referer) ? "/" : referer);
+        context.Result = new RedirectResult(SafeRedirect.ToLocalReferer(context.HttpContext));
         context.ExceptionHandled = true;
     }
 }

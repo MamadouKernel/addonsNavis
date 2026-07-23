@@ -23,8 +23,7 @@ public class ConcurrencyExceptionFilter(ITempDataDictionaryFactory tempDataFacto
         tempData["Error"] = "Cette fiche a été modifiée entre-temps par un autre utilisateur. " +
             "Veuillez recharger la page et réappliquer votre modification.";
 
-        var referer = context.HttpContext.Request.Headers.Referer.ToString();
-        context.Result = new RedirectResult(string.IsNullOrEmpty(referer) ? "/" : referer);
+        context.Result = new RedirectResult(SafeRedirect.ToLocalReferer(context.HttpContext));
         context.ExceptionHandled = true;
     }
 }
