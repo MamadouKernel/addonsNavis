@@ -1,0 +1,75 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Mon profil";
+}
+
+<div class="mb-8">
+    <h1 class="page-title">Mon profil</h1>
+    <p class="page-subtitle">Informations de votre compte et sécurité</p>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <section class="card">
+        <h2 class="card-title mb-4">Informations du compte</h2>
+        <dl class="space-y-3 text-sm">
+            <div class="flex items-center justify-between gap-3">
+                <dt style="color:var(--text-soft)">Identifiant</dt>
+                <dd class="font-semibold" style="color:var(--ink)">@Model.UserName</dd>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Email))
+            {
+                <div class="flex items-center justify-between gap-3">
+                    <dt style="color:var(--text-soft)">E-mail</dt>
+                    <dd class="font-semibold" style="color:var(--ink)">@Model.Email</dd>
+                </div>
+            }
+            <div class="flex items-center justify-between gap-3">
+                <dt style="color:var(--text-soft)">Rôle</dt>
+                <dd><span class="badge-brand">@Model.Role</span></dd>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.PosteParDefaut))
+            {
+                <div class="flex items-center justify-between gap-3">
+                    <dt style="color:var(--text-soft)">Poste</dt>
+                    <dd class="font-semibold" style="color:var(--ink)">@Model.PosteParDefaut</dd>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.Equipe))
+            {
+                <div class="flex items-center justify-between gap-3">
+                    <dt style="color:var(--text-soft)">Équipe</dt>
+                    <dd class="font-semibold" style="color:var(--ink)">@Model.Equipe</dd>
+                </div>
+            }
+        </dl>
+        <p class="mt-4 text-xs" style="color:var(--text-soft)">
+            Le rôle, le poste et l'équipe sont gérés par un Administrateur (page Comptes &amp; permissions).
+        </p>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title mb-1">Changer le mot de passe</h2>
+        <p class="card-subtitle mb-4">Vous resterez connecté après la modification.</p>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="alert-error mb-4"></div>
+        }
+
+        <form asp-controller="Profile" asp-action="ChangePassword" method="post" class="space-y-4">
+            <div>
+                <label asp-for="ChangePassword.CurrentPassword" class="field-label"></label>
+                <input asp-for="ChangePassword.CurrentPassword" class="input-field" />
+            </div>
+            <div>
+                <label asp-for="ChangePassword.NewPassword" class="field-label"></label>
+                <input asp-for="ChangePassword.NewPassword" class="input-field" />
+            </div>
+            <div>
+                <label asp-for="ChangePassword.ConfirmPassword" class="field-label"></label>
+                <input asp-for="ChangePassword.ConfirmPassword" class="input-field" />
+            </div>
+            <button type="submit" class="btn-primary w-full">Mettre à jour le mot de passe</button>
+        </form>
+    </section>
+</div>

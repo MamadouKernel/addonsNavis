@@ -182,6 +182,39 @@ body{
     @apply rounded-xl px-4 py-3 text-sm font-medium;
     background: color-mix(in srgb, var(--coral) 12%, var(--card)); border: 1px solid color-mix(in srgb, var(--coral) 35%, var(--line)); color: color-mix(in srgb, var(--coral) 65%, black);
   }
+  .alert-success {
+    @apply rounded-xl px-4 py-3 text-sm font-medium;
+    background: color-mix(in srgb, var(--sea) 12%, var(--card)); border: 1px solid color-mix(in srgb, var(--sea) 35%, var(--line)); color: color-mix(in srgb, var(--sea) 60%, black);
+  }
+
+  /* Barre superieure (navbar) : theme + profil utilisateur, visible a toutes les
+     tailles decran (contrairement a lancienne barre mobile uniquement). */
+  .topbar-icon-btn {
+    @apply grid h-9 w-9 flex-none place-items-center rounded-xl transition-colors;
+    color: var(--text-soft);
+  }
+  .topbar-icon-btn:hover { background: color-mix(in srgb, var(--sea) 10%, transparent); color: var(--ink); }
+
+  .user-avatar {
+    @apply grid h-8 w-8 flex-none place-items-center rounded-full text-xs font-bold;
+    background: color-mix(in srgb, var(--sea) 20%, var(--card)); color: var(--steel);
+  }
+
+  .user-menu-trigger {
+    @apply flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors;
+  }
+  .user-menu-trigger:hover { background: color-mix(in srgb, var(--sea) 10%, transparent); }
+
+  .dropdown-panel {
+    @apply absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft-lg);
+  }
+  .dropdown-item {
+    @apply flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm font-medium transition-colors;
+    color: var(--text);
+  }
+  .dropdown-item:hover { background: color-mix(in srgb, var(--sea) 8%, transparent); }
+  .dropdown-item.danger { color: var(--coral); }
 
   .tab-btn {
     @apply inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors;
