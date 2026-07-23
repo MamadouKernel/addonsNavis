@@ -34,6 +34,11 @@ public class AppUserClaimsPrincipalFactory(
 
         identity.AddClaims(permissionKeys.Select(k => new Claim(AppClaimTypes.Permission, k)));
 
+        if (!string.IsNullOrWhiteSpace(user.PosteParDefaut))
+        {
+            identity.AddClaim(new Claim(AppClaimTypes.Poste, user.PosteParDefaut));
+        }
+
         return identity;
     }
 }

@@ -60,6 +60,8 @@ public class LogReportEmailCommandHandler(
 
         // RFC 6068 : la liste de destinataires (avant le "?") ne s'encode pas comme les
         // paramètres de requête — un "@" encodé en %40 dérouterait certains clients mail.
+        // LogReportEmailCommandValidator interdit déjà ?/&/#/=/% dans chaque adresse, ce qui
+        // empêche l'injection d'un paramètre mailto (cc=, bcc=...) via ce champ.
         var mailto = $"mailto:{request.Recipients.Replace(" ", "")}" +
                      $"?subject={Uri.EscapeDataString(subject)}" +
                      $"&body={Uri.EscapeDataString(body)}";

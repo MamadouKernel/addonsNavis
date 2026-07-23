@@ -56,6 +56,21 @@ Suivi de l'avancement par rapport au CDC. Légende : ✅ fait · 🟡 partiel ·
 
 Palette "lagune" alignée sur le prototype HTML de référence (bleu-nuit du quai, turquoise lagon, corail pour les alertes) — pilotée par variables CSS pour rester cohérente en mode clair et sombre, appliquée aux composants partagés (cartes, boutons, badges, tableaux, sidebar en dégradé, page de connexion). Tableau de bord des escales converti en grille de cartes avec bordure d'accent colorée selon le statut opérationnel. Scène animée quai/navire/portique (CSS pur, `_PortScene.cshtml`) reprise sur la page de connexion et le tableau de bord des escales : un chariot transfère un conteneur du navire vers le parc en boucle, respecte `prefers-reduced-motion`. Les autres effets avancés du prototype (dix thèmes commutables, glisser-déposer interactif, confettis) restent hors périmètre — le CDC §15.2 les qualifie lui-même d'indicatifs, sans impact sur les règles de gestion.
 
+## Sécurité
+
+Audit interne (revue de code + tests manuels) suivi de corrections, toutes vérifiées en conditions réelles :
+
+| Constat | Correctif |
+|---|---|
+| Cloisonnement par poste Dispatch absent (un Dispatcher pouvait agir sur STS/TT/RTG/Autres engins indépendamment de son poste assigné) | `ICurrentUserService.Poste` (claim posée à la connexion depuis `PosteParDefaut`) + `DispatchAccessControl.CanAccessPoste` vérifié dans les 26 handlers de commande Dispatch |
+| Pas de HTTPS/HSTS ni d'en-têtes de sécurité | `UseHttpsRedirection`/`UseHsts` + CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy dans `Program.cs` |
+| Cookie de session sans `Secure` forcé | `CookieSecurePolicy.Always` en dehors de Dev (`SameAsRequest` en Dev, pas d'endpoint https local) |
+| Injection possible dans le `mailto:` du rapport (paramètre `cc=`/`bcc=` via le champ destinataires) | `LogReportEmailCommandValidator` interdit `?/&/#/=/%` dans chaque adresse |
+| Mot de passe Postgres en clair dans `appsettings.json` (dépôt public) | Retiré, à fournir via `dotnet user-secrets` ou variable d'environnement |
+| Tentatives de connexion échouées et accès refusés non journalisés | `AuditLoggingBehaviour` journalise les `ForbiddenAccessException` ; `AccountController.Login` journalise les échecs (compte inconnu, verrouillé, mot de passe) |
+| Pages scaffold ASP.NET par défaut exposées sans usage (`Home/Index`, `Home/Privacy`) ; `ThemeController` sans `[Authorize]` | Pages supprimées (`Home/Error` conservé, requis par `UseExceptionHandler`) ; `[Authorize]` ajouté sur `ThemeController` |
+| `Html.Raw()` sur du HTML construit par interpolation de chaîne (`Views/Statistics/Index.cshtml`) | Remplacé par un `TagBuilder`/`IHtmlContent` qui encode automatiquement |
+
 ## Comptes de démonstration (environnement de développement)
 
 Créés par le seeder au premier démarrage. Mot de passe fixé en développement (`appsettings.Development.json`) pour les 3 comptes les plus utilisés en démo ; les autres restent générés aléatoirement et affichés une seule fois dans les logs si non fournis via configuration :

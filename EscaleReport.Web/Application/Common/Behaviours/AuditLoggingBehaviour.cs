@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Audit;
 using MediatR;
@@ -7,8 +8,10 @@ namespace EscaleReport.Web.Application.Common.Behaviours;
 // Alimente automatiquement le journal d'audit (CDC §2 "historique de ses actions", §18
 // traçabilité) pour toute commande qui s'exécute avec succès — aucune commande n'a besoin
 // d'opter explicitement, ce qui évite d'oublier la traçabilité sur un futur handler. Les
-// requêtes de lecture (Query) ne sont volontairement pas journalisées : seules les actions
-// qui modifient l'état du système constituent une "action" au sens du CDC.
+// requêtes de lecture (Query) ne sont volontairement pas journalisées en succès : seules les
+// actions qui modifient l'état du système constituent une "action" au sens du CDC. Un refus
+// d'autorisation (Command ou Query) est en revanche toujours journalisé : c'est un événement
+// de sécurité, pas une simple lecture.
 public class AuditLoggingBehaviour<TRequest, TResponse>(
     IApplicationDbContext dbContext,
     ICurrentUserService currentUser) : IPipelineBehavior<TRequest, TResponse>
@@ -19,9 +22,28 @@ public class AuditLoggingBehaviour<TRequest, TResponse>(
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        var response = await next(cancellationToken);
-
         var requestName = typeof(TRequest).Name;
+        TResponse response;
+
+        try
+        {
+            response = await next(cancellationToken);
+        }
+        catch (ForbiddenAccessException)
+        {
+            dbContext.AuditLogEntries.Add(new AuditLogEntry
+            {
+                Id = Guid.NewGuid(),
+                DateUtc = DateTime.UtcNow,
+                UserId = currentUser.UserId,
+                UserName = currentUser.UserName,
+                Action = $"{requestName} (refusé)",
+                Cible = ExtractCible(request)
+            });
+            await dbContext.SaveChangesAsync(cancellationToken);
+            throw;
+        }
+
         if (requestName.EndsWith("Command", StringComparison.Ordinal))
         {
             dbContext.AuditLogEntries.Add(new AuditLogEntry

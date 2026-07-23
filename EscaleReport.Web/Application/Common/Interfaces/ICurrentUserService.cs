@@ -6,6 +6,7 @@ public interface ICurrentUserService
 {
     Guid? UserId { get; }
     string? UserName { get; }
+    string? Poste { get; }
 
     bool HasPermission(string permissionKey);
     bool IsInRole(string role);

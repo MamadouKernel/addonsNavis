@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Dispatch;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,8 @@ public class ResolveRopnEntryCommandHandler(
 {
     public async Task Handle(ResolveRopnEntryCommand request, CancellationToken cancellationToken)
     {
-        if (!currentUser.HasPermission(Permissions.ModifierDonneesModule))
+        if (!currentUser.HasPermission(Permissions.ModifierDonneesModule) ||
+            !DispatchAccessControl.CanAccessPoste(currentUser, "STS"))
         {
             throw new ForbiddenAccessException(Permissions.ModifierDonneesModule);
         }

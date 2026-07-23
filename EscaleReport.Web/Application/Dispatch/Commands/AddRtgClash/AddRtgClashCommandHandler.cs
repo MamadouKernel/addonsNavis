@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Dispatch;
 using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
@@ -12,7 +13,8 @@ public class AddRtgClashCommandHandler(
 {
     public async Task<Guid> Handle(AddRtgClashCommand request, CancellationToken cancellationToken)
     {
-        if (!currentUser.HasPermission(Permissions.SaisirDonneesModule))
+        if (!currentUser.HasPermission(Permissions.SaisirDonneesModule) ||
+            !DispatchAccessControl.CanAccessPoste(currentUser, "RTG"))
         {
             throw new ForbiddenAccessException(Permissions.SaisirDonneesModule);
         }

@@ -76,7 +76,8 @@ public static class DbSeeder
                 Permissions.ConsulterEscales,
                 Permissions.SaisirDonneesModule,
                 Permissions.ModifierDonneesModule
-            ]);
+            ],
+            poste: "STS");
 
         // Compte de démonstration pour le rôle Cargo Controller (CDC §10).
         await SeedUserAsync(
@@ -363,7 +364,8 @@ public static class DbSeeder
         string configKeyPrefix,
         string defaultUserName,
         string role,
-        IReadOnlyList<string> permissions)
+        IReadOnlyList<string> permissions,
+        string? poste = null)
     {
         var userName = configuration[$"{configKeyPrefix}:UserName"] ?? defaultUserName;
         var password = configuration[$"{configKeyPrefix}:Password"];
@@ -382,7 +384,8 @@ public static class DbSeeder
             UserName = userName,
             Email = $"{userName}@escalereport.local",
             EmailConfirmed = true,
-            IsActive = true
+            IsActive = true,
+            PosteParDefaut = poste
         };
 
         var result = await userManager.CreateAsync(user, password);

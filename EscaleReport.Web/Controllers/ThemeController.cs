@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EscaleReport.Web.Controllers;
@@ -5,6 +6,7 @@ namespace EscaleReport.Web.Controllers;
 // CDC §15.2 "Personnalisation de l'interface" : mode clair / mode sombre, choix persistant
 // de l'utilisateur (cookie), indépendant des préférences système du poste — pertinent en
 // Control Room où plusieurs utilisateurs se succèdent sur un même poste partagé.
+[Authorize]
 public class ThemeController : Controller
 {
     [HttpPost]

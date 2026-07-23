@@ -6,16 +6,8 @@ namespace EscaleReport.Web.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
-    {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
+    // Reste accessible anonymement : référencé par app.UseExceptionHandler("/Home/Error")
+    // dans Program.cs, y compris pour une exception levée avant authentification.
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

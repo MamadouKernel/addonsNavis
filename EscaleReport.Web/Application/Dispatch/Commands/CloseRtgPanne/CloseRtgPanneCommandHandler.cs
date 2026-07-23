@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Dispatch;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,8 @@ public class CloseRtgPanneCommandHandler(
 {
     public async Task Handle(CloseRtgPanneCommand request, CancellationToken cancellationToken)
     {
-        if (!currentUser.HasPermission(Permissions.ModifierDonneesModule))
+        if (!currentUser.HasPermission(Permissions.ModifierDonneesModule) ||
+            !DispatchAccessControl.CanAccessPoste(currentUser, "RTG"))
         {
             throw new ForbiddenAccessException(Permissions.ModifierDonneesModule);
         }

@@ -22,6 +22,8 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
 
     public string? UserName => User?.Identity?.Name;
 
+    public string? Poste => User?.FindFirstValue(AppClaimTypes.Poste);
+
     public bool HasPermission(string permissionKey) =>
         User?.HasClaim(AppClaimTypes.Permission, permissionKey) ?? false;
 
@@ -31,4 +33,5 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
 public static class AppClaimTypes
 {
     public const string Permission = "permission";
+    public const string Poste = "poste";
 }

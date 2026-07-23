@@ -16,6 +16,10 @@ public partial class LogReportEmailCommandValidator : AbstractValidator<LogRepor
         recipients.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .All(email => EmailRegex().IsMatch(email));
 
-    [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")]
+    // Exclut ?/&/#/=/% en plus des espaces : ces caractères ne servent jamais dans une adresse
+    // e-mail réelle ici, mais permettraient d'injecter un paramètre (cc=, bcc=) dans le "mailto:"
+    // construit par concaténation (LogReportEmailCommandHandler ne peut pas percent-encoder le
+    // "@" du destinataire sans casser certains clients mail — RFC 6068).
+    [GeneratedRegex(@"^[^@\s?&#=%]+@[^@\s?&#=%]+\.[^@\s?&#=%]+$")]
     private static partial Regex EmailRegex();
 }

@@ -1,4 +1,6 @@
 @using EscaleReport.Web.Application.Statistics.Queries.GetIndicators
+@using Microsoft.AspNetCore.Html
+@using Microsoft.AspNetCore.Mvc.Rendering
 @model IndicatorsResultDto
 @{
     ViewData["Title"] = "Reporting et indicateurs";
@@ -10,7 +12,26 @@
     var quai = Context.Request.Query["quai"].ToString();
     var typeIncident = Context.Request.Query["typeIncident"].ToString();
 
-    string Kpi(object value, string label) => $@"<div class=""rounded-xl border border-slate-200 bg-slate-50/60 p-4 text-center""><div class=""text-2xl font-bold text-slate-900"">{value}</div><div class=""text-xs text-slate-500 mt-1"">{label}</div></div>";
+    // TagBuilder.InnerHtml.Append encode value/label (contrairement à Html.Raw précédemment
+    // utilisé ici) : ces valeurs sont aujourd'hui toujours numériques/fixes, mais ce pattern
+    // reste sûr si l'une d'elles devenait un jour un texte libre.
+    IHtmlContent Kpi(object value, string label)
+    {
+        var wrapper = new TagBuilder("div");
+        wrapper.AddCssClass("rounded-xl border border-slate-200 bg-slate-50/60 p-4 text-center");
+
+        var valueDiv = new TagBuilder("div");
+        valueDiv.AddCssClass("text-2xl font-bold text-slate-900");
+        valueDiv.InnerHtml.Append(value?.ToString() ?? string.Empty);
+
+        var labelDiv = new TagBuilder("div");
+        labelDiv.AddCssClass("text-xs text-slate-500 mt-1");
+        labelDiv.InnerHtml.Append(label);
+
+        wrapper.InnerHtml.AppendHtml(valueDiv);
+        wrapper.InnerHtml.AppendHtml(labelDiv);
+        return wrapper;
+    }
 }
 
 <div class="mb-8">
@@ -64,19 +85,19 @@
 <section class="card mb-6">
     <h2 class="card-title mb-4">Escales</h2>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        @Html.Raw(Kpi(Model.NombreEscales, "Escales sur la période"))
-        @Html.Raw(Kpi(Model.NombreEscalesTerminees, "Escales terminées"))
-        @Html.Raw(Kpi(Model.NombreEscalesAvecAnomalies, "Escales avec anomalies"))
+        @Kpi(Model.NombreEscales, "Escales sur la période")
+        @Kpi(Model.NombreEscalesTerminees, "Escales terminées")
+        @Kpi(Model.NombreEscalesAvecAnomalies, "Escales avec anomalies")
     </div>
 </section>
 
 <section class="card mb-6">
     <h2 class="card-title mb-4">Anomalies et incidents</h2>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
-        @Html.Raw(Kpi(Model.NombreConteneursEnAnomalie, "Conteneurs en anomalie"))
-        @Html.Raw(Kpi(Model.DelaiMoyenResolutionAnomaliesHeures is { } d ? $"{d:0.0} h" : "—", "Délai moyen de résolution"))
-        @Html.Raw(Kpi(Model.NombreIncidentsCritiques, "Incidents critiques"))
-        @Html.Raw(Kpi($"{Model.DureeTotaleIncidentsHeures:0.0} h", "Durée totale des incidents"))
+        @Kpi(Model.NombreConteneursEnAnomalie, "Conteneurs en anomalie")
+        @Kpi(Model.DelaiMoyenResolutionAnomaliesHeures is { } d ? $"{d:0.0} h" : "—", "Délai moyen de résolution")
+        @Kpi(Model.NombreIncidentsCritiques, "Incidents critiques")
+        @Kpi($"{Model.DureeTotaleIncidentsHeures:0.0} h", "Durée totale des incidents")
     </div>
     @if (Model.IncidentsParCategorie.Any())
     {
@@ -92,45 +113,45 @@
 <section class="card mb-6">
     <h2 class="card-title mb-4">Équipements</h2>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
-        @Html.Raw(Kpi($"{Model.DisponibiliteStsPct}%", "Disponibilité STS"))
-        @Html.Raw(Kpi($"{Model.DisponibiliteTtPct}%", "Disponibilité TT"))
-        @Html.Raw(Kpi($"{Model.DisponibiliteRtgPct}%", "Disponibilité RTG"))
-        @Html.Raw(Kpi($"{Model.DisponibiliteAutresEnginsPct}%", "Disponibilité autres engins"))
+        @Kpi($"{Model.DisponibiliteStsPct}%", "Disponibilité STS")
+        @Kpi($"{Model.DisponibiliteTtPct}%", "Disponibilité TT")
+        @Kpi($"{Model.DisponibiliteRtgPct}%", "Disponibilité RTG")
+        @Kpi($"{Model.DisponibiliteAutresEnginsPct}%", "Disponibilité autres engins")
     </div>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        @Html.Raw(Kpi(Model.NombrePannes, "Nombre de pannes"))
-        @Html.Raw(Kpi($"{Model.DureeTotalePannesHeures:0.0} h", "Durée totale des pannes"))
-        @Html.Raw(Kpi($"{Model.TauxAffectationEquipementsPct}%", "Taux d'affectation"))
+        @Kpi(Model.NombrePannes, "Nombre de pannes")
+        @Kpi($"{Model.DureeTotalePannesHeures:0.0} h", "Durée totale des pannes")
+        @Kpi($"{Model.TauxAffectationEquipementsPct}%", "Taux d'affectation")
     </div>
 </section>
 
 <section class="card mb-6">
     <h2 class="card-title mb-4">Conteneurs vides, additionnels et dangereux</h2>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        @Html.Raw(Kpi(Model.ConteneursVidesSouhaites, "Vides souhaités"))
-        @Html.Raw(Kpi(Model.ConteneursVidesEmbarques, "Vides embarqués"))
-        @Html.Raw(Kpi(Model.ConteneursVidesCoupes, "Vides coupés"))
-        @Html.Raw(Kpi(Model.ConteneursVidesRestants, "Vides restants"))
-        @Html.Raw(Kpi(Model.NombreConteneursAdditionnels, "Additionnels"))
-        @Html.Raw(Kpi(Model.NombreConteneursDangereux, "Dangereux"))
+        @Kpi(Model.ConteneursVidesSouhaites, "Vides souhaités")
+        @Kpi(Model.ConteneursVidesEmbarques, "Vides embarqués")
+        @Kpi(Model.ConteneursVidesCoupes, "Vides coupés")
+        @Kpi(Model.ConteneursVidesRestants, "Vides restants")
+        @Kpi(Model.NombreConteneursAdditionnels, "Additionnels")
+        @Kpi(Model.NombreConteneursDangereux, "Dangereux")
     </div>
 </section>
 
 <section class="card mb-6">
     <h2 class="card-title mb-4">Cargo et rapports</h2>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        @Html.Raw(Kpi($"{Model.TauxRealisationDischPct}%", "Réalisation Disch"))
-        @Html.Raw(Kpi($"{Model.TauxRealisationLoadPct}%", "Réalisation Load"))
-        @Html.Raw(Kpi(Model.DelaiMoyenProductionRapportsHeures is { } r ? $"{r:0.0} h" : "—", "Délai moyen de production des rapports"))
-        @Html.Raw(Kpi(Model.NombreRapportsEnvoyes, "Rapports envoyés"))
+        @Kpi($"{Model.TauxRealisationDischPct}%", "Réalisation Disch")
+        @Kpi($"{Model.TauxRealisationLoadPct}%", "Réalisation Load")
+        @Kpi(Model.DelaiMoyenProductionRapportsHeures is { } r ? $"{r:0.0} h" : "—", "Délai moyen de production des rapports")
+        @Kpi(Model.NombreRapportsEnvoyes, "Rapports envoyés")
     </div>
 </section>
 
 <section class="card">
     <h2 class="card-title mb-4">ITT et Yard</h2>
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        @Html.Raw(Kpi(Model.NombreTransfertsItt, "Transferts ITT"))
-        @Html.Raw(Kpi($"{Model.TauxAvancementTransfertsPct:0.0}%", "Avancement des transferts"))
-        @Html.Raw(Kpi(Model.NombreTachesYardRealisees, "Tâches Yard réalisées"))
+        @Kpi(Model.NombreTransfertsItt, "Transferts ITT")
+        @Kpi($"{Model.TauxAvancementTransfertsPct:0.0}%", "Avancement des transferts")
+        @Kpi(Model.NombreTachesYardRealisees, "Tâches Yard réalisées")
     </div>
 </section>

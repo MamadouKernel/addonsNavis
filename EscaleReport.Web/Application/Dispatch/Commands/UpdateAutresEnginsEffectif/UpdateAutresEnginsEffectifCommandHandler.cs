@@ -1,5 +1,6 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Application.Dispatch;
 using EscaleReport.Web.Domain.Dispatch;
 using EscaleReport.Web.Domain.Identity;
 using MediatR;
@@ -13,7 +14,8 @@ public class UpdateAutresEnginsEffectifCommandHandler(
 {
     public async Task Handle(UpdateAutresEnginsEffectifCommand request, CancellationToken cancellationToken)
     {
-        if (!currentUser.HasPermission(Permissions.SaisirDonneesModule))
+        if (!currentUser.HasPermission(Permissions.SaisirDonneesModule) ||
+            !DispatchAccessControl.CanAccessPoste(currentUser, "Autres engins"))
         {
             throw new ForbiddenAccessException(Permissions.SaisirDonneesModule);
         }
