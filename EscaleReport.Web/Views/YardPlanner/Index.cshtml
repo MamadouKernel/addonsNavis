@@ -168,7 +168,7 @@
                 }
             </select>
         </div>
-        <div><label class="field-label">Service maritime</label><input name="ServiceMaritime" required class="input-field" /></div>
+        <input type="hidden" name="ServiceMaritime" value="Automatique" />
         <div>
             <label class="field-label">Zone de débarquement</label>
             <select id="zoneDebarquementSelect" name="ZoneDebarquement" class="input-field">
@@ -245,7 +245,7 @@
         <div><label class="field-label">Bay</label><select name="Bay" required class="input-field"><option value="">Sélectionner</option>@foreach (var bay in Model.BaysDisponibles) { <option value="@bay">@bay</option> }</select></div>
         <div><label class="field-label">Nombre de conteneurs</label><input type="number" name="NombreConteneurs" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Détail / destination</label><input name="DetailOuDestination" class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="HeureDebut" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="HeureDebut" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /><small class="mt-1 block text-xs text-slate-400">Heure actuelle proposée</small></div>
         <div class="flex items-end">
             <button type="submit" class="btn-primary w-full">Déclarer</button>
         </div>
@@ -323,8 +323,8 @@
                 }
             </select>
         </div>
-        <div><label class="field-label">Priorité</label><input name="Priorite" placeholder="Haute / Normale / Basse" class="input-field" /></div>
-        <div><label class="field-label">Responsable</label><input name="Responsable" class="input-field" /></div>
+        <div><label class="field-label">Priorité</label><select name="Priorite" class="input-field"><option value="Normale">Normale</option><option value="Haute">Haute</option><option value="Basse">Basse</option></select></div>
+        <input type="hidden" name="Responsable" value="" />
         <div><label class="field-label">Date prévue</label><input type="datetime-local" name="DatePrevue" class="input-field" /></div>
         <div class="flex items-end">
             <button type="submit" class="btn-primary w-full">Ajouter</button>

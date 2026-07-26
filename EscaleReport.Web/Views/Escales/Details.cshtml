@@ -340,7 +340,7 @@
                         <option value="@((int)Sens.Embarquement)">Embarquement</option>
                     </select>
                 </div>
-                <div><label class="field-label" for="anomalyLine">Ligne maritime</label><input id="anomalyLine" name="LigneMaritime" class="input-field" placeholder="Ex. CMA CGM" /></div>
+                <div><label class="field-label" for="anomalyLine">Ligne maritime</label><input id="anomalyLine" name="LigneMaritime" value="@Model.Escale.LigneMaritime" readonly class="input-field" /></div>
                 <div><label class="field-label" for="anomalyPosition">Bay</label><select id="anomalyPosition" name="Position" class="input-field"><option value="">Non renseigné</option>@foreach (var bay in Model.BaysDisponibles) { <option value="@bay">@bay</option> }</select></div>
                 <div>
                     <label class="field-label" for="anomalyReason">Raison <span aria-hidden="true">*</span></label>
@@ -440,8 +440,8 @@
     <form asp-controller="VesselPlanning" asp-action="AddEmptyTarget" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
         <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
-        <div><label class="field-label">Ligne maritime</label><input name="LigneMaritime" required class="input-field" /></div>
-        <div><label class="field-label">Type conteneur</label><input name="TypeConteneur" required placeholder="20 / 40" class="input-field" /></div>
+        <div><label class="field-label">Ligne maritime</label><input name="LigneMaritime" value="@Model.Escale.LigneMaritime" readonly required class="input-field" /></div>
+        <div><label class="field-label">Type conteneur</label><select name="TypeConteneur" required class="input-field"><option value="20">20 pieds</option><option value="40">40 pieds</option></select></div>
         <div><label class="field-label">Quantité souhaitée</label><input name="QuantiteSouhaitee" type="number" min="0" value="0" class="input-field" /></div>
         <div class="flex items-end"><button type="submit" class="btn-primary w-full">Ajouter</button></div>
     </form>
@@ -536,7 +536,7 @@
             </select>
         </div>
         <div><label class="field-label">Localisation</label><input name="Localisation" class="input-field" /></div>
-        <div><label class="field-label">Début</label><input name="DateDebutUtc" type="datetime-local" required class="input-field" /></div>
+        <div><label class="field-label">Début</label><input name="DateDebutUtc" type="datetime-local" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" required class="input-field" /></div>
         <div><label class="field-label">Fin (facultative)</label><input name="DateFinUtc" type="datetime-local" class="input-field" /></div>
         <div>
             <label class="field-label">Gravité</label>
@@ -630,7 +630,7 @@
                 <option value="@((int)Sens.Embarquement)">Embarquement</option>
             </select>
         </div>
-        <div><label class="field-label">Ligne</label><input name="LigneMaritime" class="input-field" /></div>
+        <div><label class="field-label">Ligne</label><input name="LigneMaritime" value="@Model.Escale.LigneMaritime" readonly class="input-field" /></div>
         <div><label class="field-label">Bay</label><select name="Position" class="input-field"><option value="">Non renseigné</option>@foreach (var bay in Model.BaysDisponibles) { <option value="@bay">@bay</option> }</select></div>
         <div><label class="field-label">Réf. e-mail</label><input name="ReferenceEmail" class="input-field" /></div>
         <div class="flex items-end"><button type="submit" class="btn-primary w-full">Ajouter</button></div>
@@ -715,7 +715,7 @@
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-7">
         <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
         <div><label class="field-label">Conteneur(s), un par ligne</label><textarea name="NumeroConteneur" rows="3" required class="input-field"></textarea></div>
-        <div><label class="field-label">Ligne</label><input name="LigneMaritime" class="input-field" /></div>
+        <div><label class="field-label">Ligne</label><input name="LigneMaritime" value="@Model.Escale.LigneMaritime" readonly class="input-field" /></div>
         <div><label class="field-label">Classe IMO</label><input name="ClasseImo" class="input-field" /></div>
         <div><label class="field-label">Bay</label><select name="Position" class="input-field"><option value="">Non renseigné</option>@foreach (var bay in Model.BaysDisponibles) { <option value="@bay">@bay</option> }</select></div>
         <div><label class="field-label">Validité BADT</label><input name="DateValiditeBadt" type="date" class="input-field" /></div>
