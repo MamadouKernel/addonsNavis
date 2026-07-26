@@ -364,21 +364,33 @@ body{
   .badge-danger   { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--coral) 16%, transparent); color: color-mix(in srgb, var(--coral) 60%, black); }
   .badge-brand    { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--amber) 18%, transparent); color: color-mix(in srgb, var(--amber) 55%, black); }
 
-  .table-shell { @apply overflow-hidden rounded-2xl; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft); }
+  .table-shell { @apply overflow-hidden rounded-2xl; position:relative; isolation:isolate; background:var(--card); border:1px solid color-mix(in srgb,var(--line) 88%,transparent); box-shadow:var(--shadow-soft); }
+  .table-shell::before { content:""; position:absolute; z-index:2; inset:0 0 auto; height:3px; background:linear-gradient(90deg,var(--sea),var(--amber),var(--sea)); opacity:.82; }
   /* Sur mobile, la table defile horizontalement plutot que de casser la mise en
      page : table-shell garde les coins arrondis, table-scroll gere le defilement. */
-  .table-scroll { @apply overflow-x-auto; }
-  .table-modern { @apply w-full text-left text-sm; }
-  .table-modern thead { background:linear-gradient(105deg,var(--steel),var(--steel-2)); }
+  .table-scroll { @apply overflow-x-auto; scrollbar-width:thin; scrollbar-color:color-mix(in srgb,var(--sea) 45%,var(--line)) transparent; }
+  .table-scroll::-webkit-scrollbar { width:.55rem; height:.55rem; }
+  .table-scroll::-webkit-scrollbar-thumb { border:2px solid transparent; border-radius:99px; background:color-mix(in srgb,var(--sea) 42%,var(--line)); background-clip:padding-box; }
+  .table-modern { @apply w-full text-left text-sm; border-collapse:separate; border-spacing:0; font-variant-numeric:tabular-nums; }
+  .table-modern caption { padding:1rem 1.15rem; text-align:left; font-size:.78rem; font-weight:700; color:var(--text-soft); background:var(--card); }
+  .table-modern thead { position:relative; z-index:1; background:linear-gradient(105deg,var(--steel),var(--steel-2)); }
   .table-modern th {
-    @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-wide;
+    @apply px-4 py-3.5 text-[11px] font-bold uppercase tracking-wide;
     color: color-mix(in srgb, var(--card) 85%, var(--sea) 15%);
+    border-bottom:1px solid color-mix(in srgb,var(--sea) 22%,transparent); white-space:nowrap;
   }
-  .table-modern td { @apply px-4 py-3 border-b; border-color: var(--line); color: var(--text); }
-  .table-modern tbody tr { @apply transition-colors; }
-  .table-modern tbody tr:nth-child(even) { background:color-mix(in srgb,var(--surface) 45%,transparent); }
-  .table-modern tbody tr:hover { background: color-mix(in srgb, var(--sea) 6%, transparent); }
+  .table-modern td { @apply px-4 py-3.5 border-b; vertical-align:middle; border-color:color-mix(in srgb,var(--line) 82%,transparent); color:var(--text); }
+  .table-modern tbody tr { position:relative; transition:background-color .18s ease,box-shadow .18s ease,transform .18s ease; }
+  .table-modern tbody tr:nth-child(even) { background:color-mix(in srgb,var(--surface) 48%,transparent); }
+  .table-modern tbody tr:hover { z-index:1; background:color-mix(in srgb,var(--sea) 8%,var(--card)); box-shadow:inset 3px 0 var(--sea); }
+  .table-modern tbody tr:focus-within { z-index:2; background:color-mix(in srgb,var(--sea) 10%,var(--card)); box-shadow:inset 3px 0 var(--sea); }
   .table-modern tbody tr:last-child td { @apply border-b-0; }
+  .table-modern tbody td:first-child { font-weight:650; color:var(--ink); }
+  .table-modern td form { margin:0; }
+  .table-modern td :where(.btn-primary,.btn-secondary,.btn-danger) { white-space:nowrap; }
+  .table-modern td[colspan] { padding-block:2rem; text-align:center; color:var(--text-soft); }
+  .table-modern a:not([class]) { font-weight:700; color:var(--steel-2); text-decoration-color:color-mix(in srgb,var(--sea) 40%,transparent); text-underline-offset:3px; }
+  .table-modern a:not([class]):hover { color:var(--sea); text-decoration:underline; }
 
   .page-title { @apply text-2xl font-extrabold tracking-tight; color:var(--ink); letter-spacing:-.035em; animation:title-in .48s cubic-bezier(.22,1,.36,1) both; }
   .page-subtitle { @apply mt-1 text-sm; color: var(--text-soft); }
@@ -524,7 +536,9 @@ button,a,input,select,textarea { outline-offset:3px; }
 }
 @media (max-width:639px) {
   .card { padding:1rem; border-radius:1rem; }
-  .table-modern th,.table-modern td { padding:.7rem .8rem; }
+  .table-modern th,.table-modern td { padding:.75rem .85rem; }
+  .table-modern th { font-size:.64rem; }
+  .table-modern td { font-size:.78rem; }
   .page-title { font-size:1.55rem; }
   .app-main { padding-top:1.25rem!important; }
 }
