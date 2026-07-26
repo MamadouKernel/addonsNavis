@@ -24,6 +24,11 @@ public class AddContainerAnomalyCommandValidator : AbstractValidator<AddContaine
             .NotEmpty().WithMessage("La raison de l'anomalie est obligatoire.")
             .MustAsync(BeAKnownReasonAsync)
             .WithMessage("Raison inconnue : elle doit correspondre à une valeur paramétrée (Réglages > Raisons d'anomalie).");
+
+        RuleFor(x => x.Position).MustAsync(async (position, token) =>
+            string.IsNullOrWhiteSpace(position) || await _dbContext.ReferenceValues.AnyAsync(
+                r => r.ListKey == ReferenceListKeys.Bay && r.Value == position && r.IsActive, token))
+            .WithMessage("Sélectionnez un bay actif dans la liste administrée.");
     }
 
     private Task<bool> EscaleExistsAsync(Guid escaleId, CancellationToken cancellationToken) =>

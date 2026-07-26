@@ -8,6 +8,7 @@ using EscaleReport.Web.Application.Escales.Dtos;
 using EscaleReport.Web.Application.VesselPlanning.Dtos;
 using EscaleReport.Web.Domain.Common;
 using EscaleReport.Web.Domain.Identity;
+using EscaleReport.Web.Domain.VesselPlanning;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,6 +47,13 @@ public class GetEscaleDetailQueryHandler(
             .Select(r => r.Value)
             .ToListAsync(cancellationToken);
 
+        var bays = await dbContext.ReferenceValues
+            .AsNoTracking()
+            .Where(r => r.ListKey == ReferenceListKeys.Bay && r.IsActive)
+            .OrderBy(r => r.SortOrder)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+
         var vides = await dbContext.EmptyContainerTargets
             .AsNoTracking()
             .Where(t => t.EscaleId == request.EscaleId)
@@ -64,6 +72,20 @@ public class GetEscaleDetailQueryHandler(
             .OrderBy(r => r.SortOrder)
             .Select(r => r.Value)
             .ToListAsync(cancellationToken);
+
+        var graviteValues = await dbContext.ReferenceValues
+            .AsNoTracking()
+            .Where(r => r.ListKey == ReferenceListKeys.IncidentSeverity && r.IsActive)
+            .OrderBy(r => r.SortOrder)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+        var gravitesIncident = graviteValues
+            .Select(value => Enum.TryParse<IncidentGravite>(value, true, out var severity)
+                ? (IncidentGravite?)severity
+                : null)
+            .Where(severity => severity.HasValue)
+            .Select(severity => severity!.Value)
+            .ToList();
 
         var additionnels = await dbContext.AdditionalContainers
             .AsNoTracking()
@@ -152,6 +174,7 @@ public class GetEscaleDetailQueryHandler(
             Escale = EscaleDto.FromEntity(escale),
             Anomalies = PagedResult<ContainerAnomalyDto>.Create(anomaliesDto, request.AnomaliesPage, pageSize),
             RaisonsDisponibles = raisons,
+            BaysDisponibles = bays,
             AnomaliesNonResoluesCount = anomaliesDto.Count(a => a.Statut == Domain.VesselPlanning.AnomalyStatus.NonResolu),
 
             ConteneursVides = PagedResult<EmptyContainerTargetDto>.Create(videsDto, request.VidesPage, pageSize),
@@ -164,7 +187,8 @@ public class GetEscaleDetailQueryHandler(
 
             Incidents = PagedResult<OperationalIncidentDto>.Create(incidentsDto, request.IncidentsPage, pageSize),
             CategoriesIncidentDisponibles = categoriesIncident,
-            IncidentsEnCoursCount = incidentsDto.Count(i => i.Statut == Domain.VesselPlanning.IncidentStatus.EnCours),
+            GravitesIncidentDisponibles = gravitesIncident,
+            IncidentsEnCoursCount = incidentsDto.Count(i => i.Statut == IncidentStatus.EnCours),
 
             ConteneursAdditionnels = PagedResult<AdditionalContainerDto>.Create(additionnelsDto, request.AdditionnelsPage, pageSize),
             AdditionnelsEnAttenteCount = additionnelsDto.Count(c => c.Decision == Domain.VesselPlanning.AdditionalContainerDecision.EnAttente),

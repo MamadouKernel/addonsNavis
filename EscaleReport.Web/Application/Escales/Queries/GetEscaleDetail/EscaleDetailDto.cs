@@ -4,6 +4,7 @@ using EscaleReport.Web.Application.Dispatch.Dtos;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchTt;
 using EscaleReport.Web.Application.Escales.Dtos;
 using EscaleReport.Web.Application.VesselPlanning.Dtos;
+using EscaleReport.Web.Domain.VesselPlanning;
 
 namespace EscaleReport.Web.Application.Escales.Queries.GetEscaleDetail;
 
@@ -13,6 +14,7 @@ public class EscaleDetailDto
 
     public PagedResult<ContainerAnomalyDto> Anomalies { get; set; } = new();
     public IReadOnlyList<string> RaisonsDisponibles { get; set; } = [];
+    public IReadOnlyList<string> BaysDisponibles { get; set; } = [];
     public int AnomaliesNonResoluesCount { get; set; }
 
     public PagedResult<EmptyContainerTargetDto> ConteneursVides { get; set; } = new();
@@ -27,6 +29,7 @@ public class EscaleDetailDto
 
     public PagedResult<OperationalIncidentDto> Incidents { get; set; } = new();
     public IReadOnlyList<string> CategoriesIncidentDisponibles { get; set; } = [];
+    public IReadOnlyList<IncidentGravite> GravitesIncidentDisponibles { get; set; } = [];
     public int IncidentsEnCoursCount { get; set; }
 
     public PagedResult<AdditionalContainerDto> ConteneursAdditionnels { get; set; } = new();
