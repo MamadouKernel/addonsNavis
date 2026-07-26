@@ -259,8 +259,14 @@ html{
   .animate-floaty,.ps-ship,.ps-trolley,.ps-container,.ps-wave,.ps-truck{animation:none}
 }
 body{
-  background:var(--surface);
+  background:
+    radial-gradient(circle at 82% -10%, color-mix(in srgb,var(--sea) 14%,transparent), transparent 31rem),
+    radial-gradient(circle at 14% 110%, color-mix(in srgb,var(--steel-2) 11%,transparent), transparent 36rem),
+    var(--surface);
   color:var(--text);
+  min-height:100vh;
+  font-feature-settings:"cv02","cv03","cv04","cv11";
+  background-attachment:fixed;
 }
 *{
   transition:background-color .18s ease, border-color .18s ease, color .15s ease, box-shadow .2s ease, transform .15s ease;
@@ -282,9 +288,10 @@ body{
            disabled:cursor-not-allowed disabled:opacity-50;
     background: linear-gradient(135deg, var(--amber), var(--amber-soft));
     color: #04262a;
-    box-shadow: 0 6px 18px -4px color-mix(in srgb, var(--amber) 55%, transparent);
+    box-shadow: 0 8px 22px -6px color-mix(in srgb, var(--amber) 62%, transparent), inset 0 1px rgba(255,255,255,.42);
   }
-  .btn-primary:hover { box-shadow: 0 10px 26px -6px color-mix(in srgb, var(--amber) 65%, transparent); }
+  .btn-primary:hover { box-shadow: 0 13px 30px -8px color-mix(in srgb, var(--amber) 72%, transparent); transform:translateY(-2px) scale(1.01); }
+  .btn-primary:active { transform:translateY(0) scale(.98); }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
            text-sm font-semibold transition-all duration-150
@@ -308,18 +315,25 @@ body{
   .btn-link:hover { color: var(--sea); }
 
   .card {
-    @apply rounded-2xl p-6;
-    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-soft);
+    @apply p-6;
+    position:relative;
+    background:linear-gradient(145deg,color-mix(in srgb,var(--card) 98%,white),color-mix(in srgb,var(--card) 94%,var(--surface)));
+    border:1px solid color-mix(in srgb,var(--line) 86%,transparent);
+    border-radius:1.35rem;
+    box-shadow:var(--shadow-soft);
+    animation:surface-in .42s cubic-bezier(.22,1,.36,1) both;
   }
-  .card-title { @apply text-base font-bold; color: var(--ink); }
+  .card::after { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; box-shadow:inset 0 1px rgba(255,255,255,.5); }
+  .card-title { @apply text-base font-bold tracking-tight; color: var(--ink); }
   .card-subtitle { @apply mt-0.5 text-sm; color: var(--text-soft); }
 
   .field-label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide; color: var(--text-soft); }
   .input-field {
     @apply w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-4;
-    background: var(--card); border: 1px solid var(--line); color: var(--text);
+    min-height:2.75rem; background: color-mix(in srgb,var(--card) 92%,var(--surface)); border: 1px solid var(--line); color: var(--text);
   }
-  .input-field:focus { border-color: var(--sea); box-shadow: 0 0 0 4px color-mix(in srgb, var(--sea) 15%, transparent); }
+  .input-field:hover { border-color:color-mix(in srgb,var(--sea) 55%,var(--line)); }
+  .input-field:focus { background:var(--card); border-color:var(--sea); box-shadow:0 0 0 4px color-mix(in srgb,var(--sea) 18%,transparent); transform:translateY(-1px); }
   .input-field::placeholder { color: var(--text-soft); opacity: .7; }
 
   .badge-neutral  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--text-soft) 14%, transparent); color: var(--text-soft); }
@@ -334,17 +348,18 @@ body{
      page : table-shell garde les coins arrondis, table-scroll gere le defilement. */
   .table-scroll { @apply overflow-x-auto; }
   .table-modern { @apply w-full text-left text-sm; }
-  .table-modern thead { background: var(--ink); }
+  .table-modern thead { background:linear-gradient(105deg,var(--steel),var(--steel-2)); }
   .table-modern th {
     @apply px-4 py-3 text-[11px] font-semibold uppercase tracking-wide;
     color: color-mix(in srgb, var(--card) 85%, var(--sea) 15%);
   }
   .table-modern td { @apply px-4 py-3 border-b; border-color: var(--line); color: var(--text); }
   .table-modern tbody tr { @apply transition-colors; }
+  .table-modern tbody tr:nth-child(even) { background:color-mix(in srgb,var(--surface) 45%,transparent); }
   .table-modern tbody tr:hover { background: color-mix(in srgb, var(--sea) 6%, transparent); }
   .table-modern tbody tr:last-child td { @apply border-b-0; }
 
-  .page-title { @apply text-2xl font-bold tracking-tight; color: var(--ink); }
+  .page-title { @apply text-2xl font-extrabold tracking-tight; color:var(--ink); letter-spacing:-.035em; animation:title-in .48s cubic-bezier(.22,1,.36,1) both; }
   .page-subtitle { @apply mt-1 text-sm; color: var(--text-soft); }
 
   .alert-error {
@@ -400,10 +415,10 @@ body{
 
   .sidebar-link {
     @apply flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors;
-    color: rgba(234,247,247,.65);
+    color:rgba(234,247,247,.72); border:1px solid transparent;
   }
-  .sidebar-link:hover { background: rgba(255,255,255,.07); color: #fff; }
-  .sidebar-link.active { background: rgba(255,255,255,.12); color: #fff; }
+  .sidebar-link:hover { background:rgba(255,255,255,.08); color:#fff; transform:translateX(3px); }
+  .sidebar-link.active { background:linear-gradient(90deg,rgba(255,255,255,.18),rgba(255,255,255,.10)); color:#fff; border-color:rgba(255,255,255,.12); box-shadow:0 8px 20px -12px rgba(0,0,0,.65); }
 
   /* Carte escale : bordure daccent gauche coloree selon le statut operationnel,
      meme logique visuelle que le prototype de reference (esc-card). */
@@ -415,4 +430,38 @@ body{
   .esc-card::before { content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background: linear-gradient(var(--amber), var(--amber-soft)); }
   .esc-card.ops-term::before { background: linear-gradient(var(--sea), var(--steel-2)); }
   .esc-card.ops-pas::before { background: linear-gradient(var(--text-soft), color-mix(in srgb, var(--text-soft) 60%, transparent)); }
+}
+
+@keyframes surface-in { from { opacity:0; transform:translateY(12px) scale(.992); } to { opacity:1; transform:none; } }
+@keyframes title-in { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:none; } }
+@keyframes toast-in { from { opacity:0; transform:translateY(-8px) scale(.98); } to { opacity:1; transform:none; } }
+.app-topbar { position:sticky; top:0; z-index:25; background:color-mix(in srgb,var(--card) 84%,transparent)!important; backdrop-filter:blur(18px) saturate(145%); box-shadow:0 1px 0 var(--line),0 10px 30px -24px rgba(6,54,63,.55); }
+.app-main { width:100%; max-width:96rem; }
+.app-main > * { animation-delay:.035s; }
+#sidebar { box-shadow:18px 0 60px -40px rgba(0,0,0,.8); }
+#sidebar nav { overflow-y:auto; padding-right:.25rem; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.2) transparent; }
+.dropdown-panel { transform-origin:top right; animation:surface-in .2s ease-out both; }
+.tab-btn { position:relative; }
+.tab-btn.active::after { content:""; position:absolute; left:25%; right:25%; bottom:-3px; height:2px; border-radius:99px; background:var(--sea); animation:title-in .25s ease-out both; }
+.alert-error,.alert-success { animation:toast-in .32s ease-out both; }
+button,a,input,select,textarea { outline-offset:3px; }
+:focus-visible { outline:2px solid var(--sea); }
+::selection { background:color-mix(in srgb,var(--sea) 30%,transparent); }
+@media (max-width:767px) {
+  #sidebar { animation:title-in .25s cubic-bezier(.22,1,.36,1) both; }
+}
+@media (max-width:639px) {
+  .card { padding:1rem; border-radius:1rem; }
+  .table-modern th,.table-modern td { padding:.7rem .8rem; }
+  .page-title { font-size:1.55rem; }
+  .app-main { padding-top:1.25rem!important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+}
+@media print {
+  #sidebar,.app-topbar { display:none!important; }
+  .app-main { max-width:none!important; }
+  .card,.table-shell { box-shadow:none!important; }
 }
