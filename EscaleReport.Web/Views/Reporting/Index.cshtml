@@ -85,7 +85,7 @@
     <h2 class="card-title mb-1">@(Model.NavireCourantMode ? "Navire" : "Navires présents ou attendus")</h2>
     <div class="table-shell">
         <div class="table-scroll">
-            <table class="table-modern">
+            <table class="table-modern" data-client-pagination data-page-size="10">
                 <thead>
                     <tr>
                         <th>Navire</th>
@@ -249,7 +249,7 @@
     <h2 class="card-title mb-5">Données Cargo</h2>
     <div class="table-shell">
         <div class="table-scroll">
-            <table class="table-modern">
+            <table class="table-modern" data-client-pagination data-page-size="10">
                 <thead>
                     <tr>
                         <th>Navire</th>
@@ -335,7 +335,7 @@
 
     <div class="table-shell">
         <div class="table-scroll">
-            <table class="table-modern">
+            <table class="table-modern" data-client-pagination data-page-size="10">
                 <thead>
                     <tr>
                         <th>Navire</th>

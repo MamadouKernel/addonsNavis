@@ -53,7 +53,7 @@
     <div class="alert-result-line"><strong id="alertResultCount">@Model.Alertes.Count</strong> résultat(s) affiché(s)</div>
     <div class="table-shell">
         <div class="table-scroll">
-            <table class="table-modern">
+            <table class="table-modern" data-client-pagination data-page-size="10">
                 <thead>
                     <tr>
                         <th>Sévérité</th>
@@ -105,10 +105,11 @@
                 rows.forEach(function (row) {
                     var matchesSeverity = activeSeverity === 'all' || row.dataset.alertSeverity === activeSeverity;
                     var matchesSearch = !term || row.dataset.alertSearch.includes(term);
-                    row.hidden = !(matchesSeverity && matchesSearch);
-                    if (!row.hidden) visible++;
+                    row.dataset.filteredOut = String(!(matchesSeverity && matchesSearch));
+                    if (matchesSeverity && matchesSearch) visible++;
                 });
                 count.textContent = visible;
+                document.querySelector('[data-client-pagination]')?.dispatchEvent(new CustomEvent('tablefilterchange'));
             }
             search.addEventListener('input', refresh);
             filters.forEach(function (button) {

@@ -422,6 +422,47 @@
                 document.querySelectorAll('.dropdown-panel').forEach(function (panel) { panel.classList.add('hidden'); });
                 document.querySelectorAll('[data-dropdown-toggle]').forEach(function (trigger) { trigger.setAttribute('aria-expanded', 'false'); });
             });
+
+            // Pagination uniforme des petites tables qui ne nécessitent pas une nouvelle
+            // requête serveur. Les tables volumineuses conservent le composant Razor paginé.
+            document.querySelectorAll('table[data-client-pagination]').forEach(function (table, tableIndex) {
+                var body = table.tBodies[0];
+                if (!body) return;
+                var rows = Array.from(body.rows).filter(function (row) { return !row.querySelector('td[colspan]'); });
+                var pageSize = Math.max(1, parseInt(table.dataset.pageSize || '10', 10));
+                var page = 1;
+                var pager = document.createElement('nav');
+                pager.className = 'client-pager';
+                pager.setAttribute('aria-label', 'Pagination du tableau ' + (tableIndex + 1));
+                var summary = document.createElement('span');
+                var actions = document.createElement('div');
+                var previous = document.createElement('button');
+                var nextPage = document.createElement('button');
+                previous.type = nextPage.type = 'button';
+                previous.className = nextPage.className = 'client-pager-button';
+                previous.innerHTML = '<span aria-hidden="true">‹</span><span>Précédent</span>';
+                nextPage.innerHTML = '<span>Suivant</span><span aria-hidden="true">›</span>';
+                actions.append(previous, nextPage);
+                pager.append(summary, actions);
+                (table.closest('.table-shell') || table).insertAdjacentElement('afterend', pager);
+
+                function render() {
+                    var eligible = rows.filter(function (row) { return row.dataset.filteredOut !== 'true'; });
+                    var totalPages = Math.max(1, Math.ceil(eligible.length / pageSize));
+                    page = Math.min(page, totalPages);
+                    var start = (page - 1) * pageSize;
+                    rows.forEach(function (row) { row.hidden = true; });
+                    eligible.slice(start, start + pageSize).forEach(function (row) { row.hidden = false; });
+                    summary.textContent = eligible.length + ' résultat(s) — page ' + page + ' sur ' + totalPages;
+                    previous.disabled = page === 1;
+                    nextPage.disabled = page === totalPages;
+                    pager.hidden = eligible.length <= pageSize;
+                }
+                previous.addEventListener('click', function () { page--; render(); table.scrollIntoView({ behavior:'smooth', block:'nearest' }); });
+                nextPage.addEventListener('click', function () { page++; render(); table.scrollIntoView({ behavior:'smooth', block:'nearest' }); });
+                table.addEventListener('tablefilterchange', function () { page = 1; render(); });
+                render();
+            });
         })();
     </script>
 </body>
