@@ -54,9 +54,17 @@ public class EscalesController(ISender mediator) : Controller
         int anomaliesPage = 1, int videsPage = 1, int incidentsPage = 1, int additionnelsPage = 1, int dangereuxPage = 1,
         CancellationToken cancellationToken = default)
     {
-        var detail = await mediator.Send(
-            new GetEscaleDetailQuery(id, anomaliesPage, videsPage, incidentsPage, additionnelsPage, dangereuxPage),
-            cancellationToken);
+        EscaleDetailDto? detail;
+        try
+        {
+            detail = await mediator.Send(
+                new GetEscaleDetailQuery(id, anomaliesPage, videsPage, incidentsPage, additionnelsPage, dangereuxPage),
+                cancellationToken);
+        }
+        catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested)
+        {
+            return new EmptyResult();
+        }
         if (detail is null)
         {
             return NotFound();
