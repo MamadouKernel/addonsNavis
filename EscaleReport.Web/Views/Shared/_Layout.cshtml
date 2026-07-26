@@ -226,7 +226,7 @@
                  au mobile : regroupe le theme et le profil dans un seul menu clair
                  plutot que des boutons empiles en bas de la sidebar. -->
             <header class="app-topbar border-b px-4 py-3 md:px-6" style="background:var(--card);border-color:var(--line)">
-                <a asp-controller="Escales" asp-action="Index" class="navbar-brand" aria-label="EscaleReport — accueil">
+                <a asp-controller="Dashboard" asp-action="Index" class="navbar-brand" aria-label="EscaleReport — accueil">
                     <span class="navbar-brand-mark" aria-hidden="true">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1" /><path d="M5 17V9l7-4 7 4v8" /><path d="M12 5v12" /></svg>
                     </span>
@@ -234,6 +234,7 @@
                 </a>
 
                 <nav class="navbar-links" aria-label="Navigation principale">
+                    <a asp-controller="Dashboard" asp-action="Index" class="nav-menu-trigger @(IsActive("Dashboard") ? "active" : "")" aria-label="Accueil" title="Accueil">⌂</a>
                     @if (ModuleAccess.CanViewEscales(CurrentUser))
                     {
                         <a asp-controller="Escales" asp-action="Index" class="nav-menu-trigger @(IsActive("Escales") ? "active" : "")">Escales</a>
