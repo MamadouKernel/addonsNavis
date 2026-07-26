@@ -251,32 +251,50 @@
     </div>
     @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Anomalies, "anomaliesPage"))
 
-    <form asp-controller="VesselPlanning" asp-action="AddAnomaly" method="post"
-          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-6">
+    <form asp-controller="VesselPlanning" asp-action="AddAnomaly" method="post" class="anomaly-entry-form">
         <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
-        <div><label class="field-label">Conteneur</label><input name="NumeroConteneur" required class="input-field" /></div>
-        <div>
-            <label class="field-label">Sens</label>
-            <select name="Sens" class="input-field">
-                <option value="@((int)Sens.Debarquement)">Débarquement</option>
-                <option value="@((int)Sens.Embarquement)">Embarquement</option>
-            </select>
+        <div class="anomaly-entry-heading">
+            <div>
+                <span class="anomaly-entry-eyebrow">Nouvelle déclaration</span>
+                <h3>Ajouter une anomalie conteneur</h3>
+                <p>Saisissez plusieurs numéros en les séparant par un retour à la ligne.</p>
+            </div>
+            <span class="anomaly-entry-required"><i aria-hidden="true"></i> Champs obligatoires</span>
         </div>
-        <div><label class="field-label">Ligne</label><input name="LigneMaritime" class="input-field" /></div>
-        <div><label class="field-label">Position</label><input name="Position" class="input-field" /></div>
-        <div>
-            <label class="field-label">Raison</label>
-            <select name="Raison" class="input-field">
-                @foreach (var raison in Model.RaisonsDisponibles)
-                {
-                    <option value="@raison">@raison</option>
-                }
-            </select>
+
+        <div class="anomaly-entry-body">
+            <div class="anomaly-container-field">
+                <label class="field-label" for="anomalyContainers">Numéros de conteneurs <span aria-hidden="true">*</span></label>
+                <textarea id="anomalyContainers" name="NumeroConteneur" rows="5" required class="input-field" placeholder="Ex. MSKU1234567&#10;TGHU7654321"></textarea>
+                <small>Un numéro par ligne</small>
+            </div>
+            <div class="anomaly-detail-fields">
+                <div>
+                    <label class="field-label" for="anomalyDirection">Sens</label>
+                    <select id="anomalyDirection" name="Sens" class="input-field">
+                        <option value="@((int)Sens.Debarquement)">Débarquement</option>
+                        <option value="@((int)Sens.Embarquement)">Embarquement</option>
+                    </select>
+                </div>
+                <div><label class="field-label" for="anomalyLine">Ligne maritime</label><input id="anomalyLine" name="LigneMaritime" class="input-field" placeholder="Ex. CMA CGM" /></div>
+                <div><label class="field-label" for="anomalyPosition">Position</label><input id="anomalyPosition" name="Position" class="input-field" placeholder="Ex. B12-04" /></div>
+                <div>
+                    <label class="field-label" for="anomalyReason">Raison <span aria-hidden="true">*</span></label>
+                    <select id="anomalyReason" name="Raison" required class="input-field">
+                        @foreach (var raison in Model.RaisonsDisponibles)
+                        {
+                            <option value="@raison">@raison</option>
+                        }
+                    </select>
+                </div>
+            </div>
         </div>
-        <div class="flex items-end">
-            <button type="submit" class="btn-primary w-full">
+
+        <div class="anomaly-entry-footer">
+            <p>La déclaration sera ajoutée au suivi de cette escale.</p>
+            <button type="submit" class="btn-primary">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                Ajouter
+                Ajouter l'anomalie
             </button>
         </div>
     </form>
