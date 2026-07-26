@@ -38,6 +38,10 @@ public class UsersController(
             .ThenBy(r => r.SortOrder)
             .ThenBy(r => r.Value)
             .ToListAsync(cancellationToken);
+        var teamHistory = await dbContext.AuditLogEntries.AsNoTracking()
+            .Where(a => a.Action.StartsWith("ChangeTeam:") && a.Cible != null)
+            .OrderByDescending(a => a.DateUtc)
+            .ToListAsync(cancellationToken);
 
         var rows = new List<UserRowViewModel>();
         foreach (var user in users)
@@ -55,6 +59,12 @@ public class UsersController(
                 IsLockedOut = user.LockoutEnd is not null && user.LockoutEnd > DateTimeOffset.UtcNow,
                 Permissions = allPermissionRows.Where(p => p.UserId == user.Id).Select(p => p.PermissionKey).ToHashSet()
             });
+        }
+
+        foreach (var row in rows)
+        {
+            row.TeamHistory = teamHistory.Where(entry => entry.Cible == row.Id.ToString())
+                .Select(ToTeamHistory).Take(10).ToList();
         }
 
         return View(new UsersIndexViewModel
@@ -199,6 +209,7 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is not null)
         {
+            var previousTeam = user.Equipe;
             var normalizedTeam = string.Equals(user.Equipe, equipe?.Trim(), StringComparison.OrdinalIgnoreCase)
                 ? user.Equipe
                 : await GetActiveTeamAsync(equipe, cancellationToken);
@@ -210,6 +221,10 @@ public class UsersController(
             user.PosteParDefaut = string.IsNullOrWhiteSpace(posteParDefaut) ? null : posteParDefaut;
             user.Equipe = normalizedTeam;
             await userManager.UpdateAsync(user);
+            if (!string.Equals(previousTeam, user.Equipe, StringComparison.OrdinalIgnoreCase))
+            {
+                await LogAuditAsync($"ChangeTeam:{TeamLabel(previousTeam)}→{TeamLabel(user.Equipe)}", id.ToString(), cancellationToken);
+            }
             await LogAuditAsync("UpdateUserProfile", id.ToString(), cancellationToken);
         }
 
@@ -311,6 +326,20 @@ public class UsersController(
             .Select(r => r.Value)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    private static TeamHistoryViewModel ToTeamHistory(AuditLogEntry entry)
+    {
+        var transition = entry.Action["ChangeTeam:".Length..].Split('→', 2);
+        return new TeamHistoryViewModel
+        {
+            DateUtc = entry.DateUtc,
+            PreviousTeam = transition.ElementAtOrDefault(0),
+            NewTeam = transition.ElementAtOrDefault(1),
+            ChangedBy = entry.UserName ?? "Système"
+        };
+    }
+
+    private static string TeamLabel(string? team) => string.IsNullOrWhiteSpace(team) ? "Sans équipe" : team;
 
     // Ces actions passent par UserManager/RoleManager en dehors du pipeline MediatR
     // (AuditLoggingBehaviour ne les voit donc pas) : la traçabilité est posée ici à la main,

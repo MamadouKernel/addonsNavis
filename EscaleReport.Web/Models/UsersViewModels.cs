@@ -19,6 +19,14 @@ public class TeamRowViewModel
     public int MemberCount { get; init; }
 }
 
+public class TeamHistoryViewModel
+{
+    public DateTime DateUtc { get; init; }
+    public string? PreviousTeam { get; init; }
+    public string? NewTeam { get; init; }
+    public string ChangedBy { get; init; } = string.Empty;
+}
+
 public class UserRowViewModel
 {
     public Guid Id { get; init; }
@@ -30,6 +38,7 @@ public class UserRowViewModel
     public bool IsActive { get; init; }
     public bool IsLockedOut { get; init; }
     public IReadOnlySet<string> Permissions { get; init; } = new HashSet<string>();
+    public IReadOnlyList<TeamHistoryViewModel> TeamHistory { get; set; } = [];
 }
 
 public class CreateUserInput

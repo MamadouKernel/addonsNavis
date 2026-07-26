@@ -168,6 +168,19 @@
             </form>
         </div>
 
+        @if (u.TeamHistory.Any())
+        {
+            <details class="team-history">
+                <summary>Historique des équipes <span>@u.TeamHistory.Count</span></summary>
+                <ol>
+                    @foreach (var change in u.TeamHistory)
+                    {
+                        <li><i aria-hidden="true"></i><div><strong>@change.PreviousTeam → @change.NewTeam</strong><small>@change.DateUtc.ToString("dd/MM/yyyy HH:mm") UTC · par @change.ChangedBy</small></div></li>
+                    }
+                </ol>
+            </details>
+        }
+
         @if (isAdmin)
         {
             <div class="text-xs italic text-slate-400">Rôle Administrateur : toutes les permissions sont accordées automatiquement.</div>
