@@ -1,0 +1,33 @@
+@model string
+@{
+    var kind = (Model ?? string.Empty).ToLowerInvariant();
+}
+<span class="cargo-type-icon type-@kind" aria-hidden="true">
+    @switch (kind)
+    {
+        case "reefer":
+            <svg viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M8.5 5l3.5 2 3.5-2M8.5 19l3.5-2 3.5 2M4.5 11.5 8 9.5V5.6M19.5 12.5 16 14.5v3.9"/></svg>
+            break;
+        case "hazard":
+            <svg viewBox="0 0 24 24"><path d="m12 2.8 9.2 9.2-9.2 9.2L2.8 12 12 2.8Z"/><path d="M12 7v6M12 16.7v.1"/></svg>
+            break;
+        case "oog":
+            <svg viewBox="0 0 24 24"><path d="M5 7h14v10H5zM2 12h3M19 12h3M2 12l2-2M2 12l2 2M22 12l-2-2M22 12l-2 2"/></svg>
+            break;
+        case "20ft":
+            <svg viewBox="0 0 24 24"><path d="M3 7h14v10H3zM7 7v10M13 7v10M17 10h4v7h-4"/></svg>
+            break;
+        case "40ft":
+            <svg viewBox="0 0 24 24"><path d="M2 7h20v10H2zM7 7v10M12 7v10M17 7v10"/></svg>
+            break;
+        case "import":
+            <svg viewBox="0 0 24 24"><path d="M4 4v16h16M7 9h10M13 5l4 4-4 4"/></svg>
+            break;
+        case "restow":
+            <svg viewBox="0 0 24 24"><path d="M7 7h10v10H7zM5 4 2 7l3 3M2 7h5M19 20l3-3-3-3M22 17h-5"/></svg>
+            break;
+        default:
+            <svg viewBox="0 0 24 24"><path d="M4 7h16v10H4zM8 3 4 7l4 4M16 21l4-4-4-4"/></svg>
+            break;
+    }
+</span>

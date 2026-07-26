@@ -106,8 +106,8 @@
                         <th>Navire</th>
                         <th class="hidden md:table-cell">Service maritime</th>
                         <th>Zone</th>
-                        <th>Reefers imp.</th>
-                        <th>Reefers exp.</th>
+                        <th><span class="inline-flex items-center gap-2"><partial name="_CargoTypeIcon" model='"reefer"' /> Reefers imp.</span></th>
+                        <th><span class="inline-flex items-center gap-2"><partial name="_CargoTypeIcon" model='"reefer"' /> Reefers exp.</span></th>
                         <th class="hidden lg:table-cell">Transbordement</th>
                         <th class="hidden lg:table-cell">Observations</th>
                         <th></th>
@@ -181,8 +181,8 @@
         <div class="flex items-end">
             <button type="submit" class="btn-primary w-full">Ajouter</button>
         </div>
-        <div><label class="field-label">Reefers import</label><input type="number" name="ReefersImport" min="0" value="0" class="input-field" /></div>
-        <div><label class="field-label">Reefers export</label><input type="number" name="ReefersExport" min="0" value="0" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"reefer"' /><span><b>Reefers import</b><small>Conteneurs frigorifiques</small></span></label><input type="number" name="ReefersImport" min="0" value="0" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"reefer"' /><span><b>Reefers export</b><small>Conteneurs frigorifiques</small></span></label><input type="number" name="ReefersExport" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Conteneurs transbordement</label><input type="number" name="ConteneursTransbordement" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Observations</label><input name="Observations" class="input-field" /></div>
     </form>
