@@ -122,7 +122,7 @@
     <form asp-controller="Dispatch" asp-action="AddRtgPanne" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
         <div><label class="field-label">Engin</label><input name="Engin" required placeholder="RTG-03" class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /></div>
         <div class="sm:col-span-2"><label class="field-label">Raison</label><input name="Raison" class="input-field" /></div>
         <div class="flex items-end gap-3">
             <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -192,7 +192,7 @@
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
         <div><label class="field-label">Lieu</label><input name="Lieu" required class="input-field" /></div>
         <div><label class="field-label">Engins concernés</label><input name="EnginsConcernes" required class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /></div>
         <div class="sm:col-span-2 lg:col-span-2"><label class="field-label">Description</label><input name="Description" required class="input-field" /></div>
         <div class="flex items-end">
             <button type="submit" class="btn-primary w-full">Déclarer</button>
@@ -265,7 +265,7 @@
             </select>
         </div>
         <div><label class="field-label">Camion / référence</label><input name="CamionReference" required class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /></div>
         <div class="sm:col-span-2"><label class="field-label">Problème rencontré</label><input name="ProblemeRencontre" required class="input-field" /></div>
         <div class="flex items-end">
             <button type="submit" class="btn-primary w-full">Déclarer</button>

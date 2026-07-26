@@ -33,6 +33,12 @@ public class GetIttDashboardQueryHandler(
                 Observations = t.Observations
             }).ToListAsync(cancellationToken);
 
+        var naviresDisponibles = await dbContext.Escales.AsNoTracking()
+            .OrderBy(e => e.Navire)
+            .Select(e => e.Navire)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
         var incidents = await dbContext.IttTransferIncidents
             .AsNoTracking()
             .OrderByDescending(i => i.DateDebutUtc)
@@ -68,6 +74,7 @@ public class GetIttDashboardQueryHandler(
 
         return new IttDashboardDto
         {
+            NaviresDisponibles = naviresDisponibles,
             Transfers = PagedResult<IttTransferDto>.Create(transfers, request.TransfersPage),
             TransferIncidents = PagedResult<IttTransferIncidentDto>.Create(incidents, request.IncidentsPage),
             EquipementEffectif = effectif is null

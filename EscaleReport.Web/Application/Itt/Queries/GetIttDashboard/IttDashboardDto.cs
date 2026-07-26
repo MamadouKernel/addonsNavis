@@ -4,6 +4,7 @@ namespace EscaleReport.Web.Application.Itt.Queries.GetIttDashboard;
 
 public class IttDashboardDto
 {
+    public IReadOnlyList<string> NaviresDisponibles { get; set; } = [];
     public PagedResult<IttTransferDto> Transfers { get; set; } = new();
     public PagedResult<IttTransferIncidentDto> TransferIncidents { get; set; } = new();
     public IttEquipementEffectifDto EquipementEffectif { get; set; } = new();

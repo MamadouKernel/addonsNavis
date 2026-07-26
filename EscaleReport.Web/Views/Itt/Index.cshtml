@@ -81,7 +81,7 @@
 
     <form asp-controller="Itt" asp-action="AddTransfer" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
-        <div><label class="field-label">Navire de connexion</label><input name="NavireConnexion" required class="input-field" /></div>
+        <div><label class="field-label">Navire de connexion</label><select name="NavireConnexion" required class="input-field"><option value="">Sélectionner</option>@foreach (var navire in Model.NaviresDisponibles) { <option value="@navire">@navire</option> }</select></div>
         <div><label class="field-label">À transférer</label><input type="number" name="NombreATransferer" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Transféré</label><input type="number" name="NombreTransfere" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Reçu</label><input type="number" name="NombreRecu" min="0" value="0" class="input-field" /></div>
@@ -145,7 +145,7 @@
     <form asp-controller="Itt" asp-action="AddTransferIncident" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
         <div class="sm:col-span-2"><label class="field-label">Difficulté / objet</label><input name="DifficulteOuObjet" required class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /></div>
         <div><label class="field-label">Note</label><input name="Note" class="input-field" /></div>
         <div class="flex items-end lg:col-span-4">
             <button type="submit" class="btn-primary">Déclarer</button>
@@ -238,8 +238,8 @@
 
     <form asp-controller="Itt" asp-action="AddEnginPanne" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
-        <div><label class="field-label">Engin</label><input name="Engin" required class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div><label class="field-label">Engin</label><input name="Engin" list="ittEngins" required class="input-field" /><datalist id="ittEngins">@foreach (var engin in Model.EnginPannes.Items.Select(p => p.Engin).Distinct()) { <option value="@engin"></option> }</datalist></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /></div>
         <div class="sm:col-span-2"><label class="field-label">Cause</label><input name="Cause" class="input-field" /></div>
         <div class="flex items-end gap-3">
             <label class="flex items-center gap-2 text-sm font-medium text-slate-700">
