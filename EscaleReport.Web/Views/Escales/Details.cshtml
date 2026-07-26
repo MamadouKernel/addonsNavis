@@ -234,14 +234,26 @@
                             }
                         </td>
                         <td class="text-right">
-                            @if (a.Statut == AnomalyStatus.NonResolu)
-                            {
-                                <form asp-controller="VesselPlanning" asp-action="ResolveAnomaly" method="post">
+                            <div class="table-icon-actions">
+                                @if (a.Statut == AnomalyStatus.NonResolu)
+                                {
+                                    <form asp-controller="VesselPlanning" asp-action="ResolveAnomaly" method="post">
+                                        <input type="hidden" name="anomalyId" value="@a.Id" />
+                                        <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
+                                        <button type="submit" class="icon-action success" aria-label="Marquer @a.NumeroConteneur comme résolu" title="Marquer résolu">
+                                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                                        </button>
+                                    </form>
+                                }
+                                <form asp-controller="VesselPlanning" asp-action="DeleteAnomaly" method="post"
+                                      onsubmit="return confirm('Supprimer cette anomalie ?');">
                                     <input type="hidden" name="anomalyId" value="@a.Id" />
                                     <input type="hidden" name="escaleId" value="@Model.Escale.Id" />
-                                    <button type="submit" class="btn-link whitespace-nowrap">Marquer résolu</button>
+                                    <button type="submit" class="icon-action danger" aria-label="Supprimer l'anomalie @a.NumeroConteneur" title="Supprimer">
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
+                                    </button>
                                 </form>
-                            }
+                            </div>
                         </td>
                     </tr>
                 }

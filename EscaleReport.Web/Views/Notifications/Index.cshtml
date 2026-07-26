@@ -14,6 +14,8 @@
         AlertSeverite.Avertissement => "Avertissement",
         _ => "Info"
     };
+    var warningCount = Model.Alertes.Count(a => a.Severite == AlertSeverite.Avertissement);
+    var infoCount = Model.Alertes.Count(a => a.Severite == AlertSeverite.Info);
 }
 
 <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -21,18 +23,34 @@
         <h1 class="page-title">Notifications et alertes</h1>
         <p class="page-subtitle">Situations à surveiller, calculées en direct</p>
     </div>
-    <a asp-controller="Notifications" asp-action="SendByEmail" class="btn-secondary">Envoyer par e-mail</a>
+    <a asp-controller="Notifications" asp-action="SendByEmail" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="m4 6 8 6 8-6"/></svg>
+        Envoyer par e-mail
+    </a>
 </div>
 
-<div class="mb-6 flex flex-wrap gap-3">
-    <span class="badge-neutral">@Model.Alertes.Count alerte(s) active(s)</span>
-    @if (Model.NombreCritiques > 0)
-    {
-        <span class="badge-neutral" style="color:#b91c1c">@Model.NombreCritiques critique(s)</span>
-    }
+<section class="alert-overview" aria-label="Synthèse des alertes">
+    <article class="alert-stat total"><span>Total actif</span><strong>@Model.Alertes.Count</strong><small>situations à traiter</small></article>
+    <article class="alert-stat critical"><span>Critiques</span><strong>@Model.NombreCritiques</strong><small>priorité immédiate</small></article>
+    <article class="alert-stat warning"><span>Avertissements</span><strong>@warningCount</strong><small>à surveiller</small></article>
+    <article class="alert-stat info"><span>Informations</span><strong>@infoCount</strong><small>suivi courant</small></article>
+</section>
+
+<div class="alert-toolbar">
+    <label class="alert-search" for="alertSearch">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="alertSearch" type="search" placeholder="Rechercher un navire, un type ou un message…" autocomplete="off" />
+    </label>
+    <div class="alert-filters" role="group" aria-label="Filtrer par sévérité">
+        <button type="button" class="alert-filter active" data-alert-filter="all">Toutes</button>
+        <button type="button" class="alert-filter" data-alert-filter="2"><i class="critical" aria-hidden="true"></i> Critiques</button>
+        <button type="button" class="alert-filter" data-alert-filter="1"><i class="warning" aria-hidden="true"></i> Alertes</button>
+        <button type="button" class="alert-filter" data-alert-filter="0"><i class="info" aria-hidden="true"></i> Infos</button>
+    </div>
 </div>
 
 <section class="card">
+    <div class="alert-result-line"><strong id="alertResultCount">@Model.Alertes.Count</strong> résultat(s) affiché(s)</div>
     <div class="table-shell">
         <div class="table-scroll">
             <table class="table-modern">
@@ -51,14 +69,14 @@
                 }
                 @foreach (var a in Model.Alertes)
                 {
-                    <tr>
-                        <td><span class="@SeverityBadgeClass(a.Severite)">@SeverityLabel(a.Severite)</span></td>
+                    <tr class="alert-row" data-alert-severity="@((int)a.Severite)" data-alert-search="@($"{a.Type} {a.Message} {a.Navire}".ToLowerInvariant())">
+                        <td><span class="@SeverityBadgeClass(a.Severite)"><i class="severity-dot severity-@((int)a.Severite)" aria-hidden="true"></i>@SeverityLabel(a.Severite)</span></td>
                         <td class="font-semibold text-slate-900">@a.Type</td>
                         <td>@a.Message</td>
                         <td>
                             @if (a.EscaleId is not null)
                             {
-                                <a asp-controller="Escales" asp-action="Details" asp-route-id="@a.EscaleId" class="btn-link">@a.Navire</a>
+                                <a asp-controller="Escales" asp-action="Details" asp-route-id="@a.EscaleId" class="alert-vessel-link">@a.Navire <span aria-hidden="true">→</span></a>
                             }
                             else
                             {
@@ -72,3 +90,34 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script nonce="@Context.GetOrCreateCspNonce()">
+        (function () {
+            var search = document.getElementById('alertSearch');
+            var filters = Array.from(document.querySelectorAll('[data-alert-filter]'));
+            var rows = Array.from(document.querySelectorAll('.alert-row'));
+            var count = document.getElementById('alertResultCount');
+            var activeSeverity = 'all';
+            function refresh() {
+                var term = (search.value || '').trim().toLocaleLowerCase('fr');
+                var visible = 0;
+                rows.forEach(function (row) {
+                    var matchesSeverity = activeSeverity === 'all' || row.dataset.alertSeverity === activeSeverity;
+                    var matchesSearch = !term || row.dataset.alertSearch.includes(term);
+                    row.hidden = !(matchesSeverity && matchesSearch);
+                    if (!row.hidden) visible++;
+                });
+                count.textContent = visible;
+            }
+            search.addEventListener('input', refresh);
+            filters.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    activeSeverity = button.dataset.alertFilter;
+                    filters.forEach(function (item) { item.classList.toggle('active', item === button); });
+                    refresh();
+                });
+            });
+        })();
+    </script>
+}
