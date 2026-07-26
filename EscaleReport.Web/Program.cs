@@ -59,11 +59,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 // plusieurs comptes à la fois (credential stuffing).
 builder.Services.AddRateLimiter(options =>
 {
-    options.OnRejected = async (context, cancellationToken) =>
+    options.OnRejected = (context, cancellationToken) =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-        await context.HttpContext.Response.WriteAsync(
-            "Trop de tentatives de connexion. Réessayez dans une minute.", cancellationToken);
+        return ValueTask.CompletedTask;
     };
 
     options.AddPolicy("login", context => RateLimitPartition.GetFixedWindowLimiter(

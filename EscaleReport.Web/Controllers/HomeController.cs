@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Data.Common;
 using Microsoft.AspNetCore.Mvc;
 using EscaleReport.Web.Models;
 using EscaleReport.Web.Application.Common.Exceptions;
@@ -22,7 +23,7 @@ public class HomeController : Controller
             ForbiddenAccessException or UnauthorizedAccessException => StatusCodes.Status403Forbidden,
             KeyNotFoundException => StatusCodes.Status404NotFound,
             DbUpdateConcurrencyException => StatusCodes.Status409Conflict,
-            DbUpdateException => StatusCodes.Status503ServiceUnavailable,
+            DbUpdateException or DbException => StatusCodes.Status503ServiceUnavailable,
             _ => StatusCodes.Status500InternalServerError
         };
 
