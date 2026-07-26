@@ -327,14 +327,35 @@ body{
   .card-title { @apply text-base font-bold tracking-tight; color: var(--ink); }
   .card-subtitle { @apply mt-0.5 text-sm; color: var(--text-soft); }
 
-  .field-label { @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide; color: var(--text-soft); }
+  .field-label { @apply mb-2 block text-xs font-bold uppercase tracking-wide; color: var(--text-soft); }
   .input-field {
-    @apply w-full rounded-xl px-3.5 py-2.5 text-sm transition-colors focus:outline-none focus:ring-4;
-    min-height:2.75rem; background: color-mix(in srgb,var(--card) 92%,var(--surface)); border: 1px solid var(--line); color: var(--text);
+    @apply w-full px-3.5 py-2.5 text-sm focus:outline-none;
+    min-height:2.8rem; border-radius:.85rem; background:color-mix(in srgb,var(--card) 94%,var(--surface)); border:1px solid color-mix(in srgb,var(--line) 90%,var(--text-soft)); color:var(--text); box-shadow:inset 0 1px 2px rgba(4,38,42,.035); transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease,transform .18s ease;
   }
   .input-field:hover { border-color:color-mix(in srgb,var(--sea) 55%,var(--line)); }
   .input-field:focus { background:var(--card); border-color:var(--sea); box-shadow:0 0 0 4px color-mix(in srgb,var(--sea) 18%,transparent); transform:translateY(-1px); }
   .input-field::placeholder { color: var(--text-soft); opacity: .7; }
+  .input-field:disabled,.input-field[readonly] { cursor:not-allowed; opacity:.72; background:color-mix(in srgb,var(--surface) 82%,var(--line)); }
+  .input-field[aria-invalid="true"],.input-field.input-validation-error { border-color:var(--coral); box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 13%,transparent); }
+
+  /* Socle universel : les vues historiques et les formulaires compacts héritent du
+     même langage visuel, même lorsqu'ils n'utilisent pas encore .input-field. */
+  form :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),select,textarea):not(.input-field) {
+    min-height:2.55rem; border:1px solid color-mix(in srgb,var(--line) 90%,var(--text-soft)); border-radius:.75rem; background:color-mix(in srgb,var(--card) 94%,var(--surface)); color:var(--text); transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+  }
+  form :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),select,textarea):not(.input-field):hover { border-color:color-mix(in srgb,var(--sea) 55%,var(--line)); }
+  form :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),select,textarea):not(.input-field):focus { outline:none; border-color:var(--sea); background:var(--card); box-shadow:0 0 0 4px color-mix(in srgb,var(--sea) 16%,transparent); }
+  form textarea.input-field { min-height:6.5rem; resize:vertical; line-height:1.55; }
+  form select.input-field { cursor:pointer; padding-right:2.25rem; }
+  form input[type="date"].input-field,form input[type="time"].input-field,form input[type="datetime-local"].input-field { font-variant-numeric:tabular-nums; }
+  form input[type="checkbox"],form input[type="radio"] { width:1.05rem; height:1.05rem; flex:none; cursor:pointer; accent-color:var(--sea); }
+  form input[type="checkbox"] { border-radius:.3rem; }
+  form :where(input,select,textarea):disabled { cursor:not-allowed; opacity:.62; }
+  form :where(.field-validation-error,[data-valmsg-for]):not(:empty) { display:block; margin-top:.4rem; font-size:.72rem; font-weight:650; color:var(--coral); animation:toast-in .22s ease-out both; }
+  form .validation-summary-valid { display:none; }
+  form .validation-summary-errors { margin-bottom:1rem; }
+  form:focus-within.card { border-color:color-mix(in srgb,var(--sea) 32%,var(--line)); box-shadow:var(--shadow-soft-lg); }
+  dialog form { position:relative; }
 
   .badge-neutral  { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--text-soft) 14%, transparent); color: var(--text-soft); }
   .badge-info     { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; background: color-mix(in srgb, var(--steel-2) 14%, transparent); color: var(--steel-2); }
