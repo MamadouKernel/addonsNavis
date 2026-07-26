@@ -31,6 +31,39 @@
     <p class="page-subtitle">Gestion des utilisateurs, rôles et permissions décorrélées du rôle</p>
 </div>
 
+<section class="team-admin-panel mb-6">
+    <div class="team-admin-heading">
+        <div>
+            <span class="team-admin-eyebrow">Organisation</span>
+            <h2>Équipes et affectations</h2>
+            <p>Créez les équipes disponibles, puis affectez chaque membre depuis sa fiche.</p>
+        </div>
+        <form asp-controller="Users" asp-action="CreateTeam" method="post" class="team-create-form">
+            <label class="sr-only" for="newTeamName">Nom de la nouvelle équipe</label>
+            <input id="newTeamName" name="name" required minlength="2" maxlength="80" class="input-field" placeholder="Nom de la nouvelle équipe" />
+            <button type="submit" class="btn-primary">Créer l'équipe</button>
+        </form>
+    </div>
+    <div class="team-list">
+        @if (!Model.Teams.Any())
+        {
+            <p class="team-empty">Aucune équipe créée. Commencez par ajouter la première équipe.</p>
+        }
+        @foreach (var team in Model.Teams)
+        {
+            <article class="team-chip-card @(!team.IsActive ? "inactive" : "")">
+                <div class="team-chip-icon" aria-hidden="true">@team.Name[..1].ToUpperInvariant()</div>
+                <div><strong>@team.Name</strong><span>@team.MemberCount membre(s)</span></div>
+                <form asp-controller="Users" asp-action="ToggleTeam" method="post">
+                    <input type="hidden" name="id" value="@team.Id" />
+                    <button type="submit" class="icon-action @(team.IsActive ? "danger" : "success")" aria-label="@(team.IsActive ? "Désactiver" : "Activer") l'équipe @team.Name" title="@(team.IsActive ? "Désactiver" : "Activer")">
+                        @if (team.IsActive) { <span aria-hidden="true">×</span> } else { <span aria-hidden="true">✓</span> }
+                    </button>
+                </form>
+            </article>
+        }
+    </div>
+</section>
 
 <section class="card mb-6">
     <h2 class="card-title mb-4">Créer un compte</h2>
@@ -56,7 +89,7 @@
                 }
             </select>
         </div>
-        <div><label class="field-label">Équipe</label><input name="Equipe" class="input-field" /></div>
+        <div><label class="field-label">Équipe</label><select name="Equipe" class="input-field"><option value="">Sans équipe</option>@foreach (var team in Model.Teams.Where(t => t.IsActive)) { <option value="@team.Name">@team.Name</option> }</select></div>
         <div class="sm:col-span-2 lg:col-span-5">
             <button type="submit" class="btn-primary">Créer le compte</button>
         </div>
@@ -111,7 +144,13 @@
                 </div>
                 <div class="flex-1">
                     <label class="field-label">Équipe</label>
-                    <input name="equipe" value="@u.Equipe" class="input-field" />
+                    <select name="equipe" class="input-field">
+                        <option value="">Sans équipe</option>
+                        @foreach (var team in Model.Teams.Where(t => t.IsActive || string.Equals(t.Name, u.Equipe, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            <option value="@team.Name" selected="@(string.Equals(team.Name, u.Equipe, StringComparison.OrdinalIgnoreCase))">@team.Name@(!team.IsActive ? " (inactive)" : "")</option>
+                        }
+                    </select>
                 </div>
                 <button type="submit" class="btn-secondary text-xs whitespace-nowrap">OK</button>
             </form>

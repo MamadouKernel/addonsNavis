@@ -8,6 +8,15 @@ public class UsersIndexViewModel
     public IReadOnlyList<string> Roles { get; init; } = [];
     public IReadOnlyList<string> AllPermissions { get; init; } = [];
     public IReadOnlyList<string> DispatchPosts { get; init; } = [];
+    public IReadOnlyList<TeamRowViewModel> Teams { get; init; } = [];
+}
+
+public class TeamRowViewModel
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public bool IsActive { get; init; }
+    public int MemberCount { get; init; }
 }
 
 public class UserRowViewModel
