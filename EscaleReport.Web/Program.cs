@@ -101,9 +101,32 @@ if (app.Environment.IsDevelopment())
 }
 
 // Configure the HTTP request pipeline.
+// Même rendu sûr en développement et en production : aucune trace technique n'est envoyée
+// au navigateur. Les détails restent disponibles dans les journaux avec TraceIdentifier.
+app.UseExceptionHandler("/Home/Error");
+
+// Une navigation interrompue est un événement HTTP normal, pas une panne applicative.
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+    {
+        if (!context.Response.HasStarted)
+        {
+            context.Response.Clear();
+            context.Response.StatusCode = 499; // Client Closed Request (convention de fait).
+        }
+    }
+});
+
+// Uniformise aussi les codes produits sans exception (route inconnue, accès refusé, etc.).
+app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     if (requireHttps)
     {
         app.UseHsts();
