@@ -35,6 +35,73 @@
   --shadow-soft: 0 1px 2px rgba(6,54,63,.05), 0 12px 28px -8px rgba(6,54,63,.12);
   --shadow-soft-lg: 0 2px 4px rgba(6,54,63,.06), 0 20px 44px -12px rgba(6,54,63,.20);
 }
+
+/* Les actions de ligne doivent se lire comme de vrais contrôles, pas comme du texte cliquable. */
+.table-modern td form .btn-link,
+.table-modern td > .btn-link {
+  min-height: 2.35rem;
+  padding: .48rem .78rem;
+  border: 1px solid color-mix(in srgb, var(--sea) 45%, var(--line));
+  border-radius: .72rem;
+  background: color-mix(in srgb, var(--sea) 10%, var(--card));
+  color: var(--steel);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .42rem;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 5px 14px -11px var(--steel);
+}
+.table-modern td form .btn-link::before,
+.table-modern td > .btn-link::before {
+  content: "✓";
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: .38rem;
+  display: grid;
+  place-items: center;
+  background: var(--sea);
+  color: var(--ink);
+  font-size: .68rem;
+  font-weight: 900;
+}
+.table-modern td form .btn-link:hover,
+.table-modern td > .btn-link:hover {
+  border-color: var(--sea);
+  background: color-mix(in srgb, var(--sea) 18%, var(--card));
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.table-inline-editor {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(3.5rem, 1fr)) auto;
+  align-items: center;
+  gap: .45rem;
+  min-width: 15.5rem;
+}
+.table-inline-editor .input-field { min-width: 0; padding-inline: .65rem; text-align: center; }
+.table-inline-editor .icon-action { flex: none; }
+.form-panel {
+  border: 1px solid color-mix(in srgb, var(--sea) 26%, var(--line));
+  border-radius: 1.2rem;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--sea) 5%, var(--card)), var(--card));
+  padding: 1.25rem;
+  box-shadow: var(--shadow-soft);
+}
+.form-panel-heading { grid-column: 1 / -1; display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; padding-bottom:.25rem; }
+.form-panel-heading h3 { color:var(--ink); font-size:1rem; font-weight:850; }
+.form-panel-heading p { color:var(--text-soft); margin-top:.2rem; font-size:.75rem; }
+.form-panel-actions { grid-column:1/-1; display:flex; justify-content:flex-end; padding-top:.25rem; }
+.form-panel-actions .btn-primary { min-width:11rem; }
+@media (max-width:639px) {
+  .table-modern td form .btn-link { width:2.35rem; padding:0; font-size:0; }
+  .table-modern td form .btn-link::before { margin:0; }
+  .form-panel-heading { flex-direction:column; }
+  .form-panel-actions .btn-primary { width:100%; }
+}
 [data-theme="dark"]{
   --ink:#EAF7F7;
   --steel:#0B2A30;
