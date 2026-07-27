@@ -62,12 +62,13 @@
                         <th>Utilisateur</th>
                         <th>Action</th>
                         <th>Cible</th>
+                        <th>Détails</th>
                     </tr>
                 </thead>
                 <tbody>
                 @if (!Model.Entries.Items.Any())
                 {
-                    <tr><td colspan="4" class="!text-center text-slate-400 py-8">Aucune action enregistrée pour ces filtres.</td></tr>
+                    <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucune action enregistrée pour ces filtres.</td></tr>
                 }
                 @foreach (var e in Model.Entries.Items)
                 {
@@ -76,6 +77,13 @@
                         <td>@(e.UserName ?? "—")</td>
                         <td class="font-mono text-xs">@e.Action</td>
                         <td class="font-mono text-xs">@(e.Cible ?? "—")</td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(e.ChangesJson))
+                            {
+                                <details class="max-w-md"><summary class="btn-link cursor-pointer">@e.EntityType · changements</summary><pre class="mt-2 max-h-48 overflow-auto rounded-lg p-3 text-xs" style="background:var(--surface)">@e.ChangesJson</pre></details>
+                            }
+                            else { <span>—</span> }
+                        </td>
                     </tr>
                 }
                 </tbody>

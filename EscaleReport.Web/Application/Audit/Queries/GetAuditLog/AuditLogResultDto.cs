@@ -16,4 +16,7 @@ public class AuditLogEntryDto
     public string? UserName { get; init; }
     public string Action { get; init; } = string.Empty;
     public string? Cible { get; init; }
+    public string? EntityType { get; init; }
+    public string? EntityId { get; init; }
+    public string? ChangesJson { get; init; }
 }

@@ -3,6 +3,8 @@ using EscaleReport.Web.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using EscaleReport.Web.Domain.Audit;
+using System.Text.Json;
 
 namespace EscaleReport.Web.Infrastructure.Persistence.Interceptors;
 
@@ -30,10 +32,14 @@ public class AuditableEntitySaveChangesInterceptor(ICurrentUserService currentUs
         var now = DateTime.UtcNow;
         var userName = currentUser.UserName;
 
-        foreach (EntityEntry<BaseAuditableEntity> entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
+        var entries = context.ChangeTracker.Entries<BaseAuditableEntity>().ToList();
+        foreach (EntityEntry<BaseAuditableEntity> entry in entries)
         {
+            var originalState = entry.State;
             if (entry.State == EntityState.Deleted)
             {
+                // Aucun Remove() métier ne doit provoquer de DELETE SQL. On conserve la ligne
+                // et ses relations pour permettre une restauration complète.
                 entry.State = EntityState.Modified;
                 entry.Entity.IsDeleted = true;
                 entry.Entity.DeletedAtUtc = now;
@@ -51,6 +57,50 @@ public class AuditableEntitySaveChangesInterceptor(ICurrentUserService currentUs
                 entry.Entity.UpdatedAtUtc = now;
                 entry.Entity.UpdatedBy = userName;
             }
+
+            var changes = BuildChanges(entry, originalState);
+            if (changes.Count > 0)
+            {
+                context.Set<AuditLogEntry>().Add(new AuditLogEntry
+                {
+                    Id = Guid.NewGuid(),
+                    DateUtc = now,
+                    UserId = currentUser.UserId,
+                    UserName = userName,
+                    Action = originalState switch
+                    {
+                        EntityState.Added => "EntityCreated",
+                        EntityState.Deleted => "EntitySoftDeleted",
+                        _ => "EntityUpdated"
+                    },
+                    Cible = entry.Entity.Id.ToString(),
+                    EntityType = entry.Metadata.ClrType.Name,
+                    EntityId = entry.Entity.Id.ToString(),
+                    ChangesJson = JsonSerializer.Serialize(changes)
+                });
+            }
         }
+    }
+
+    private static Dictionary<string, object?> BuildChanges(EntityEntry<BaseAuditableEntity> entry, EntityState originalState)
+    {
+        var ignored = new HashSet<string>(StringComparer.Ordinal)
+        {
+            nameof(BaseAuditableEntity.CreatedAtUtc), nameof(BaseAuditableEntity.CreatedBy),
+            nameof(BaseAuditableEntity.UpdatedAtUtc), nameof(BaseAuditableEntity.UpdatedBy),
+            nameof(BaseAuditableEntity.DeletedAtUtc), nameof(BaseAuditableEntity.DeletedBy)
+        };
+        var result = new Dictionary<string, object?>();
+        foreach (var property in entry.Properties.Where(p => !ignored.Contains(p.Metadata.Name)))
+        {
+            if (originalState == EntityState.Modified && !property.IsModified) continue;
+            if (originalState == EntityState.Added)
+                result[property.Metadata.Name] = new { Before = (object?)null, After = property.CurrentValue };
+            else if (originalState == EntityState.Deleted && property.Metadata.Name == nameof(BaseAuditableEntity.IsDeleted))
+                result[property.Metadata.Name] = new { Before = (object?)false, After = (object?)true };
+            else if (originalState == EntityState.Modified)
+                result[property.Metadata.Name] = new { Before = property.OriginalValue, After = property.CurrentValue };
+        }
+        return result;
     }
 }
