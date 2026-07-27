@@ -7,5 +7,6 @@ public record AddStsIncidentCommand(
     Guid? GantryId,
     string TypeIncident,
     DateTime DateDebutUtc,
+    DateTime? DateFinUtc,
     string? Cause,
     bool RetirePortiqueEffectif) : IRequest<Guid>;

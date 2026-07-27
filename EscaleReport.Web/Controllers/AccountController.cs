@@ -1,4 +1,5 @@
 using EscaleReport.Web.Application.Common.Interfaces;
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Domain.Audit;
 using EscaleReport.Web.Infrastructure.Identity;
 using EscaleReport.Web.Models;
@@ -96,6 +97,58 @@ public class AccountController(
         }
 
         return RedirectToAction("Index", "Escales");
+    }
+
+    [HttpGet]
+    [Authorize(Roles = Roles.Dispatcher)]
+    public async Task<IActionResult> ChooseDispatchPost()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.CurrentPost = user.PosteParDefaut;
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.Dispatcher)]
+    public async Task<IActionResult> ChooseDispatchPost(string poste)
+    {
+        string[] allowedPosts = ["STS", "TT", "RTG", "Autres engins"];
+        if (!allowedPosts.Contains(poste, StringComparer.Ordinal))
+        {
+            ModelState.AddModelError(string.Empty, "Sélectionnez un poste valide.");
+            return await ChooseDispatchPost();
+        }
+
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        user.PosteParDefaut = poste;
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, "Impossible d'enregistrer le poste du jour.");
+            return await ChooseDispatchPost();
+        }
+
+        await signInManager.RefreshSignInAsync(user);
+
+        var action = poste switch
+        {
+            "TT" => "Tt",
+            "RTG" => "Rtg",
+            "Autres engins" => "AutresEngins",
+            _ => "Sts"
+        };
+        return RedirectToAction(action, "Dispatch");
     }
 
     [HttpGet]
@@ -212,3 +265,5 @@ public class AccountController(
     [HttpGet]
     public IActionResult AccessDenied() => View();
 }
+
+

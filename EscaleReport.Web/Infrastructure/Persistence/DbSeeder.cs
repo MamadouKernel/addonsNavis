@@ -38,6 +38,7 @@ public static class DbSeeder
         await SeedLignesMaritimesAsync(dbContext);
         await SeedBaysAsync(dbContext);
         await SeedEmailTemplatesAsync(dbContext);
+        await RecipeDataSeeder.SeedAsync(dbContext);
 
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         if (await userManager.Users.AnyAsync())
@@ -483,3 +484,4 @@ public static class DbSeeder
         return new string(chars);
     }
 }
+

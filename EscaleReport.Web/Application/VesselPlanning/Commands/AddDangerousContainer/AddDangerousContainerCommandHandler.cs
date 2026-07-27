@@ -23,7 +23,9 @@ public class AddDangerousContainerCommandHandler(
             LigneMaritime = request.LigneMaritime,
             ClasseImo = request.ClasseImo,
             Position = request.Position,
-            DateValiditeBadt = request.DateValiditeBadt
+            DateValiditeBadt = request.DateValiditeBadt,
+            StatutBadt = request.StatutBadt,
+            StatutOperationnel = request.StatutOperationnel
         };
 
         dbContext.DangerousContainers.Add(container);

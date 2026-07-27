@@ -4,4 +4,8 @@ using MediatR;
 
 namespace EscaleReport.Web.Application.Escales.Queries.GetEscales;
 
-public record GetEscalesQuery(int Page = 1, int PageSize = Paging.DefaultPageSize) : IRequest<PagedResult<EscaleDto>>;
+public record GetEscalesQuery(
+    int Page = 1,
+    int PageSize = Paging.DefaultPageSize,
+    string? Search = null,
+    bool Terminees = false) : IRequest<PagedResult<EscaleDto>>;

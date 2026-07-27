@@ -24,8 +24,14 @@ public class AddStsPointeurCommandHandler(
             Nom = request.Nom,
             Role = request.Role,
             NavireOuZone = request.NavireOuZone,
-            HeurePriseDePosteUtc = request.HeurePriseDePosteUtc
+            HeurePriseDePosteUtc = request.HeurePriseDePosteUtc == default
+                ? DateTime.UtcNow
+                : request.HeurePriseDePosteUtc
         };
+        if (request.HeureFinUtc.HasValue)
+        {
+            pointeur.TerminerService(request.HeureFinUtc);
+        }
 
         dbContext.StsPointeurs.Add(pointeur);
         await dbContext.SaveChangesAsync(cancellationToken);

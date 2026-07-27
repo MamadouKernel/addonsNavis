@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Application.Itt.Commands.AddIttEnginPanne;
 using EscaleReport.Web.Application.Itt.Commands.AddIttTransfer;
 using EscaleReport.Web.Application.Itt.Commands.AddIttTransferIncident;
@@ -13,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscaleReport.Web.Controllers;
 
 // Module ITT Controller (CDC §13).
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Itt)]
 public class IttController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(

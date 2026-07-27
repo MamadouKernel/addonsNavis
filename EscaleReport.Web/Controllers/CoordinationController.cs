@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Application.Coordination.Commands.AddCoordinatorIncident;
 using EscaleReport.Web.Application.Coordination.Commands.CloseCoordinatorIncident;
 using EscaleReport.Web.Application.Coordination.Queries.GetCoordinatorDashboard;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscaleReport.Web.Controllers;
 
 // Module Coordinateur Control Room (CDC §12).
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Coordination)]
 public class CoordinationController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(

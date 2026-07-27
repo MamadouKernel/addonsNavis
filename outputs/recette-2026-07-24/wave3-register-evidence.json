@@ -1,0 +1,279 @@
+{
+  "wave": 3,
+  "testedAtUtc": "2026-07-27T06:50:08.2704565Z",
+  "baseUrl": "http://127.0.0.1:5065",
+  "testEscale": "RECETTE-VAGUE3-065002",
+  "testEscaleId": "98f5d18c-9dc4-43a8-864a-00f01a789af1",
+  "pdfPath": "C:\\tmp\\pdfs\\escalereport-wave3-registers.pdf",
+  "allPassedBeforePdfVisualReview": true,
+  "results": [
+    {
+      "scenario": "ANO-02",
+      "passed": true,
+      "actual": "Options actives: Introuvable, Engagé, Surarrimé, Roulé, Avarie, Refusé, Autre Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9234613Z"
+    },
+    {
+      "scenario": "ANO-03",
+      "passed": true,
+      "actual": "Trois lignes distinctes créées depuis un seul collage.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:04.2837522Z"
+    },
+    {
+      "scenario": "ANO-04",
+      "passed": true,
+      "actual": "Les lignes vides sont ignorées : compteur = 3.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:04.3113978Z"
+    },
+    {
+      "scenario": "ANO-05",
+      "passed": true,
+      "actual": "Position Bay 02 restituée après rechargement.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:04.4464856Z"
+    },
+    {
+      "scenario": "ANO-07",
+      "passed": true,
+      "actual": "Compteur de carte passé de 3 à 4.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:04.6082761Z"
+    },
+    {
+      "scenario": "ANO-06",
+      "passed": true,
+      "actual": "Ligne conservée avec statut Résolu et date de résolution.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:04.7759227Z"
+    },
+    {
+      "scenario": "ANO-08",
+      "passed": true,
+      "actual": "Après résolution, compteur non résolu revenu à 3.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:04.7936477Z"
+    },
+    {
+      "scenario": "ANO-09",
+      "passed": true,
+      "actual": "La ligne supprimée ne réapparaît pas.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:04.9420002Z"
+    },
+    {
+      "scenario": "VID-01",
+      "passed": true,
+      "actual": "Ligne de vides ajoutée et identifiée.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:05.0939905Z"
+    },
+    {
+      "scenario": "VID-02",
+      "passed": true,
+      "actual": "Reste calculé = 25.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:05.2474992Z"
+    },
+    {
+      "scenario": "VID-03",
+      "passed": true,
+      "actual": "Embarqué = 31, reste recalculé = 24 au changement.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:05.4025323Z"
+    },
+    {
+      "scenario": "VID-04",
+      "passed": true,
+      "actual": "Le reste est rendu comme valeur calculée, sans champ de saisie.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:05.4046524Z"
+    },
+    {
+      "scenario": "VID-05",
+      "passed": true,
+      "actual": "Validation signalée et ancienne valeur conservée. Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9358479Z"
+    },
+    {
+      "scenario": "VID-06",
+      "passed": true,
+      "actual": "Totaux attendus : souhaité 100, ajouté 10, embarqué 31, coupé 5, restant 74.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:05.9143261Z"
+    },
+    {
+      "scenario": "VID-07",
+      "passed": true,
+      "actual": "Quantité négative signalée et ligne non créée. Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9359625Z"
+    },
+    {
+      "scenario": "INC-01",
+      "passed": true,
+      "actual": "Incident ajouté et restitué.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:06.2586986Z"
+    },
+    {
+      "scenario": "INC-02",
+      "passed": true,
+      "actual": "Début 08:00, fin 09:30, durée automatique 1h30.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:06.2606484Z"
+    },
+    {
+      "scenario": "INC-03",
+      "passed": true,
+      "actual": "Sans fin : statut En cours et durée absente. Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9364400Z"
+    },
+    {
+      "scenario": "INC-04",
+      "passed": true,
+      "actual": "Description complétée puis restituée sans perte. Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9365134Z"
+    },
+    {
+      "scenario": "INC-05",
+      "passed": true,
+      "actual": "Incohérence signalée et aucune durée négative. Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9365690Z"
+    },
+    {
+      "scenario": "INC-06",
+      "passed": true,
+      "actual": "Catégories=Portique, Navire, Yard, Engin, Système informatique, Sécurité, Autre; gravités=Information, Moyen, Critique Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9366389Z"
+    },
+    {
+      "scenario": "ADD-05-PREUVE-AVANT",
+      "passed": true,
+      "actual": "Compteur initial = 0.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:07.148732Z"
+    },
+    {
+      "scenario": "ADD-01",
+      "passed": true,
+      "actual": "Conteneur additionnel ajouté.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:07.4642841Z"
+    },
+    {
+      "scenario": "ADD-02",
+      "passed": true,
+      "actual": "Décision Embarqué conservée après rechargement. Vérification répétée après décodage HTML : conforme.",
+      "proof": "HTTP + HTML rendu et décodé",
+      "testedAtUtc": "2026-07-27T06:51:29.9367453Z"
+    },
+    {
+      "scenario": "ADD-03",
+      "passed": true,
+      "actual": "Trois lignes additionnelles créées par collage.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:07.6962084Z"
+    },
+    {
+      "scenario": "ADD-05",
+      "passed": true,
+      "actual": "Compteur de carte passé de 0 à 4.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:07.7412564Z"
+    },
+    {
+      "scenario": "DNG-01",
+      "passed": true,
+      "actual": "Dangereux ajouté avec état BADT saisi.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:07.9877737Z"
+    },
+    {
+      "scenario": "DNG-02",
+      "passed": true,
+      "actual": "Valeurs BADT: Non pris, Pris, À renouveler",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:07.9949741Z"
+    },
+    {
+      "scenario": "DNG-03",
+      "passed": true,
+      "actual": "Ligne À renouveler sur fond rose avec badge danger.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:07.9957329Z"
+    },
+    {
+      "scenario": "DNG-05",
+      "passed": true,
+      "actual": "Trois lignes dangereuses créées par collage.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T06:50:08.1002941Z"
+    },
+    {
+      "scenario": "ANO-10",
+      "passed": true,
+      "actual": "PDF HTTP 200 généré avec les données complètes.",
+      "proof": "PDF généré ; contenu vérifié ensuite par extraction et rendu",
+      "testedAtUtc": "2026-07-27T06:50:08.2634146Z"
+    },
+    {
+      "scenario": "VID-08",
+      "passed": true,
+      "actual": "PDF HTTP 200 généré avec section des vides.",
+      "proof": "PDF généré ; contenu vérifié ensuite par extraction et rendu",
+      "testedAtUtc": "2026-07-27T06:50:08.2642975Z"
+    },
+    {
+      "scenario": "INC-07",
+      "passed": true,
+      "actual": "PDF HTTP 200 généré avec section des incidents.",
+      "proof": "PDF généré ; contenu vérifié ensuite par extraction et rendu",
+      "testedAtUtc": "2026-07-27T06:50:08.266342Z"
+    },
+    {
+      "scenario": "ADD-04",
+      "passed": true,
+      "actual": "PDF HTTP 200 généré avec section des additionnels.",
+      "proof": "PDF généré ; contenu vérifié ensuite par extraction et rendu",
+      "testedAtUtc": "2026-07-27T06:50:08.2675148Z"
+    },
+    {
+      "scenario": "DNG-04",
+      "passed": true,
+      "actual": "PDF HTTP 200 généré ; alerte BADT à inspecter visuellement.",
+      "proof": "PDF généré ; rendu visuel vérifié ensuite",
+      "testedAtUtc": "2026-07-27T06:50:08.2685697Z"
+    },
+    {
+      "scenario": "DNG-06",
+      "passed": true,
+      "actual": "PDF HTTP 200 généré avec section des dangereux.",
+      "proof": "PDF généré ; contenu vérifié ensuite par extraction et rendu",
+      "testedAtUtc": "2026-07-27T06:50:08.269827Z"
+    }
+  ],
+  "htmlEncodingRecheck": {
+    "ANO-02": true,
+    "VID-05": true,
+    "VID-07": true,
+    "INC-03": true,
+    "INC-04": true,
+    "INC-05": true,
+    "INC-06": true,
+    "ADD-02": true
+  },
+  "cleanup": {
+    "passed": true,
+    "escaleId": "98f5d18c-9dc4-43a8-864a-00f01a789af1",
+    "actual": "Escale temporaire et tous ses registres supprimés en cascade.",
+    "testedAtUtc": "2026-07-27T06:51:30.2666253Z"
+  }
+}

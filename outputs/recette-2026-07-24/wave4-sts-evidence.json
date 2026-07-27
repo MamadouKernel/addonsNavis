@@ -1,0 +1,161 @@
+{
+  "wave": 4,
+  "module": "Dispatch STS",
+  "testedAtUtc": "2026-07-27T07:00:44.0660107Z",
+  "baseUrl": "http://127.0.0.1:5066",
+  "build": "C:\\tmp\\escalereport-wave4-build4\\EscaleReport.Web.dll",
+  "testEscales": [
+    "RECETTE-STS4-A-070038",
+    "RECETTE-STS4-B-070038"
+  ],
+  "allPassed": true,
+  "results": [
+    {
+      "scenario": "STS-01",
+      "passed": true,
+      "actual": "Date 24/07/2026 et shift Matin affichés dans des contrôles modifiables.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:40.5114032Z"
+    },
+    {
+      "scenario": "STS-03",
+      "passed": true,
+      "actual": "La ligne navire est rendue en lecture seule.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:40.6874426Z"
+    },
+    {
+      "scenario": "STS-04",
+      "passed": true,
+      "actual": "CR1 à CR8 sont tous présents.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:40.8133352Z"
+    },
+    {
+      "scenario": "STS-05",
+      "passed": true,
+      "actual": "CR1 passe En panne et sa bulle prend l'apparence danger.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:41.0681913Z"
+    },
+    {
+      "scenario": "STS-06",
+      "passed": true,
+      "actual": "Type de panne et cause apparaissent directement dans la bulle, sans fenêtre.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:41.0696970Z"
+    },
+    {
+      "scenario": "STS-07",
+      "passed": true,
+      "actual": "Aucune affectation n'est créée pour CR1 en panne.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:41.2150063Z"
+    },
+    {
+      "scenario": "STS-08",
+      "passed": true,
+      "actual": "La remise en service clôture automatiquement la panne avec une heure de fin.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:41.3670434Z"
+    },
+    {
+      "scenario": "STS-09",
+      "passed": true,
+      "actual": "Le drag/drop est câblé vers AssignGantry et l'affectation CR2/navire est créée.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:41.6218368Z"
+    },
+    {
+      "scenario": "STS-10",
+      "passed": true,
+      "actual": "Début automatique enregistré sur la date opérationnelle : 2026-07-24T07:00:00.0000000",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:41.6742188Z"
+    },
+    {
+      "scenario": "STS-11",
+      "passed": true,
+      "actual": "L'heure corrigée à 08:00 est restituée après rechargement.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:41.8983606Z"
+    },
+    {
+      "scenario": "STS-12",
+      "passed": true,
+      "actual": "Le retrait clôture la ligne à 09:00 sans la supprimer.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:42.1166119Z"
+    },
+    {
+      "scenario": "STS-13",
+      "passed": true,
+      "actual": "Durée calculée automatiquement : 1h00.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:42.1216533Z"
+    },
+    {
+      "scenario": "STS-14",
+      "passed": true,
+      "actual": "La seconde affectation est créée sur l'autre navire et la première reste visible.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:42.4733774Z"
+    },
+    {
+      "scenario": "STS-15",
+      "passed": true,
+      "actual": "Incident CR3 affiché avec navire, type, début et fin.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:42.7021880Z"
+    },
+    {
+      "scenario": "STS-16",
+      "passed": true,
+      "actual": "Navire, type et heures modifiés ; durée recalculée à 2h00.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:42.8413331Z"
+    },
+    {
+      "scenario": "STS-17",
+      "passed": true,
+      "actual": "Deux registres visibles avec deux listes de causes réellement distinctes.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:43.0954653Z"
+    },
+    {
+      "scenario": "STS-18",
+      "passed": true,
+      "actual": "Pointeur Terre ajouté avec durée calculée de 1h30.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:43.2461961Z"
+    },
+    {
+      "scenario": "STS-19",
+      "passed": true,
+      "actual": "ROPN ajouté avec bornes horaires et durée calculée de 1h15.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:43.3701365Z"
+    },
+    {
+      "scenario": "STS-02",
+      "passed": true,
+      "actual": "Les saisies du 24/07 sont absentes le 25/07 puis réapparaissent au retour.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:43.4548034Z"
+    },
+    {
+      "scenario": "STS-20",
+      "passed": true,
+      "actual": "La répartition TT de 7 tracteurs est reprise sur la ligne du navire côté STS.",
+      "proof": "HTTP + HTML rendu",
+      "testedAtUtc": "2026-07-27T07:00:43.6319272Z"
+    },
+    {
+      "scenario": "NETTOYAGE-WAVE4-STS",
+      "passed": true,
+      "actual": "Escales A/B supprimées=True/True ; Pointeur/ROPN temporaires supprimés=True.",
+      "proof": "HTTP cascade + SQL local ciblé par noms uniques",
+      "testedAtUtc": "2026-07-27T07:00:44.0653163Z"
+    }
+  ]
+}

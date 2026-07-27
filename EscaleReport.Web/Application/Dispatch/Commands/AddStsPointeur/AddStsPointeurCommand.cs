@@ -6,4 +6,5 @@ public record AddStsPointeurCommand(
     string Nom,
     string? Role,
     string? NavireOuZone,
-    DateTime HeurePriseDePosteUtc) : IRequest<Guid>;
+    DateTime HeurePriseDePosteUtc,
+    DateTime? HeureFinUtc) : IRequest<Guid>;

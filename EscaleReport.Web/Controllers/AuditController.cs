@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Application.Audit.Queries.GetAuditLog;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscaleReport.Web.Controllers;
 
 // Journal d'audit (CDC §2 / §18) — accès réservé à la permission ConsulterJournalAudit.
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Administration)]
 public class AuditController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(

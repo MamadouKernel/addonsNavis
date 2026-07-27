@@ -3,6 +3,8 @@ namespace EscaleReport.Web.Application.Dispatch.Dtos;
 public class StsIncidentDto
 {
     public Guid Id { get; set; }
+    public Guid EscaleId { get; set; }
+    public Guid? GantryId { get; set; }
     public string Navire { get; set; } = string.Empty;
     public string? GantryCode { get; set; }
     public string TypeIncident { get; set; } = string.Empty;

@@ -2,4 +2,4 @@ using MediatR;
 
 namespace EscaleReport.Web.Application.Dispatch.Commands.EndStsPointeur;
 
-public record EndStsPointeurCommand(Guid PointeurId) : IRequest;
+public record EndStsPointeurCommand(Guid PointeurId, DateTime? HeureFinUtc = null) : IRequest;

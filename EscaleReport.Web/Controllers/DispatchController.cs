@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Application.Dispatch.Commands.AddEnginDeconnexion;
 using EscaleReport.Web.Application.Dispatch.Commands.AddEnginProbleme;
 using EscaleReport.Web.Application.Dispatch.Commands.AddGateTruckIssue;
@@ -24,6 +25,8 @@ using EscaleReport.Web.Application.Dispatch.Commands.ResolveRopnEntry;
 using EscaleReport.Web.Application.Dispatch.Commands.UpdateAutresEnginsEffectif;
 using EscaleReport.Web.Application.Dispatch.Commands.UpdateRtgEffectif;
 using EscaleReport.Web.Application.Dispatch.Commands.UpdateTtEffectif;
+using EscaleReport.Web.Application.Dispatch.Commands.UpdateGantryAssignment;
+using EscaleReport.Web.Application.Dispatch.Commands.UpdateStsIncident;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchAutresEngins;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchRtg;
 using EscaleReport.Web.Application.Dispatch.Queries.GetDispatchSts;
@@ -34,7 +37,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EscaleReport.Web.Controllers;
 
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Dispatch)]
 public class DispatchController(ISender mediator) : Controller
 {
     // Tableau de bord Dispatch STS (CDC §6). Sélection du shift (§6.1) via querystring.
@@ -51,83 +54,160 @@ public class DispatchController(ISender mediator) : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AssignGantry(AssignGantryCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> AssignGantry(
+        AssignGantryCommand command,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             TempData["Error"] = "Sélectionnez un portique disponible et un navire.";
-            return RedirectToAction(nameof(Sts));
+            return RedirectToAction(nameof(Sts), new { date, shift });
+        }
+
+        // Une affectation créée depuis une journée opérationnelle passée/future doit
+        // rester dans cette journée. Seule l'heure est automatique ; utiliser
+        // DateTime.UtcNow en entier la ferait disparaître du filtre date de l'écran.
+        if (command.HeureDebut is null && date.HasValue)
+        {
+            command = command with
+            {
+                HeureDebut = date.Value.ToDateTime(TimeOnly.FromDateTime(DateTime.UtcNow))
+            };
         }
 
         await mediator.Send(command, cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EndAssignment(Guid assignmentId, CancellationToken cancellationToken)
+    public async Task<IActionResult> EndAssignment(
+        Guid assignmentId,
+        DateTime? heureFin,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
-        await mediator.Send(new EndGantryAssignmentCommand(assignmentId), cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        await mediator.Send(new EndGantryAssignmentCommand(assignmentId, heureFin), cancellationToken);
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangeGantryStatus(ChangeGantryStatusCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateAssignment(
+        UpdateGantryAssignmentCommand command,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
         await mediator.Send(command, cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        return RedirectToAction(nameof(Sts), new { date, shift });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeGantryStatus(
+        ChangeGantryStatusCommand command,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     // ---------- Incidents STS (§6.3) ----------
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddStsIncident(AddStsIncidentCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddStsIncident(
+        AddStsIncidentCommand command,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
         await mediator.Send(command, cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CloseStsIncident(Guid incidentId, string? conditionsReprise, CancellationToken cancellationToken)
+    public async Task<IActionResult> CloseStsIncident(
+        Guid incidentId,
+        string? conditionsReprise,
+        DateTime? dateFinUtc,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
-        await mediator.Send(new CloseStsIncidentCommand(incidentId, conditionsReprise), cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        await mediator.Send(new CloseStsIncidentCommand(incidentId, conditionsReprise, dateFinUtc), cancellationToken);
+        return RedirectToAction(nameof(Sts), new { date, shift });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateStsIncident(
+        UpdateStsIncidentCommand command,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(command, cancellationToken);
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     // ---------- Pointeurs (§6.4) ----------
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddStsPointeur(AddStsPointeurCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddStsPointeur(
+        AddStsPointeurCommand command,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
         await mediator.Send(command, cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EndStsPointeur(Guid pointeurId, CancellationToken cancellationToken)
+    public async Task<IActionResult> EndStsPointeur(
+        Guid pointeurId,
+        DateTime? heureFinUtc,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
-        await mediator.Send(new EndStsPointeurCommand(pointeurId), cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        await mediator.Send(new EndStsPointeurCommand(pointeurId, heureFinUtc), cancellationToken);
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     // ---------- ROPN (§6.5) ----------
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddRopnEntry(AddRopnEntryCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddRopnEntry(
+        AddRopnEntryCommand command,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
         await mediator.Send(command, cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ResolveRopnEntry(Guid ropnEntryId, string? actionRealisee, CancellationToken cancellationToken)
+    public async Task<IActionResult> ResolveRopnEntry(
+        Guid ropnEntryId,
+        string? actionRealisee,
+        DateTime? dateFinUtc,
+        DateOnly? date,
+        string? shift,
+        CancellationToken cancellationToken)
     {
-        await mediator.Send(new ResolveRopnEntryCommand(ropnEntryId, actionRealisee), cancellationToken);
-        return RedirectToAction(nameof(Sts));
+        await mediator.Send(new ResolveRopnEntryCommand(ropnEntryId, actionRealisee, dateFinUtc), cancellationToken);
+        return RedirectToAction(nameof(Sts), new { date, shift });
     }
 
     // Tableau de bord Dispatch TT (CDC §7).

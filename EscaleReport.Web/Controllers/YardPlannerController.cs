@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Application.YardPlanning.Commands.AddHousekeepingTask;
 using EscaleReport.Web.Application.YardPlanning.Commands.AddTransfertOut;
 using EscaleReport.Web.Application.YardPlanning.Commands.AddVesselYardPlan;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscaleReport.Web.Controllers;
 
 // Module Yard Planner (CDC §11).
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Yard)]
 public class YardPlannerController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(

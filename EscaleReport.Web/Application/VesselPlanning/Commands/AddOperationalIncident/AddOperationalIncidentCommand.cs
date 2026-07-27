@@ -8,5 +8,6 @@ public record AddOperationalIncidentCommand(
     string Categorie,
     string? Localisation,
     DateTime DateDebutUtc,
+    DateTime? DateFinUtc,
     IncidentGravite Gravite,
     string? Description) : IRequest<Guid>;

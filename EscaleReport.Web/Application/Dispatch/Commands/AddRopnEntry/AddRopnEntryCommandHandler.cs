@@ -23,6 +23,8 @@ public class AddRopnEntryCommandHandler(
         {
             Nom = request.Nom,
             Role = request.Role,
+            DateDebutUtc = request.DateDebutUtc == default ? DateTime.UtcNow : request.DateDebutUtc,
+            DateFinUtc = request.DateFinUtc,
             DifficulteRencontree = request.DifficulteRencontree
         };
 

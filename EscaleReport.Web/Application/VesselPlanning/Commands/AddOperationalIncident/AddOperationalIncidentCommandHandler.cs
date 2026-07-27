@@ -1,6 +1,7 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Identity;
+using EscaleReport.Web.Domain.VesselPlanning;
 using MediatR;
 
 namespace EscaleReport.Web.Application.VesselPlanning.Commands.AddOperationalIncident;
@@ -22,6 +23,8 @@ public class AddOperationalIncidentCommandHandler(
             Categorie = request.Categorie,
             Localisation = request.Localisation,
             DateDebutUtc = request.DateDebutUtc,
+            DateFinUtc = request.DateFinUtc,
+            Statut = request.DateFinUtc.HasValue ? IncidentStatus.Resolu : IncidentStatus.EnCours,
             Gravite = request.Gravite,
             Description = request.Description,
             DeclarePar = currentUser.UserName
