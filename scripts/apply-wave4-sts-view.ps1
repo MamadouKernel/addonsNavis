@@ -1,0 +1,629 @@
+$ErrorActionPreference = 'Stop'
+
+$path = (Resolve-Path -LiteralPath '.\EscaleReport.Web\Views\Dispatch\Sts.cshtml').Path
+$content = [IO.File]::ReadAllText($path).Replace("`r`n", "`n")
+
+function Replace-Required([string] $Text, [string] $Old, [string] $New, [string] $Label) {
+    if (-not $Text.Contains($Old)) {
+        throw "Bloc introuvable : $Label"
+    }
+    return $Text.Replace($Old, $New)
+}
+
+function Replace-Between([string] $Text, [string] $Start, [string] $End, [string] $Replacement) {
+    $startIndex = $Text.IndexOf($Start, [StringComparison]::Ordinal)
+    if ($startIndex -lt 0) { throw "Début de section introuvable : $Start" }
+    $endIndex = $Text.IndexOf($End, $startIndex + $Start.Length, [StringComparison]::Ordinal)
+    if ($endIndex -lt 0) { throw "Fin de section introuvable : $End" }
+    return $Text.Substring(0, $startIndex) + $Replacement + "`n`n" + $Text.Substring($endIndex)
+}
+
+$content = Replace-Required $content `
+@'
+    var ropnEnCours = Model.RopnEnCoursCount;
+'@ `
+@'
+    var ropnEnCours = Model.RopnEnCoursCount;
+    var defaultDateTime = Model.SelectedDate
+        .ToDateTime(TimeOnly.FromDateTime(DateTime.Now))
+        .ToString("yyyy-MM-ddTHH:mm");
+'@ `
+    'date par défaut'
+
+$content = Replace-Required $content `
+@'
+                        <th class="hidden md:table-cell">Shift</th>
+                        <th>Statut</th>
+'@ `
+@'
+                        <th class="hidden md:table-cell">Shift</th>
+                        <th>Tracteurs</th>
+                        <th>Statut</th>
+'@ `
+    'colonne tracteurs'
+
+$content = Replace-Required $content `
+@'
+                    <tr><td colspan="5" class="!text-center text-slate-400 py-8">Aucun navire en cours ou attendu pour cette sélection.</td></tr>
+'@ `
+@'
+                    <tr><td colspan="6" class="!text-center text-slate-400 py-8">Aucun navire en cours ou attendu pour cette sélection.</td></tr>
+'@ `
+    'colspan navires'
+
+$content = Replace-Required $content `
+@'
+                    <tr>
+                        <td class="font-semibold text-slate-900">@n.Navire</td>
+                        <td class="hidden md:table-cell">@n.Voyage</td>
+                        <td class="whitespace-nowrap">@n.Eta.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden md:table-cell">@(n.Shift ?? "—")</td>
+                        <td>
+'@ `
+@'
+                    <tr class="js-vessel-dropzone transition-colors" data-escale-id="@n.Id" title="Déposer ici un portique disponible">
+                        <td class="font-semibold text-slate-900">@n.Navire</td>
+                        <td class="hidden md:table-cell">@n.Voyage</td>
+                        <td class="whitespace-nowrap">@n.Eta.ToString("dd/MM HH:mm")</td>
+                        <td class="hidden md:table-cell">@(n.Shift ?? "—")</td>
+                        <td><span class="badge-neutral">@n.NombreTracteurs TT</span></td>
+                        <td>
+'@ `
+    'zone de dépôt navire'
+
+$portiques = @'
+<!-- ============ PORTIQUES + AFFECTATIONS (§6.2) ============ -->
+<section id="tab-portiques" class="sts-panel">
+    <section class="card mb-8">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="card-title">Portiques</h2>
+                <p class="card-subtitle">Glissez un portique disponible sur un navire, ou utilisez le formulaire d’affectation.</p>
+            </div>
+            <span class="badge-neutral">CR1 à CR8</span>
+        </div>
+        <div class="flex flex-wrap gap-4">
+        @foreach (var g in Model.Gantries)
+        {
+            <div class="js-gantry-card flex min-w-[190px] flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/50 p-4 @(g.Statut == GantryStatus.Disponible ? "cursor-grab" : "")"
+                 draggable="@(g.Statut == GantryStatus.Disponible ? "true" : "false")"
+                 data-gantry-id="@g.Id">
+                <span class="text-xl font-extrabold text-slate-900">@g.Code</span>
+                <span class="@StatusBadgeClass(g.Statut)">@StatusLabel(g.Statut)</span>
+                <form asp-controller="Dispatch" asp-action="ChangeGantryStatus" method="post" class="js-gantry-status-form w-full space-y-2">
+                    <input type="hidden" name="GantryId" value="@g.Id" />
+                    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                    <select name="Statut" class="js-gantry-status-select input-field py-1.5 text-xs">
+                        @foreach (GantryStatus s in Enum.GetValues<GantryStatus>())
+                        {
+                            @if (s == g.Statut)
+                            {
+                                <option value="@((int)s)" selected>@StatusLabel(s)</option>
+                            }
+                            else
+                            {
+                                <option value="@((int)s)">@StatusLabel(s)</option>
+                            }
+                        }
+                    </select>
+                    <div class="js-gantry-breakdown-fields space-y-2 @(g.Statut == GantryStatus.EnPanne ? "" : "hidden")">
+                        <select name="EscaleId" class="input-field py-1.5 text-xs" aria-label="Navire concerné">
+                            @foreach (var e in Model.EscalesDisponibles)
+                            {
+                                <option value="@e.Id">@e.Navire</option>
+                            }
+                        </select>
+                        <select name="TypeIncident" class="input-field py-1.5 text-xs" aria-label="Type de panne">
+                            @foreach (var t in Model.TypesPannePortiqueDisponibles)
+                            {
+                                <option value="@t">@t</option>
+                            }
+                        </select>
+                        <input name="Cause" class="input-field py-1.5 text-xs" placeholder="Cause de la panne" />
+                        <input type="datetime-local" name="DateDebutUtc" value="@defaultDateTime" class="input-field py-1.5 text-xs" />
+                    </div>
+                    <button type="submit" class="btn-secondary w-full py-1.5 text-xs">Enregistrer l’état</button>
+                </form>
+            </div>
+        }
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title mb-5">Affectations</h2>
+
+        <div class="table-shell mb-6">
+            <div class="table-scroll">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Portique</th>
+                            <th>Navire</th>
+                            <th>Début</th>
+                            <th class="hidden md:table-cell">Fin</th>
+                            <th>Durée</th>
+                            <th class="hidden lg:table-cell">Tâche / zone</th>
+                            <th>Statut</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (!Model.Assignments.Items.Any())
+                    {
+                        <tr><td colspan="8" class="!text-center text-slate-400 py-8">Aucune affectation pour la date sélectionnée.</td></tr>
+                    }
+                    @foreach (var a in Model.Assignments.Items)
+                    {
+                        <tr>
+                            <td class="font-mono font-semibold text-slate-900">@a.GantryCode</td>
+                            <td>@a.Navire</td>
+                            <td>
+                                <form asp-controller="Dispatch" asp-action="UpdateAssignment" method="post" class="flex min-w-[210px] items-center gap-2">
+                                    <input type="hidden" name="AssignmentId" value="@a.Id" />
+                                    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                                    <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                                    <input type="datetime-local" name="HeureDebut" value="@a.HeureDebut.ToString("yyyy-MM-ddTHH:mm")" class="input-field py-1 text-xs" />
+                                    <button type="submit" class="btn-link text-xs">Corriger</button>
+                                </form>
+                            </td>
+                            <td class="hidden whitespace-nowrap md:table-cell">@(a.HeureFin?.ToString("dd/MM HH:mm") ?? "—")</td>
+                            <td>@(a.Duree.HasValue ? $"{(int)a.Duree.Value.TotalHours}h{Math.Abs(a.Duree.Value.Minutes):D2}" : "—")</td>
+                            <td class="hidden lg:table-cell">@a.TacheOuZone</td>
+                            <td>
+                                @if (a.Statut == AssignmentStatus.EnCours)
+                                {
+                                    <span class="badge-warning">En cours</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-neutral">Terminée</span>
+                                }
+                            </td>
+                            <td class="text-right">
+                                @if (a.Statut == AssignmentStatus.EnCours)
+                                {
+                                    <form asp-controller="Dispatch" asp-action="EndAssignment" method="post" class="flex min-w-[210px] items-center gap-2">
+                                        <input type="hidden" name="assignmentId" value="@a.Id" />
+                                        <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                                        <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                                        <input type="datetime-local" name="heureFin" class="input-field py-1 text-xs" aria-label="Heure de fin, vide pour maintenant" />
+                                        <button type="submit" class="btn-link whitespace-nowrap">Retirer</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Assignments, "assignmentsPage"))
+
+        <form asp-controller="Dispatch" asp-action="AssignGantry" method="post"
+              class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
+            <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="shift" value="@Model.SelectedShift" />
+            <div>
+                <label class="field-label">Portique disponible</label>
+                <select name="GantryId" class="input-field">
+                    @foreach (var g in Model.Gantries.Where(g => g.Statut == GantryStatus.Disponible))
+                    {
+                        <option value="@g.Id">@g.Code</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="field-label">Navire</label>
+                <select name="EscaleId" class="input-field">
+                    @foreach (var e in Model.EscalesDisponibles)
+                    {
+                        <option value="@e.Id">@e.Navire</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label class="field-label">Heure de début <span class="font-normal text-slate-400">(auto si vide)</span></label>
+                <input type="datetime-local" name="HeureDebut" class="input-field" />
+            </div>
+            <div>
+                <label class="field-label">Tâche / zone</label>
+                <input name="TacheOuZone" class="input-field" />
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="btn-primary w-full">Affecter</button>
+            </div>
+        </form>
+
+        <form id="stsDragAssignForm" asp-controller="Dispatch" asp-action="AssignGantry" method="post" class="hidden">
+            <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="shift" value="@Model.SelectedShift" />
+            <input type="hidden" name="GantryId" />
+            <input type="hidden" name="EscaleId" />
+            <input type="hidden" name="HeureDebut" />
+            <input type="hidden" name="TacheOuZone" value="Glisser-déposer" />
+        </form>
+    </section>
+</section>
+'@
+
+$content = Replace-Between $content `
+    '<!-- ============ PORTIQUES + AFFECTATIONS (§6.2) ============ -->' `
+    '<!-- ============ INCIDENTS STS (§6.3) ============ -->' `
+    $portiques
+
+$incidents = @'
+<!-- ============ INCIDENTS STS (§6.3) ============ -->
+<section id="tab-incidents" class="sts-panel card hidden">
+    <h2 class="card-title mb-1">Incidents STS</h2>
+    <p class="card-subtitle mb-5">Les incidents navire et les pannes portique utilisent deux listes de causes distinctes.</p>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Registre</th>
+                        <th>Navire</th>
+                        <th>Portique</th>
+                        <th>Type</th>
+                        <th>Début</th>
+                        <th>Fin</th>
+                        <th>Durée</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Incidents.Items.Any())
+                {
+                    <tr><td colspan="9" class="!text-center text-slate-400 py-8">Aucun incident STS pour la date sélectionnée.</td></tr>
+                }
+                @foreach (var i in Model.Incidents.Items)
+                {
+                    <tr>
+                        <td>@(i.GantryId.HasValue ? "Panne portique" : "Incident navire")</td>
+                        <td class="font-semibold text-slate-900">@i.Navire</td>
+                        <td class="font-mono">@(i.GantryCode ?? "—")</td>
+                        <td>@i.TypeIncident</td>
+                        <td class="whitespace-nowrap">@i.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="whitespace-nowrap">@(i.DateFinUtc?.ToString("dd/MM HH:mm") ?? "—")</td>
+                        <td>@(i.Duree.HasValue ? $"{(int)i.Duree.Value.TotalHours}h{Math.Abs(i.Duree.Value.Minutes):D2}" : "—")</td>
+                        <td>
+                            @if (i.EstResolu) { <span class="badge-success">Repris</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (!i.EstResolu)
+                            {
+                                <form asp-controller="Dispatch" asp-action="CloseStsIncident" method="post" class="flex min-w-[210px] items-center gap-2">
+                                    <input type="hidden" name="incidentId" value="@i.Id" />
+                                    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                                    <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                                    <input type="datetime-local" name="dateFinUtc" class="input-field py-1 text-xs" aria-label="Fin, vide pour maintenant" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Clôturer</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                    <tr class="bg-slate-50/70">
+                        <td colspan="9">
+                            <form asp-controller="Dispatch" asp-action="UpdateStsIncident" method="post"
+                                  class="grid grid-cols-1 gap-2 md:grid-cols-4 xl:grid-cols-8">
+                                <input type="hidden" name="IncidentId" value="@i.Id" />
+                                <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                                <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                                <select name="EscaleId" class="input-field py-1 text-xs">
+                                    @foreach (var e in Model.EscalesDisponibles)
+                                    {
+                                        @if (e.Id == i.EscaleId) { <option value="@e.Id" selected>@e.Navire</option> }
+                                        else { <option value="@e.Id">@e.Navire</option> }
+                                    }
+                                </select>
+                                <select name="GantryId" class="input-field py-1 text-xs">
+                                    <option value="">Incident navire</option>
+                                    @foreach (var g in Model.Gantries)
+                                    {
+                                        @if (g.Id == i.GantryId) { <option value="@g.Id" selected>@g.Code</option> }
+                                        else { <option value="@g.Id">@g.Code</option> }
+                                    }
+                                </select>
+                                <select name="TypeIncident" class="input-field py-1 text-xs">
+                                    @{
+                                        var typesPourIncident = i.GantryId.HasValue
+                                            ? Model.TypesPannePortiqueDisponibles
+                                            : Model.TypesIncidentNavireDisponibles;
+                                    }
+                                    @foreach (var t in typesPourIncident)
+                                    {
+                                        @if (t == i.TypeIncident) { <option value="@t" selected>@t</option> }
+                                        else { <option value="@t">@t</option> }
+                                    }
+                                </select>
+                                <input type="datetime-local" name="DateDebutUtc" value="@i.DateDebutUtc.ToString("yyyy-MM-ddTHH:mm")" class="input-field py-1 text-xs" />
+                                <input type="datetime-local" name="DateFinUtc" value="@(i.DateFinUtc?.ToString("yyyy-MM-ddTHH:mm"))" class="input-field py-1 text-xs" />
+                                <input name="Cause" value="@i.Cause" class="input-field py-1 text-xs" placeholder="Cause" />
+                                <input name="ConditionsReprise" value="@i.ConditionsReprise" class="input-field py-1 text-xs" placeholder="Conditions de reprise" />
+                                <div class="flex items-center justify-between gap-2">
+                                    <label class="text-xs"><input type="checkbox" name="RetirePortiqueEffectif" value="true" checked="@i.RetirePortiqueEffectif" /> Retrait</label>
+                                    <button type="submit" class="btn-secondary py-1 text-xs">Enregistrer</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Incidents, "incidentsPage"))
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
+            <h3 class="mb-4 font-bold text-slate-900">Incident navire</h3>
+            <form asp-controller="Dispatch" asp-action="AddStsIncident" method="post" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                <input type="hidden" name="GantryId" value="" />
+                <select name="EscaleId" class="input-field">
+                    @foreach (var e in Model.EscalesDisponibles) { <option value="@e.Id">@e.Navire</option> }
+                </select>
+                <select name="TypeIncident" class="input-field">
+                    @foreach (var t in Model.TypesIncidentNavireDisponibles) { <option value="@t">@t</option> }
+                </select>
+                <input type="datetime-local" name="DateDebutUtc" value="@defaultDateTime" class="input-field" />
+                <input type="datetime-local" name="DateFinUtc" class="input-field" />
+                <input name="Cause" class="input-field sm:col-span-2" placeholder="Cause / description" />
+                <button type="submit" class="btn-primary sm:col-span-2">Déclarer l’incident navire</button>
+            </form>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
+            <h3 class="mb-4 font-bold text-slate-900">Panne portique</h3>
+            <form asp-controller="Dispatch" asp-action="AddStsIncident" method="post" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                <select name="EscaleId" class="input-field">
+                    @foreach (var e in Model.EscalesDisponibles) { <option value="@e.Id">@e.Navire</option> }
+                </select>
+                <select name="GantryId" class="input-field">
+                    @foreach (var g in Model.Gantries) { <option value="@g.Id">@g.Code</option> }
+                </select>
+                <select name="TypeIncident" class="input-field">
+                    @foreach (var t in Model.TypesPannePortiqueDisponibles) { <option value="@t">@t</option> }
+                </select>
+                <input type="datetime-local" name="DateDebutUtc" value="@defaultDateTime" class="input-field" />
+                <input type="datetime-local" name="DateFinUtc" class="input-field" />
+                <input name="Cause" class="input-field" placeholder="Cause" />
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="RetirePortiqueEffectif" value="true" /> Retrait effectif</label>
+                <button type="submit" class="btn-primary sm:col-span-2">Déclarer la panne portique</button>
+            </form>
+        </div>
+    </div>
+</section>
+'@
+
+$content = Replace-Between $content `
+    '<!-- ============ INCIDENTS STS (§6.3) ============ -->' `
+    '<!-- ============ POINTEURS (§6.4) ============ -->' `
+    $incidents
+
+$pointeurs = @'
+<!-- ============ POINTEURS (§6.4) ============ -->
+<section id="tab-pointeurs" class="sts-panel card hidden">
+    <h2 class="card-title mb-1">Pointeurs</h2>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Rôle</th>
+                        <th class="hidden md:table-cell">Navire / zone</th>
+                        <th>Prise de poste</th>
+                        <th>Fin</th>
+                        <th>Durée</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.Pointeurs.Items.Any())
+                {
+                    <tr><td colspan="7" class="!text-center text-slate-400 py-8">Aucun pointeur pour la date sélectionnée.</td></tr>
+                }
+                @foreach (var p in Model.Pointeurs.Items)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@p.Nom</td>
+                        <td>@p.Role</td>
+                        <td class="hidden md:table-cell">@p.NavireOuZone</td>
+                        <td class="whitespace-nowrap">@p.HeurePriseDePosteUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="whitespace-nowrap">@(p.HeureFinUtc?.ToString("dd/MM HH:mm") ?? "—")</td>
+                        <td>@(p.Duree.HasValue ? $"{(int)p.Duree.Value.TotalHours}h{Math.Abs(p.Duree.Value.Minutes):D2}" : "—")</td>
+                        <td class="text-right">
+                            @if (!p.HeureFinUtc.HasValue)
+                            {
+                                <form asp-controller="Dispatch" asp-action="EndStsPointeur" method="post" class="flex min-w-[210px] items-center gap-2">
+                                    <input type="hidden" name="pointeurId" value="@p.Id" />
+                                    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                                    <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                                    <input type="datetime-local" name="heureFinUtc" class="input-field py-1 text-xs" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Terminer</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.Pointeurs, "pointeursPage"))
+
+    <form asp-controller="Dispatch" asp-action="AddStsPointeur" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-6">
+        <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="shift" value="@Model.SelectedShift" />
+        <div><label class="field-label">Nom</label><input name="Nom" required class="input-field" /></div>
+        <div>
+            <label class="field-label">Rôle</label>
+            <select name="Role" class="input-field"><option value="Terre">Terre</option><option value="Bord">Bord</option></select>
+        </div>
+        <div><label class="field-label">Navire / zone</label><input name="NavireOuZone" class="input-field" /></div>
+        <div><label class="field-label">Prise de poste</label><input type="datetime-local" name="HeurePriseDePosteUtc" value="@defaultDateTime" class="input-field" /></div>
+        <div><label class="field-label">Fin</label><input type="datetime-local" name="HeureFinUtc" class="input-field" /></div>
+        <div class="flex items-end"><button type="submit" class="btn-primary w-full">Ajouter</button></div>
+    </form>
+</section>
+'@
+
+$content = Replace-Between $content `
+    '<!-- ============ POINTEURS (§6.4) ============ -->' `
+    '<!-- ============ ROPN (§6.5) ============ -->' `
+    $pointeurs
+
+$ropn = @'
+<!-- ============ ROPN (§6.5) ============ -->
+<section id="tab-ropn" class="sts-panel card hidden">
+    <h2 class="card-title mb-1">Suivi du ROPN</h2>
+
+    <div class="table-shell mb-6">
+        <div class="table-scroll">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Rôle</th>
+                        <th>Début</th>
+                        <th>Fin</th>
+                        <th>Durée</th>
+                        <th>Difficulté</th>
+                        <th class="hidden lg:table-cell">Action réalisée</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (!Model.RopnEntries.Items.Any())
+                {
+                    <tr><td colspan="9" class="!text-center text-slate-400 py-8">Aucune observation ROPN pour la date sélectionnée.</td></tr>
+                }
+                @foreach (var r in Model.RopnEntries.Items)
+                {
+                    <tr>
+                        <td class="font-semibold text-slate-900">@r.Nom</td>
+                        <td>@r.Role</td>
+                        <td class="whitespace-nowrap">@r.DateDebutUtc.ToString("dd/MM HH:mm")</td>
+                        <td class="whitespace-nowrap">@(r.DateFinUtc?.ToString("dd/MM HH:mm") ?? "—")</td>
+                        <td>@(r.Duree.HasValue ? $"{(int)r.Duree.Value.TotalHours}h{Math.Abs(r.Duree.Value.Minutes):D2}" : "—")</td>
+                        <td>@r.DifficulteRencontree</td>
+                        <td class="hidden lg:table-cell">@r.ActionRealisee</td>
+                        <td>
+                            @if (r.Statut == RopnStatus.Resolu) { <span class="badge-success">Résolu</span> }
+                            else { <span class="badge-warning">En cours</span> }
+                        </td>
+                        <td class="text-right">
+                            @if (r.Statut == RopnStatus.EnCours)
+                            {
+                                <form asp-controller="Dispatch" asp-action="ResolveRopnEntry" method="post" class="flex min-w-[260px] items-center gap-2">
+                                    <input type="hidden" name="ropnEntryId" value="@r.Id" />
+                                    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                                    <input type="hidden" name="shift" value="@Model.SelectedShift" />
+                                    <input type="datetime-local" name="dateFinUtc" class="input-field py-1 text-xs" />
+                                    <input name="actionRealisee" class="input-field py-1 text-xs" placeholder="Action" />
+                                    <button type="submit" class="btn-link whitespace-nowrap">Résoudre</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @await Html.PartialAsync("_Pagination", PaginationViewModel.For(Model.RopnEntries, "ropnPage"))
+
+    <form asp-controller="Dispatch" asp-action="AddRopnEntry" method="post"
+          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-6">
+        <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="shift" value="@Model.SelectedShift" />
+        <div><label class="field-label">Nom</label><input name="Nom" required class="input-field" /></div>
+        <div><label class="field-label">Rôle</label><input name="Role" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" value="@defaultDateTime" class="input-field" /></div>
+        <div><label class="field-label">Fin</label><input type="datetime-local" name="DateFinUtc" class="input-field" /></div>
+        <div class="lg:col-span-2"><label class="field-label">Difficulté rencontrée</label><input name="DifficulteRencontree" required class="input-field" /></div>
+        <div class="flex items-end lg:col-span-6"><button type="submit" class="btn-primary">Ajouter</button></div>
+    </form>
+</section>
+'@
+
+$content = Replace-Between $content `
+    '<!-- ============ ROPN (§6.5) ============ -->' `
+    '@section Scripts {' `
+    $ropn
+
+$scripts = @'
+@section Scripts {
+    <script nonce="@Context.GetOrCreateCspNonce()">
+        (function () {
+            var tabs = document.querySelectorAll('#stsTabs .tab-btn');
+            tabs.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    tabs.forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.sts-panel').forEach(function (p) { p.classList.add('hidden'); });
+                    var panel = document.getElementById('tab-' + btn.dataset.tab);
+                    if (panel) { panel.classList.remove('hidden'); }
+                });
+            });
+
+            document.querySelectorAll('.js-gantry-status-select').forEach(function (select) {
+                function toggleBreakdownFields() {
+                    var fields = select.closest('form').querySelector('.js-gantry-breakdown-fields');
+                    if (fields) { fields.classList.toggle('hidden', select.value !== '2'); }
+                }
+                select.addEventListener('change', toggleBreakdownFields);
+                toggleBreakdownFields();
+            });
+
+            var draggedGantryId = null;
+            document.querySelectorAll('.js-gantry-card[draggable="true"]').forEach(function (card) {
+                card.addEventListener('dragstart', function () {
+                    draggedGantryId = card.dataset.gantryId;
+                    card.classList.add('opacity-60');
+                });
+                card.addEventListener('dragend', function () {
+                    card.classList.remove('opacity-60');
+                });
+            });
+
+            document.querySelectorAll('.js-vessel-dropzone').forEach(function (row) {
+                row.addEventListener('dragover', function (event) {
+                    event.preventDefault();
+                    row.classList.add('bg-cyan-50');
+                });
+                row.addEventListener('dragleave', function () {
+                    row.classList.remove('bg-cyan-50');
+                });
+                row.addEventListener('drop', function (event) {
+                    event.preventDefault();
+                    row.classList.remove('bg-cyan-50');
+                    if (!draggedGantryId) { return; }
+                    var form = document.getElementById('stsDragAssignForm');
+                    form.querySelector('[name="GantryId"]').value = draggedGantryId;
+                    form.querySelector('[name="EscaleId"]').value = row.dataset.escaleId;
+                    form.submit();
+                });
+            });
+        })();
+    </script>
+}
+'@
+
+$scriptStart = $content.IndexOf('@section Scripts {', [StringComparison]::Ordinal)
+if ($scriptStart -lt 0) { throw 'Section Scripts introuvable.' }
+$content = $content.Substring(0, $scriptStart) + $scripts + "`n"
+
+[IO.File]::WriteAllText($path, $content, [Text.UTF8Encoding]::new($false))
+Write-Output 'Vue STS vague 4 mise à jour.'

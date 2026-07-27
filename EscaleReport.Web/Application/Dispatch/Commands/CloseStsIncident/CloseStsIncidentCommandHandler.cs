@@ -26,7 +26,7 @@ public class CloseStsIncidentCommandHandler(
             return;
         }
 
-        incident.Cloturer(request.ConditionsReprise);
+        incident.Cloturer(request.ConditionsReprise, request.DateFinUtc);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -7,6 +7,8 @@ public class ProfileViewModel
     public string UserName { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public IReadOnlyList<string> DispatchPosts { get; set; } = [];
+    public IReadOnlyList<string> AvailableTeams { get; set; } = [];
+    public IReadOnlyList<TeamHistoryViewModel> TeamHistory { get; set; } = [];
 
     public UpdateProfileViewModel UpdateProfile { get; set; } = new();
     public ChangePasswordViewModel ChangePassword { get; set; } = new();

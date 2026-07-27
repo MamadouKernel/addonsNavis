@@ -12,6 +12,7 @@ public class YardPlannerDashboardDto
     public PagedResult<HousekeepingTaskDto> HousekeepingTasks { get; set; } = new();
     public IReadOnlyList<EscaleYardOptionDto> EscalesDisponibles { get; set; } = [];
     public IReadOnlyList<string> ZonesDisponibles { get; set; } = [];
+    public IReadOnlyList<string> BaysDisponibles { get; set; } = [];
 
     // Comptes pour les pastilles d'onglet, calculés sur l'ensemble des enregistrements.
     public int TransfertsEnCoursCount { get; set; }

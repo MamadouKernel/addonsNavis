@@ -26,7 +26,7 @@ public class ResolveRopnEntryCommandHandler(
             return;
         }
 
-        entry.Resoudre(request.ActionRealisee);
+        entry.Resoudre(request.ActionRealisee, request.DateFinUtc);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

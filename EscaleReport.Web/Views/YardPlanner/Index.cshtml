@@ -106,8 +106,8 @@
                         <th>Navire</th>
                         <th class="hidden md:table-cell">Service maritime</th>
                         <th>Zone</th>
-                        <th>Reefers imp.</th>
-                        <th>Reefers exp.</th>
+                        <th><span class="inline-flex items-center gap-2"><partial name="_CargoTypeIcon" model='"reefer"' /> Reefers imp.</span></th>
+                        <th><span class="inline-flex items-center gap-2"><partial name="_CargoTypeIcon" model='"reefer"' /> Reefers exp.</span></th>
                         <th class="hidden lg:table-cell">Transbordement</th>
                         <th class="hidden lg:table-cell">Observations</th>
                         <th></th>
@@ -129,13 +129,15 @@
                         <td class="hidden lg:table-cell">@p.ConteneursTransbordement</td>
                         <td class="hidden lg:table-cell">@p.Observations</td>
                         <td class="text-right">
-                            <form asp-controller="YardPlanner" asp-action="UpdateVesselYardPlan" method="post" class="inline-flex items-center gap-1">
+                            <form asp-controller="YardPlanner" asp-action="UpdateVesselYardPlan" method="post" class="table-inline-editor">
                                 <input type="hidden" name="Id" value="@p.Id" />
-                                <input type="number" name="ReefersImport" value="@p.ReefersImport" min="0" class="input-field w-16 py-1 text-xs" title="Reefers import" />
-                                <input type="number" name="ReefersExport" value="@p.ReefersExport" min="0" class="input-field w-16 py-1 text-xs" title="Reefers export" />
-                                <input type="number" name="ConteneursTransbordement" value="@p.ConteneursTransbordement" min="0" class="input-field w-16 py-1 text-xs" title="Transbordement" />
+                                <input type="number" name="ReefersImport" value="@p.ReefersImport" min="0" class="input-field py-1 text-xs" aria-label="Reefers import" title="Reefers import" />
+                                <input type="number" name="ReefersExport" value="@p.ReefersExport" min="0" class="input-field py-1 text-xs" aria-label="Reefers export" title="Reefers export" />
+                                <input type="number" name="ConteneursTransbordement" value="@p.ConteneursTransbordement" min="0" class="input-field py-1 text-xs" aria-label="Transbordement" title="Transbordement" />
                                 <input type="hidden" name="Observations" value="@p.Observations" />
-                                <button type="submit" class="btn-link whitespace-nowrap">Mettre à jour</button>
+                                <button type="submit" class="icon-action success" aria-label="Mettre à jour le plan de @p.Navire" title="Mettre à jour">
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                                </button>
                             </form>
                         </td>
                     </tr>
@@ -158,7 +160,8 @@
     }
 
     <form asp-controller="YardPlanner" asp-action="AddVesselYardPlan" method="post"
-          class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-4">
+          class="form-panel grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="form-panel-heading"><div><h3>Nouveau plan de parc</h3><p>Sélectionnez les valeurs disponibles et renseignez uniquement les volumes.</p></div><span class="badge-info">Planification</span></div>
         <div>
             <label class="field-label">Navire</label>
             <select name="EscaleId" class="input-field">
@@ -168,7 +171,7 @@
                 }
             </select>
         </div>
-        <div><label class="field-label">Service maritime</label><input name="ServiceMaritime" required class="input-field" /></div>
+        <input type="hidden" name="ServiceMaritime" value="Automatique" />
         <div>
             <label class="field-label">Zone de débarquement</label>
             <select id="zoneDebarquementSelect" name="ZoneDebarquement" class="input-field">
@@ -178,13 +181,11 @@
                 }
             </select>
         </div>
-        <div class="flex items-end">
-            <button type="submit" class="btn-primary w-full">Ajouter</button>
-        </div>
-        <div><label class="field-label">Reefers import</label><input type="number" name="ReefersImport" min="0" value="0" class="input-field" /></div>
-        <div><label class="field-label">Reefers export</label><input type="number" name="ReefersExport" min="0" value="0" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"reefer"' /><span><b>Reefers import</b><small>Conteneurs frigorifiques</small></span></label><input type="number" name="ReefersImport" min="0" value="0" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"reefer"' /><span><b>Reefers export</b><small>Conteneurs frigorifiques</small></span></label><input type="number" name="ReefersExport" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Conteneurs transbordement</label><input type="number" name="ConteneursTransbordement" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Observations</label><input name="Observations" class="input-field" /></div>
+        <div class="form-panel-actions"><button type="submit" class="btn-primary"><span aria-hidden="true">＋</span> Ajouter le plan</button></div>
     </form>
 </section>
 
@@ -242,10 +243,10 @@
 
     <form asp-controller="YardPlanner" asp-action="AddTransfertOut" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
-        <div><label class="field-label">Bay</label><input name="Bay" required class="input-field" /></div>
+        <div><label class="field-label">Bay</label><select name="Bay" required class="input-field"><option value="">Sélectionner</option>@foreach (var bay in Model.BaysDisponibles) { <option value="@bay">@bay</option> }</select></div>
         <div><label class="field-label">Nombre de conteneurs</label><input type="number" name="NombreConteneurs" min="0" value="0" class="input-field" /></div>
         <div><label class="field-label">Détail / destination</label><input name="DetailOuDestination" class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="HeureDebut" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="HeureDebut" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /><small class="mt-1 block text-xs text-slate-400">Heure actuelle proposée</small></div>
         <div class="flex items-end">
             <button type="submit" class="btn-primary w-full">Déclarer</button>
         </div>
@@ -323,8 +324,8 @@
                 }
             </select>
         </div>
-        <div><label class="field-label">Priorité</label><input name="Priorite" placeholder="Haute / Normale / Basse" class="input-field" /></div>
-        <div><label class="field-label">Responsable</label><input name="Responsable" class="input-field" /></div>
+        <div><label class="field-label">Priorité</label><select name="Priorite" class="input-field"><option value="Normale">Normale</option><option value="Haute">Haute</option><option value="Basse">Basse</option></select></div>
+        <input type="hidden" name="Responsable" value="" />
         <div><label class="field-label">Date prévue</label><input type="datetime-local" name="DatePrevue" class="input-field" /></div>
         <div class="flex items-end">
             <button type="submit" class="btn-primary w-full">Ajouter</button>

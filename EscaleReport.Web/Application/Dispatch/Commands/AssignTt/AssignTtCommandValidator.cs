@@ -14,6 +14,24 @@ public class AssignTtCommandValidator : AbstractValidator<AssignTtCommand>
 
         RuleFor(x => x.NombrePrevu).GreaterThanOrEqualTo(0);
         RuleFor(x => x.NombreAffecte).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.NombreOperationnel).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.NombreOperationnel)
+            .GreaterThanOrEqualTo(0)
+            .LessThanOrEqualTo(x => x.NombreAffecte)
+            .WithMessage("Le nombre opérationnel ne peut pas dépasser le nombre affecté.");
+
+        RuleFor(x => x.Observations)
+            .MaximumLength(1000)
+            .Must(BeSafeForSpreadsheetExport)
+            .WithMessage("L'observation ne peut pas commencer par =, +, - ou @.");
+    }
+
+    private static bool BeSafeForSpreadsheetExport(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        return value.TrimStart()[0] is not ('=' or '+' or '-' or '@');
     }
 }

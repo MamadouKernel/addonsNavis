@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Application.Settings.Commands.AddGantry;
 using EscaleReport.Web.Application.Settings.Commands.AddReferenceValue;
 using EscaleReport.Web.Application.Settings.Commands.RemoveAlertThreshold;
@@ -15,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscaleReport.Web.Controllers;
 
 // Module Paramétrage de la solution (CDC §15.1).
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Administration)]
 public class ParametrageController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)

@@ -10,7 +10,8 @@ public class DispatchStsDto
     public IReadOnlyList<EscaleOptionDto> EscalesDisponibles { get; set; } = [];
 
     public PagedResult<StsIncidentDto> Incidents { get; set; } = new();
-    public IReadOnlyList<string> TypesIncidentDisponibles { get; set; } = [];
+    public IReadOnlyList<string> TypesPannePortiqueDisponibles { get; set; } = [];
+    public IReadOnlyList<string> TypesIncidentNavireDisponibles { get; set; } = [];
 
     public PagedResult<StsPointeurDto> Pointeurs { get; set; } = new();
     public PagedResult<RopnEntryDto> RopnEntries { get; set; } = new();
@@ -36,4 +37,5 @@ public class NavireDuShiftDto
     public DateTime Eta { get; set; }
     public string? Shift { get; set; }
     public bool EnCours { get; set; }
+    public int NombreTracteurs { get; set; }
 }

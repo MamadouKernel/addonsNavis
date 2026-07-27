@@ -38,10 +38,12 @@ public static class DbSeeder
         await SeedLignesMaritimesAsync(dbContext);
         await SeedBaysAsync(dbContext);
         await SeedEmailTemplatesAsync(dbContext);
+        await RecipeDataSeeder.SeedAsync(dbContext);
 
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         if (await userManager.Users.AnyAsync())
         {
+            await SeedConfiguredItAdminAsync(userManager, dbContext, logger, configuration);
             return; // des comptes existent déjà, on ne touche à rien.
         }
 
@@ -144,6 +146,39 @@ public static class DbSeeder
                 Permissions.ValiderRapport,
                 Permissions.ConsulterStatistiques
             ]);
+
+        await SeedConfiguredItAdminAsync(userManager, dbContext, logger, configuration);
+    }
+
+    private static async Task SeedConfiguredItAdminAsync(
+        UserManager<ApplicationUser> userManager, IApplicationDbContext dbContext,
+        ILogger logger, IConfiguration configuration)
+    {
+        var email = configuration["SeedItAdmin:Email"];
+        var password = configuration["SeedItAdmin:Password"];
+        var userName = configuration["SeedItAdmin:UserName"] ?? "itadmin";
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) return;
+
+        var enableTwoFactor = configuration.GetValue("Security:RequireItAdminMfa", true);
+        var existing = await userManager.FindByNameAsync(userName);
+        if (existing is not null)
+        {
+            if (!enableTwoFactor)
+            {
+                existing.Email = email;
+                existing.EmailConfirmed = true;
+                existing.TwoFactorEnabled = false;
+                await userManager.UpdateAsync(existing);
+                if (!await userManager.IsInRoleAsync(existing, Roles.AdministrateurIT))
+                    await userManager.AddToRoleAsync(existing, Roles.AdministrateurIT);
+                var resetToken = await userManager.GeneratePasswordResetTokenAsync(existing);
+                await userManager.ResetPasswordAsync(existing, resetToken, password);
+            }
+            return;
+        }
+
+        await SeedUserAsync(userManager, dbContext, logger, configuration,
+            "SeedItAdmin", userName, Roles.AdministrateurIT, [], email: email, enableTwoFactor: enableTwoFactor);
     }
 
     private static async Task SeedAnomalyReasonsAsync(IApplicationDbContext dbContext)
@@ -365,7 +400,9 @@ public static class DbSeeder
         string defaultUserName,
         string role,
         IReadOnlyList<string> permissions,
-        string? poste = null)
+        string? poste = null,
+        string? email = null,
+        bool enableTwoFactor = false)
     {
         var userName = configuration[$"{configKeyPrefix}:UserName"] ?? defaultUserName;
         var password = configuration[$"{configKeyPrefix}:Password"];
@@ -382,8 +419,9 @@ public static class DbSeeder
         var user = new ApplicationUser
         {
             UserName = userName,
-            Email = $"{userName}@escalereport.local",
+            Email = email ?? $"{userName}@escalereport.local",
             EmailConfirmed = true,
+            TwoFactorEnabled = enableTwoFactor,
             IsActive = true,
             PosteParDefaut = poste
         };
@@ -446,3 +484,4 @@ public static class DbSeeder
         return new string(chars);
     }
 }
+

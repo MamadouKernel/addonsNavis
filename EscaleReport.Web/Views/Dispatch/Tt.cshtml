@@ -201,7 +201,7 @@
     <form asp-controller="Dispatch" asp-action="AddTtDeconnexion" method="post"
           class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-5">
         <div><label class="field-label">N° TT</label><input name="NumeroTt" required class="input-field" /></div>
-        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" class="input-field" /></div>
+        <div><label class="field-label">Début</label><input type="datetime-local" name="DateDebutUtc" value="@DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm")" class="input-field" /></div>
         <div class="sm:col-span-2"><label class="field-label">Raison</label><input name="Raison" class="input-field" /></div>
         <div class="flex items-end gap-3">
             <label class="flex items-center gap-2 text-sm font-medium text-slate-700">

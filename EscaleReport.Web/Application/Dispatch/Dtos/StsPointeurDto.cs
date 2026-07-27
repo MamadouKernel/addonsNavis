@@ -11,6 +11,7 @@ public class StsPointeurDto
     public DateTime HeurePriseDePosteUtc { get; set; }
     public DateTime? HeureFinUtc { get; set; }
     public string? Remarque { get; set; }
+    public TimeSpan? Duree { get; set; }
 
     public static StsPointeurDto FromEntity(StsPointeur p) => new()
     {
@@ -20,6 +21,7 @@ public class StsPointeurDto
         NavireOuZone = p.NavireOuZone,
         HeurePriseDePosteUtc = p.HeurePriseDePosteUtc,
         HeureFinUtc = p.HeureFinUtc,
-        Remarque = p.Remarque
+        Remarque = p.Remarque,
+        Duree = p.Duree
     };
 }

@@ -20,6 +20,9 @@ public class AssignGantryCommandValidator : AbstractValidator<AssignGantryComman
                 RuleFor(x => x.GantryId)
                     .MustAsync(GantryIsFreeAsync)
                     .WithMessage("Ce portique est déjà affecté à un navire en cours.");
+                RuleFor(x => x.GantryId)
+                    .MustAsync(GantryIsAvailableAsync)
+                    .WithMessage("Un portique en panne, en maintenance ou déjà affecté ne peut pas être affecté.");
             });
 
         RuleFor(x => x.EscaleId)
@@ -29,6 +32,11 @@ public class AssignGantryCommandValidator : AbstractValidator<AssignGantryComman
 
     private Task<bool> GantryExistsAsync(Guid gantryId, CancellationToken cancellationToken) =>
         _dbContext.Gantries.AnyAsync(g => g.Id == gantryId, cancellationToken);
+
+    private Task<bool> GantryIsAvailableAsync(Guid gantryId, CancellationToken cancellationToken) =>
+        _dbContext.Gantries.AnyAsync(
+            g => g.Id == gantryId && g.Statut == GantryStatus.Disponible,
+            cancellationToken);
 
     // Exclusivité de l'affectation : un portique physique ne peut travailler qu'un seul
     // navire à la fois — contrainte métier propre à ce pattern d'allocation de ressource.

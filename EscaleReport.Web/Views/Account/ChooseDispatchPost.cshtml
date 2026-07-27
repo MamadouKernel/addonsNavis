@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "Poste du jour";
+    var currentPost = ViewBag.CurrentPost as string;
+    var posts = new[]
+    {
+        (Value: "STS", Label: "STS", Description: "Portiques et opérations navire"),
+        (Value: "TT", Label: "TT", Description: "Tracteurs et affectations"),
+        (Value: "RTG", Label: "RTG", Description: "Parc RTG, pannes et Gate"),
+        (Value: "Autres engins", Label: "Autres engins", Description: "Effectifs, pannes et remplacements")
+    };
+}
+
+<div class="mx-auto max-w-4xl">
+    <div class="mb-8 text-center">
+        <h1 class="page-title">Choisissez votre poste du jour</h1>
+        <p class="page-subtitle">Vous pourrez changer de poste à tout moment sans vous déconnecter.</p>
+    </div>
+
+    <div asp-validation-summary="All" class="alert-error mb-5"></div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        @foreach (var post in posts)
+        {
+            var active = string.Equals(currentPost, post.Value, StringComparison.Ordinal);
+            <form asp-controller="Account" asp-action="ChooseDispatchPost" method="post" class="card">
+                <input type="hidden" name="poste" value="@post.Value" />
+                <div class="mb-4 flex items-start justify-between gap-3">
+                    <div>
+                        <h2 class="card-title">@post.Label</h2>
+                        <p class="card-subtitle">@post.Description</p>
+                    </div>
+                    @if (active)
+                    {
+                        <span class="badge-brand">Poste actuel</span>
+                    }
+                </div>
+                <button type="submit" class="btn-primary w-full">
+                    @(active ? "Continuer sur ce poste" : "Choisir ce poste")
+                </button>
+            </form>
+        }
+    </div>
+</div>

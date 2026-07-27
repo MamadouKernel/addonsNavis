@@ -9,4 +9,15 @@ public abstract class BaseAuditableEntity
 
     public DateTime UpdatedAtUtc { get; set; }
     public string? UpdatedBy { get; set; }
+
+    // Métadonnées transversales communes à tous les enregistrements métier.
+    public string DataSource { get; set; } = "Manual";
+    public string LifecycleStatus { get; set; } = "Active";
+    public long Version { get; set; } = 1;
+
+    // Suppression logique globale : les données restent récupérables et auditables.
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
+    public string? DeletedBy { get; set; }
+    public string? DeletionReason { get; set; }
 }

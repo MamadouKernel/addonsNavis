@@ -24,7 +24,11 @@ public class AddStsIncidentCommandHandler(
             EscaleId = request.EscaleId,
             GantryId = request.GantryId,
             TypeIncident = request.TypeIncident,
-            DateDebutUtc = request.DateDebutUtc,
+            DateDebutUtc = request.DateDebutUtc == default ? DateTime.UtcNow : request.DateDebutUtc,
+            DateFinUtc = request.DateFinUtc.HasValue &&
+                request.DateFinUtc.Value >= (request.DateDebutUtc == default ? DateTime.UtcNow : request.DateDebutUtc)
+                    ? request.DateFinUtc
+                    : null,
             Cause = request.Cause,
             RetirePortiqueEffectif = request.RetirePortiqueEffectif
         };

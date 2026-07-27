@@ -27,7 +27,7 @@ public class EndGantryAssignmentCommandHandler(
             return;
         }
 
-        assignment.Terminer();
+        assignment.Terminer(request.HeureFin);
 
         var gantry = await dbContext.Gantries.FirstOrDefaultAsync(g => g.Id == assignment.GantryId, cancellationToken);
         gantry?.ChangerStatut(GantryStatus.Disponible);

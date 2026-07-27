@@ -18,9 +18,30 @@ public class StsIncident : BaseAuditableEntity
     public TimeSpan? Duree => DateFinUtc.HasValue ? DateFinUtc.Value - DateDebutUtc : null;
     public bool EstResolu => DateFinUtc.HasValue;
 
-    public void Cloturer(string? conditionsReprise)
+    public void MettreAJour(
+        Guid escaleId,
+        Guid? gantryId,
+        string typeIncident,
+        DateTime dateDebutUtc,
+        DateTime? dateFinUtc,
+        string? cause,
+        string? conditionsReprise,
+        bool retirePortiqueEffectif)
     {
-        DateFinUtc = DateTime.UtcNow;
+        EscaleId = escaleId;
+        GantryId = gantryId;
+        TypeIncident = typeIncident.Trim();
+        DateDebutUtc = dateDebutUtc;
+        DateFinUtc = dateFinUtc.HasValue && dateFinUtc.Value >= dateDebutUtc ? dateFinUtc : null;
+        Cause = cause;
+        ConditionsReprise = conditionsReprise;
+        RetirePortiqueEffectif = retirePortiqueEffectif;
+    }
+
+    public void Cloturer(string? conditionsReprise, DateTime? dateFinUtc = null)
+    {
+        var fin = dateFinUtc ?? DateTime.UtcNow;
+        DateFinUtc = fin < DateDebutUtc ? DateDebutUtc : fin;
         if (!string.IsNullOrWhiteSpace(conditionsReprise))
         {
             ConditionsReprise = conditionsReprise;

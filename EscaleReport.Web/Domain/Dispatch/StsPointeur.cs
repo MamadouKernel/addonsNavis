@@ -11,9 +11,11 @@ public class StsPointeur : BaseAuditableEntity
     public DateTime HeurePriseDePosteUtc { get; set; }
     public DateTime? HeureFinUtc { get; set; }
     public string? Remarque { get; set; }
+    public TimeSpan? Duree => HeureFinUtc.HasValue ? HeureFinUtc.Value - HeurePriseDePosteUtc : null;
 
-    public void TerminerService()
+    public void TerminerService(DateTime? heureFinUtc = null)
     {
-        HeureFinUtc = DateTime.UtcNow;
+        var fin = heureFinUtc ?? DateTime.UtcNow;
+        HeureFinUtc = fin < HeurePriseDePosteUtc ? HeurePriseDePosteUtc : fin;
     }
 }

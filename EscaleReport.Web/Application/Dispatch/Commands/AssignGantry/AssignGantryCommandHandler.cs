@@ -24,13 +24,17 @@ public class AssignGantryCommandHandler(
         {
             GantryId = request.GantryId,
             EscaleId = request.EscaleId,
-            HeureDebut = request.HeureDebut,
+            HeureDebut = request.HeureDebut ?? DateTime.UtcNow,
             TacheOuZone = request.TacheOuZone
         };
         dbContext.GantryAssignments.Add(assignment);
 
         // Le statut du portique reflète l'affectation en cours (CDC §6.2).
         var gantry = await dbContext.Gantries.FirstAsync(g => g.Id == request.GantryId, cancellationToken);
+        if (gantry.Statut != GantryStatus.Disponible)
+        {
+            return Guid.Empty;
+        }
         gantry.ChangerStatut(GantryStatus.Affecte);
 
         await dbContext.SaveChangesAsync(cancellationToken);

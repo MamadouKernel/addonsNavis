@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = Model.Escale.Navire;
     var c = Model.Consommation;
+    var viewMode = ViewData["CargoViewMode"] as string ?? "operations";
+    var isAdmin = ViewData["IsCargoAdmin"] as bool? ?? false;
+    var movementTotal = c.DischTotal + c.LoadTotal;
+    var dischargeShare = movementTotal == 0 ? 0 : (int)Math.Round(c.DischTotal * 100d / movementTotal);
 }
 
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4 sm:mb-8">
@@ -16,7 +20,23 @@
     </a>
 </div>
 
+@if (isAdmin)
+{
+    <section class="cargo-view-switcher mb-6" aria-label="Choisir la présentation Cargo">
+        <div>
+            <span class="cargo-view-eyebrow">Vue administrateur</span>
+            <strong>Adapter l'écran au métier observé</strong>
+        </div>
+        <div class="cargo-view-options" role="group" aria-label="Modes d'affichage">
+            <a asp-action="Detail" asp-route-id="@Model.Escale.Id" asp-route-affichage="operations" class="cargo-view-option @(viewMode == "operations" ? "active" : "")">Opérations</a>
+            <a asp-action="Detail" asp-route-id="@Model.Escale.Id" asp-route-affichage="planning" class="cargo-view-option @(viewMode == "planning" ? "active" : "")">Planification</a>
+            <a asp-action="Detail" asp-route-id="@Model.Escale.Id" asp-route-affichage="supervision" class="cargo-view-option @(viewMode == "supervision" ? "active" : "")">Supervision</a>
+        </div>
+    </section>
+}
 
+@if (viewMode == "operations")
+{
 <form asp-action="UpdateConsommation" method="post" class="card mb-8">
     <input type="hidden" name="EscaleId" value="@Model.Escale.Id" />
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -35,14 +55,14 @@
     </div>
 
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        <div><label class="field-label">Hazard</label><input name="DischHazard" type="number" min="0" value="@c.DischHazard" class="input-field" /></div>
-        <div><label class="field-label">Reefer</label><input name="DischReefer" type="number" min="0" value="@c.DischReefer" class="input-field" /></div>
-        <div><label class="field-label">OOG</label><input name="DischOog" type="number" min="0" value="@c.DischOog" class="input-field" /></div>
-        <div><label class="field-label">20 pieds</label><input name="Disch20Pieds" type="number" min="0" value="@c.Disch20Pieds" class="input-field" /></div>
-        <div><label class="field-label">40 pieds</label><input name="Disch40Pieds" type="number" min="0" value="@c.Disch40Pieds" class="input-field" /></div>
-        <div><label class="field-label">Import</label><input name="DischImport" type="number" min="0" value="@c.DischImport" class="input-field" /></div>
-        <div><label class="field-label">Restow</label><input name="DischRestow" type="number" min="0" value="@c.DischRestow" class="input-field" /></div>
-        <div><label class="field-label">Transhipment</label><input name="DischTranshipment" type="number" min="0" value="@c.DischTranshipment" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"hazard"' /><span><b>Dangereux</b><small>Hazard</small></span></label><input aria-label="Nombre de conteneurs dangereux" name="DischHazard" type="number" min="0" value="@c.DischHazard" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"reefer"' /><span><b>Frigorifique</b><small>Reefer</small></span></label><input aria-label="Nombre de conteneurs frigorifiques" name="DischReefer" type="number" min="0" value="@c.DischReefer" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"oog"' /><span><b>Hors gabarit</b><small>OOG</small></span></label><input aria-label="Nombre de conteneurs hors gabarit" name="DischOog" type="number" min="0" value="@c.DischOog" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"20ft"' /><span><b>20 pieds</b><small>Conteneur court</small></span></label><input aria-label="Nombre de conteneurs 20 pieds" name="Disch20Pieds" type="number" min="0" value="@c.Disch20Pieds" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"40ft"' /><span><b>40 pieds</b><small>Conteneur long</small></span></label><input aria-label="Nombre de conteneurs 40 pieds" name="Disch40Pieds" type="number" min="0" value="@c.Disch40Pieds" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"import"' /><span><b>Import</b><small>Flux entrant</small></span></label><input aria-label="Nombre de conteneurs import" name="DischImport" type="number" min="0" value="@c.DischImport" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"restow"' /><span><b>Restow</b><small>Repositionnement</small></span></label><input aria-label="Nombre de conteneurs restow" name="DischRestow" type="number" min="0" value="@c.DischRestow" class="input-field" /></div>
+        <div class="cargo-type-field"><label><partial name="_CargoTypeIcon" model='"transhipment"' /><span><b>Transbordement</b><small>Transhipment</small></span></label><input aria-label="Nombre de conteneurs en transbordement" name="DischTranshipment" type="number" min="0" value="@c.DischTranshipment" class="input-field" /></div>
     </div>
 
     <label class="mt-5 flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -81,6 +101,52 @@
         <button type="submit" class="btn-primary">Enregistrer</button>
     </div>
 </form>
+}
+else if (viewMode == "planning")
+{
+    <section class="cargo-planning-grid mb-8">
+        <article class="cargo-flow-card discharge">
+            <div class="cargo-flow-heading">
+                <div><span class="cargo-flow-kicker">Flux entrant</span><h2>Débarquement</h2></div>
+                <strong>@c.DischTotal</strong>
+            </div>
+            <div class="cargo-metric-grid">
+                <div><span><partial name="_CargoTypeIcon" model='"import"' /> Import</span><b>@c.DischImport</b></div><div><span><partial name="_CargoTypeIcon" model='"transhipment"' /> Transbordement</span><b>@c.DischTranshipment</b></div>
+                <div><span><partial name="_CargoTypeIcon" model='"restow"' /> Restow</span><b>@c.DischRestow</b></div><div><span><partial name="_CargoTypeIcon" model='"20ft"' /> 20 pieds</span><b>@c.Disch20Pieds</b></div>
+                <div><span><partial name="_CargoTypeIcon" model='"40ft"' /> 40 pieds</span><b>@c.Disch40Pieds</b></div><div><span><partial name="_CargoTypeIcon" model='"hazard"' /> Spéciaux</span><b>@(c.DischHazard + c.DischReefer + c.DischOog)</b></div>
+            </div>
+            <span class="@(c.DischRealisee ? "badge-success" : "badge-warning")">@(c.DischRealisee ? "Flux confirmé" : "À finaliser")</span>
+        </article>
+        <article class="cargo-flow-card loading">
+            <div class="cargo-flow-heading">
+                <div><span class="cargo-flow-kicker">Flux sortant</span><h2>Embarquement</h2></div>
+                <strong>@c.LoadTotal</strong>
+            </div>
+            <div class="cargo-metric-grid two">
+                <div><span>Disponibles au yard</span><b>@c.LoadYard</b></div>
+                <div><span>En communication</span><b>@c.LoadEnCommunication</b></div>
+            </div>
+            <div class="cargo-progress" aria-label="Part de débarquement : @dischargeShare %"><span style="width:@dischargeShare%"></span></div>
+            <span class="@(c.LoadRealisee ? "badge-success" : "badge-warning")">@(c.LoadRealisee ? "Flux confirmé" : "À finaliser")</span>
+        </article>
+    </section>
+}
+else
+{
+    <section class="cargo-command mb-8">
+        <div class="cargo-command-hero">
+            <span class="cargo-flow-kicker">Synthèse des mouvements</span>
+            <strong>@movementTotal</strong>
+            <span>conteneurs suivis</span>
+        </div>
+        <div class="cargo-command-kpis">
+            <article><span>Débarquement</span><strong>@c.DischTotal</strong><small>@(c.DischRealisee ? "Terminé" : "En cours")</small></article>
+            <article><span>Embarquement</span><strong>@c.LoadTotal</strong><small>@(c.LoadRealisee ? "Terminé" : "En cours")</small></article>
+            <article><span>Unités sensibles</span><strong>@(c.DischHazard + c.DischReefer + c.DischOog)</strong><small>Hazard · Reefer · OOG</small></article>
+            <article><span>Revised Load</span><strong>@(c.RevisedLoadRecu ? "Reçu" : "Attendu")</strong><small>État documentaire</small></article>
+        </div>
+    </section>
+}
 
 <section class="card">
     <h2 class="card-title mb-1">Revised Load</h2>

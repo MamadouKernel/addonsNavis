@@ -26,7 +26,7 @@ public class EndStsPointeurCommandHandler(
             return;
         }
 
-        pointeur.TerminerService();
+        pointeur.TerminerService(request.HeureFinUtc);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

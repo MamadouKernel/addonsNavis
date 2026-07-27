@@ -1,0 +1,134 @@
+{
+  "testedAtUtc": "2026-07-27T07:16:17.4584228Z",
+  "baseUrl": "http://127.0.0.1:5066",
+  "marker": "R5071616",
+  "results": [
+    {
+      "scenario": "TT-01",
+      "passed": true,
+      "actual": "20 total et 15 désignés restitués",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "TT-02",
+      "passed": true,
+      "actual": "TotalParc=20, Designes=15, NonDesignes=5",
+      "proof": "HTTP authentifié + persistance SQL"
+    },
+    {
+      "scenario": "TT-03",
+      "passed": true,
+      "actual": "raison persistée et visible",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "TT-08",
+      "passed": true,
+      "actual": "déconnexion ouverte signalée en cours",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "TT-07",
+      "passed": true,
+      "actual": "tracteur, début, retour automatique et motif persistés",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "TT-09",
+      "passed": true,
+      "actual": "clôture persistée et action de clôture disparue",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "RTG-01",
+      "passed": true,
+      "actual": "effectif total 10 restitué",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "RTG-02",
+      "passed": true,
+      "actual": "panne et cause visibles",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "RTG-03",
+      "passed": true,
+      "actual": "disponible 9 et retiré 1 calculés",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "RTG-04",
+      "passed": true,
+      "actual": "effectif restauré après clôture",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "RTG-05",
+      "passed": true,
+      "actual": "DATEDIFF minute = 120",
+      "proof": "HTTP authentifié + persistance SQL"
+    },
+    {
+      "scenario": "RTG-06",
+      "passed": true,
+      "actual": "clash visible après rechargement",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "RTG-07",
+      "passed": true,
+      "actual": "livraison GATE visible",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "RTG-08",
+      "passed": true,
+      "actual": "deux types proposés et distingués",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "AE-01",
+      "passed": true,
+      "actual": "trois familles persistées séparément",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "AE-02",
+      "passed": true,
+      "actual": "Engin et problème persistés avec RetireEffectif=1",
+      "proof": "HTTP authentifié + persistance SQL"
+    },
+    {
+      "scenario": "AE-03",
+      "passed": true,
+      "actual": "retrait Reach Stacker calculé séparément",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "AE-04",
+      "passed": true,
+      "actual": "déconnexion opérateur persistée",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "AE-05",
+      "passed": false,
+      "actual": "Un seul opérateur + engin quitté/nouvel engin; opérateur entrant absent",
+      "proof": "Écart de modèle constaté"
+    },
+    {
+      "scenario": "AE-06",
+      "passed": true,
+      "actual": "panne engin et absence opérateur restent distinctes",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    },
+    {
+      "scenario": "AE-07",
+      "passed": true,
+      "actual": "toutes les lignes restituées après nouvelle navigation",
+      "proof": "HTTP authentifié + HTML rendu + persistance après rechargement"
+    }
+  ],
+  "allPassed": false
+}

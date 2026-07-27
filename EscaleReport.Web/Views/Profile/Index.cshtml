@@ -16,7 +16,7 @@
     <p class="page-subtitle">Informations de votre compte et sécurité</p>
 </div>
 
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+<div class="grid grid-cols-1 gap-6">
     <section class="card">
         <h2 class="card-title mb-1">Informations du compte</h2>
         <p class="card-subtitle mb-4">L'identifiant et le rôle sont gérés par un Administrateur (page Comptes &amp; permissions).</p>
@@ -62,47 +62,32 @@
             </div>
             <div>
                 <label asp-for="UpdateProfile.Equipe" class="field-label"></label>
-                <input asp-for="UpdateProfile.Equipe" class="input-field" />
+                <select asp-for="UpdateProfile.Equipe" class="input-field">
+                    <option value="">Sans équipe</option>
+                    @foreach (var team in Model.AvailableTeams)
+                    {
+                        <option value="@team" selected="@(team == Model.UpdateProfile.Equipe)">@team</option>
+                    }
+                </select>
             </div>
             <button type="submit" class="btn-primary w-full">Enregistrer</button>
         </form>
+
+        @if (Model.TeamHistory.Any())
+        {
+            <div class="team-history mt-5">
+                <h3>Historique de mes équipes</h3>
+                <ol>
+                    @foreach (var change in Model.TeamHistory)
+                    {
+                        <li><i aria-hidden="true"></i><div><strong>@change.PreviousTeam → @change.NewTeam</strong><small>@change.DateUtc.ToString("dd/MM/yyyy HH:mm") UTC · par @change.ChangedBy</small></div></li>
+                    }
+                </ol>
+            </div>
+        }
     </section>
 
     <section class="card">
-        <h2 class="card-title mb-1">Changer le mot de passe</h2>
-        <p class="card-subtitle mb-4">Vous resterez connecté après la modification.</p>
-
-        @{ var changePasswordErrors = ErrorsFor("ChangePassword").ToList(); }
-        @if (changePasswordErrors.Count > 0)
-        {
-            <div class="alert-error mb-4">
-                <ul>
-                    @foreach (var error in changePasswordErrors)
-                    {
-                        <li>@error</li>
-                    }
-                </ul>
-            </div>
-        }
-
-        <form asp-controller="Profile" asp-action="ChangePassword" method="post" class="space-y-4">
-            <div>
-                <label asp-for="ChangePassword.CurrentPassword" class="field-label"></label>
-                <input asp-for="ChangePassword.CurrentPassword" class="input-field" />
-            </div>
-            <div>
-                <label asp-for="ChangePassword.NewPassword" class="field-label"></label>
-                <input asp-for="ChangePassword.NewPassword" class="input-field" />
-            </div>
-            <div>
-                <label asp-for="ChangePassword.ConfirmPassword" class="field-label"></label>
-                <input asp-for="ChangePassword.ConfirmPassword" class="input-field" />
-            </div>
-            <button type="submit" class="btn-primary w-full">Mettre à jour le mot de passe</button>
-        </form>
-    </section>
-
-    <section class="card lg:col-span-2">
         <h2 class="card-title mb-1">Apparence</h2>
         <p class="card-subtitle mb-4">Choisissez la palette de couleurs de l'interface (clair et sombre s'adaptent automatiquement).</p>
 

@@ -11,6 +11,7 @@ public class GantryAssignmentDto
     public string Navire { get; set; } = string.Empty;
     public DateTime HeureDebut { get; set; }
     public DateTime? HeureFin { get; set; }
+    public TimeSpan? Duree { get; set; }
     public string? TacheOuZone { get; set; }
     public AssignmentStatus Statut { get; set; }
 }

@@ -11,7 +11,11 @@ public class AuditLogEntryConfiguration : IEntityTypeConfiguration<AuditLogEntry
         builder.Property(a => a.Action).IsRequired().HasMaxLength(200);
         builder.Property(a => a.UserName).HasMaxLength(256);
         builder.Property(a => a.Cible).HasMaxLength(200);
+        builder.Property(a => a.EntityType).HasMaxLength(200);
+        builder.Property(a => a.EntityId).HasMaxLength(100);
+        builder.Property(a => a.ChangesJson);
         builder.HasIndex(a => a.DateUtc);
         builder.HasIndex(a => a.UserId);
+        builder.HasIndex(a => new { a.EntityType, a.EntityId });
     }
 }

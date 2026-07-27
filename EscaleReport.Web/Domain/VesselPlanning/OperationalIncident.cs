@@ -27,7 +27,8 @@ public class OperationalIncident : BaseAuditableEntity
     public void Resoudre(string? actionRealisee)
     {
         Statut = IncidentStatus.Resolu;
-        DateFinUtc = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        DateFinUtc = now < DateDebutUtc ? DateDebutUtc : now;
         if (!string.IsNullOrWhiteSpace(actionRealisee))
         {
             ActionRealisee = actionRealisee;

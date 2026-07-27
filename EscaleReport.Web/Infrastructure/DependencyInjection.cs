@@ -50,6 +50,8 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUserDirectoryService, UserDirectoryService>();
+        services.Configure<AuthenticationEmailOptions>(configuration.GetSection(AuthenticationEmailOptions.SectionName));
+        services.AddScoped<IAuthenticationEmailSender, SmtpAuthenticationEmailSender>();
         services.AddScoped<IEscalePdfReportGenerator, QuestPdfEscaleReportGenerator>();
         services.AddScoped<IEscaleExcelReportGenerator, ClosedXmlEscaleExcelReportGenerator>();
         services.AddScoped<IShiftReportPdfGenerator, QuestPdfShiftReportGenerator>();

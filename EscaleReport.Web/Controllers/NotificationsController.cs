@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using System.Text;
 using EscaleReport.Web.Application.Notifications.Queries.GetActiveAlerts;
 using MediatR;
@@ -9,7 +10,7 @@ namespace EscaleReport.Web.Controllers;
 // Notifications et alertes (CDC §16) — calculées en direct, affichées dans l'application et
 // sur le tableau de bord ; envoi par e-mail via mailto: (même principe que le rapport
 // d'escale, §14.5). Microsoft Teams explicitement hors périmètre ("sous réserve de faisabilité").
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Notifications)]
 public class NotificationsController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)

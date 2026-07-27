@@ -55,7 +55,10 @@ public class GetAuditLogQueryHandler(
                 DateUtc = a.DateUtc,
                 UserName = a.UserName,
                 Action = a.Action,
-                Cible = a.Cible
+                Cible = a.Cible,
+                EntityType = a.EntityType,
+                EntityId = a.EntityId,
+                ChangesJson = a.ChangesJson
             })
             .ToListAsync(cancellationToken);
 

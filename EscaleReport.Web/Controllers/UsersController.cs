@@ -1,6 +1,7 @@
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Audit;
+using EscaleReport.Web.Domain.Common;
 using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Infrastructure.Identity;
 using EscaleReport.Web.Models;
@@ -16,13 +17,14 @@ namespace EscaleReport.Web.Controllers;
 // poste/équipe, lui attribuer ou retirer des permissions, consulter son historique d'activité").
 // Accès direct à UserManager/RoleManager (comme AccountController) plutôt qu'un passage par
 // MediatR : ce sont des opérations natives ASP.NET Core Identity, pas des règles métier Domain.
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Administration)]
 public class UsersController(
     UserManager<ApplicationUser> userManager,
     IApplicationDbContext dbContext,
     ICurrentUserService currentUser) : Controller
 {
     private static readonly string[] DispatchPosts = ["STS", "TT", "RTG", "Autres engins"];
+    private const string TeamListKey = "Equipe";
 
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
@@ -30,6 +32,16 @@ public class UsersController(
 
         var users = await userManager.Users.OrderBy(u => u.UserName).ToListAsync(cancellationToken);
         var allPermissionRows = await dbContext.UserPermissions.AsNoTracking().ToListAsync(cancellationToken);
+        var teams = await dbContext.ReferenceValues.AsNoTracking()
+            .Where(r => r.ListKey == TeamListKey)
+            .OrderByDescending(r => r.IsActive)
+            .ThenBy(r => r.SortOrder)
+            .ThenBy(r => r.Value)
+            .ToListAsync(cancellationToken);
+        var teamHistory = await dbContext.AuditLogEntries.AsNoTracking()
+            .Where(a => a.Action.StartsWith("ChangeTeam:") && a.Cible != null)
+            .OrderByDescending(a => a.DateUtc)
+            .ToListAsync(cancellationToken);
 
         var rows = new List<UserRowViewModel>();
         foreach (var user in users)
@@ -40,6 +52,11 @@ public class UsersController(
                 Id = user.Id,
                 UserName = user.UserName ?? string.Empty,
                 Email = user.Email,
+                Matricule = user.Matricule,
+                NomComplet = string.Join(" ", new[] { user.Prenoms, user.Nom }.Where(x => !string.IsNullOrWhiteSpace(x))),
+                Fonction = user.Fonction,
+                Service = user.Service,
+                Societe = user.Societe,
                 Role = roles.FirstOrDefault(),
                 PosteParDefaut = user.PosteParDefaut,
                 Equipe = user.Equipe,
@@ -49,12 +66,25 @@ public class UsersController(
             });
         }
 
+        foreach (var row in rows)
+        {
+            row.TeamHistory = teamHistory.Where(entry => entry.Cible == row.Id.ToString())
+                .Select(ToTeamHistory).Take(10).ToList();
+        }
+
         return View(new UsersIndexViewModel
         {
             Users = rows,
             Roles = Roles.All,
             AllPermissions = Permissions.All,
-            DispatchPosts = DispatchPosts
+            DispatchPosts = DispatchPosts,
+            Teams = teams.Select(team => new TeamRowViewModel
+            {
+                Id = team.Id,
+                Name = team.Value,
+                IsActive = team.IsActive,
+                MemberCount = rows.Count(user => string.Equals(user.Equipe, team.Value, StringComparison.OrdinalIgnoreCase))
+            }).ToList()
         });
     }
 
@@ -70,14 +100,27 @@ public class UsersController(
             return RedirectToAction(nameof(Index));
         }
 
+        var normalizedTeam = await GetActiveTeamAsync(input.Equipe, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(input.Equipe) && normalizedTeam is null)
+        {
+            TempData["Error"] = "L'équipe sélectionnée n'existe pas ou n'est plus active.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var user = new ApplicationUser
         {
             UserName = input.UserName,
-            Email = $"{input.UserName}@escalereport.local",
+            Email = string.IsNullOrWhiteSpace(input.Email) ? $"{input.UserName}@escalereport.local" : input.Email.Trim(),
             EmailConfirmed = true,
+            TwoFactorEnabled = input.Role == Roles.AdministrateurIT,
+            Matricule = input.Matricule.Trim(), Nom = input.Nom.Trim(), Prenoms = input.Prenoms.Trim(),
+            PhoneNumber = input.PhoneNumber?.Trim(), Fonction = input.Fonction.Trim(), Service = input.Service.Trim(),
+            Societe = input.Societe?.Trim(), SiteAffectation = input.SiteAffectation?.Trim(),
+            ResponsableHierarchique = input.ResponsableHierarchique?.Trim(), DateEntree = input.DateEntree,
+            DateExpirationCompteUtc = input.DateExpirationCompteUtc,
             IsActive = true,
             PosteParDefaut = string.IsNullOrWhiteSpace(input.PosteParDefaut) ? null : input.PosteParDefaut,
-            Equipe = string.IsNullOrWhiteSpace(input.Equipe) ? null : input.Equipe
+            Equipe = normalizedTeam
         };
 
         var result = await userManager.CreateAsync(user, input.Password);
@@ -177,12 +220,76 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is not null)
         {
+            var previousTeam = user.Equipe;
+            var normalizedTeam = string.Equals(user.Equipe, equipe?.Trim(), StringComparison.OrdinalIgnoreCase)
+                ? user.Equipe
+                : await GetActiveTeamAsync(equipe, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(equipe) && normalizedTeam is null)
+            {
+                TempData["Error"] = "L'équipe sélectionnée n'existe pas ou n'est plus active.";
+                return RedirectToAction(nameof(Index));
+            }
             user.PosteParDefaut = string.IsNullOrWhiteSpace(posteParDefaut) ? null : posteParDefaut;
-            user.Equipe = string.IsNullOrWhiteSpace(equipe) ? null : equipe;
+            user.Equipe = normalizedTeam;
             await userManager.UpdateAsync(user);
+            if (!string.Equals(previousTeam, user.Equipe, StringComparison.OrdinalIgnoreCase))
+            {
+                await LogAuditAsync($"ChangeTeam:{TeamLabel(previousTeam)}→{TeamLabel(user.Equipe)}", id.ToString(), cancellationToken);
+            }
             await LogAuditAsync("UpdateUserProfile", id.ToString(), cancellationToken);
         }
 
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateTeam(string name, CancellationToken cancellationToken)
+    {
+        EnsureAdmin();
+        var normalized = name?.Trim() ?? string.Empty;
+        if (normalized.Length is < 2 or > 80)
+        {
+            TempData["Error"] = "Le nom de l'équipe doit contenir entre 2 et 80 caractères.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var exists = await dbContext.ReferenceValues.AnyAsync(
+            r => r.ListKey == TeamListKey && r.Value.ToLower() == normalized.ToLower(), cancellationToken);
+        if (exists)
+        {
+            TempData["Error"] = "Cette équipe existe déjà.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var sortOrder = await dbContext.ReferenceValues.Where(r => r.ListKey == TeamListKey)
+            .Select(r => (int?)r.SortOrder).MaxAsync(cancellationToken) ?? -1;
+        dbContext.ReferenceValues.Add(new ReferenceValue
+        {
+            ListKey = TeamListKey,
+            Value = normalized,
+            SortOrder = sortOrder + 1,
+            IsActive = true
+        });
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await LogAuditAsync("CreateTeam:" + normalized, null, cancellationToken);
+        TempData["Success"] = $"Équipe « {normalized} » créée.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleTeam(Guid id, CancellationToken cancellationToken)
+    {
+        EnsureAdmin();
+        var team = await dbContext.ReferenceValues.FirstOrDefaultAsync(
+            r => r.Id == id && r.ListKey == TeamListKey, cancellationToken);
+        if (team is null) return RedirectToAction(nameof(Index));
+
+        team.IsActive = !team.IsActive;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await LogAuditAsync((team.IsActive ? "ActivateTeam:" : "DeactivateTeam:") + team.Value, null, cancellationToken);
+        TempData["Success"] = $"Équipe « {team.Value} » {(team.IsActive ? "activée" : "désactivée")}.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -220,6 +327,30 @@ public class UsersController(
             throw new ForbiddenAccessException(Permissions.AdministrerUtilisateurs);
         }
     }
+
+    private async Task<string?> GetActiveTeamAsync(string? requested, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(requested)) return null;
+        var normalized = requested.Trim();
+        return await dbContext.ReferenceValues.AsNoTracking()
+            .Where(r => r.ListKey == TeamListKey && r.IsActive && r.Value.ToLower() == normalized.ToLower())
+            .Select(r => r.Value)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private static TeamHistoryViewModel ToTeamHistory(AuditLogEntry entry)
+    {
+        var transition = entry.Action["ChangeTeam:".Length..].Split('→', 2);
+        return new TeamHistoryViewModel
+        {
+            DateUtc = entry.DateUtc,
+            PreviousTeam = transition.ElementAtOrDefault(0),
+            NewTeam = transition.ElementAtOrDefault(1),
+            ChangedBy = entry.UserName ?? "Système"
+        };
+    }
+
+    private static string TeamLabel(string? team) => string.IsNullOrWhiteSpace(team) ? "Sans équipe" : team;
 
     // Ces actions passent par UserManager/RoleManager en dehors du pipeline MediatR
     // (AuditLoggingBehaviour ne les voit donc pas) : la traçabilité est posée ici à la main,

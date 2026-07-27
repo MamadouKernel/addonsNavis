@@ -1,0 +1,7 @@
+@model RecycleBinViewModel
+@{ ViewData["Title"] = "Corbeille"; }
+<div class="mb-8"><h1 class="page-title">Corbeille</h1><p class="page-subtitle">Les suppressions sont réversibles et restent présentes dans l’audit.</p></div>
+<div class="table-shell"><div class="table-scroll"><table class="table-modern"><thead><tr><th>Navire</th><th>Voyage</th><th>Suppression</th><th>Par</th><th></th></tr></thead><tbody>
+@if (!Model.Escales.Any()) { <tr><td colspan="5" class="!text-center py-10 text-slate-400">Aucune escale supprimée.</td></tr> }
+@foreach (var e in Model.Escales) { <tr><td class="font-semibold">@e.Navire</td><td>@e.Voyage</td><td>@e.DeletedAtUtc?.ToString("dd/MM/yyyy HH:mm") UTC</td><td>@(e.DeletedBy ?? "Système")</td><td class="text-right"><form asp-action="RestoreEscale" method="post"><input type="hidden" name="id" value="@e.Id"/><button class="btn-secondary" type="submit">Restaurer</button></form></td></tr> }
+</tbody></table></div></div>

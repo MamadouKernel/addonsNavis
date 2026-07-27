@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Dispatch;
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Application.Common.Models;
@@ -18,6 +19,11 @@ public class GetDispatchRtgQueryHandler(
         {
             throw new ForbiddenAccessException(Permissions.ConsulterEscales);
         }
+        if (!DispatchAccessControl.CanAccessPoste(currentUser, "RTG"))
+        {
+            throw new ForbiddenAccessException(Permissions.ConsulterEscales);
+        }
+
 
         var effectif = await dbContext.RtgEffectifs.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
 
@@ -36,6 +42,8 @@ public class GetDispatchRtgQueryHandler(
                 CommentaireReprise = p.CommentaireReprise,
                 EstResolue = p.EstResolue
             }).ToListAsync(cancellationToken);
+
+        var retraitsEnCours = pannes.Count(p => p.RetireEffectif && !p.EstResolue);
 
         var clashes = await dbContext.RtgClashes
             .AsNoTracking()
@@ -101,10 +109,10 @@ public class GetDispatchRtgQueryHandler(
                 : new RtgEffectifDto
                 {
                     TotalParc = effectif.TotalParc,
-                    Disponible = effectif.Disponible,
+                    Disponible = Math.Max(0, effectif.Disponible - retraitsEnCours),
                     Affecte = effectif.Affecte,
                     EnPanne = effectif.EnPanne,
-                    Retire = effectif.Retire
+                    Retire = effectif.Retire + retraitsEnCours
                 },
             Pannes = PagedResult<RtgPanneDto>.Create(pannes, request.PannesPage),
             Clashes = PagedResult<RtgClashDto>.Create(clashes, request.ClashesPage),

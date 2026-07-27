@@ -22,7 +22,9 @@ public class AddHousekeepingTaskCommandHandler(
             Description = request.Description,
             Zone = request.Zone,
             Priorite = request.Priorite,
-            Responsable = request.Responsable,
+            Responsable = string.IsNullOrWhiteSpace(request.Responsable)
+                ? currentUser.UserName
+                : request.Responsable.Trim(),
             DatePrevue = request.DatePrevue
         };
 

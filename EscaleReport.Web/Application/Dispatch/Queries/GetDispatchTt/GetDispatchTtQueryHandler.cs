@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Dispatch;
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Application.Common.Models;
@@ -19,6 +20,11 @@ public class GetDispatchTtQueryHandler(
         {
             throw new ForbiddenAccessException(Permissions.ConsulterEscales);
         }
+        if (!DispatchAccessControl.CanAccessPoste(currentUser, "TT"))
+        {
+            throw new ForbiddenAccessException(Permissions.ConsulterEscales);
+        }
+
 
         var effectif = await dbContext.TtEffectifs.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
 

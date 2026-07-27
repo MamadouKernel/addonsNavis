@@ -97,6 +97,13 @@ public class GetYardPlannerDashboardQueryHandler(
             .Select(r => r.Value)
             .ToListAsync(cancellationToken);
 
+        var baysDisponibles = await dbContext.ReferenceValues
+            .AsNoTracking()
+            .Where(r => r.ListKey == ReferenceListKeys.Bay && r.IsActive)
+            .OrderBy(r => r.SortOrder)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+
         return new YardPlannerDashboardDto
         {
             NaviresEnCours = PagedResult<NavireEnCoursDto>.Create(naviresEnCours, request.NaviresPage),
@@ -105,6 +112,7 @@ public class GetYardPlannerDashboardQueryHandler(
             HousekeepingTasks = PagedResult<HousekeepingTaskDto>.Create(housekeepingTasks, request.HousekeepingPage),
             EscalesDisponibles = escalesDisponibles,
             ZonesDisponibles = zonesDisponibles,
+            BaysDisponibles = baysDisponibles,
             TransfertsEnCoursCount = transfertsOut.Count(t => !t.EstTermine),
             TachesEnCoursCount = housekeepingTasks.Count(t => t.Statut is HousekeepingStatus.AFaire or HousekeepingStatus.EnCours)
         };

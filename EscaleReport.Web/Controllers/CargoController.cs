@@ -1,3 +1,5 @@
+using EscaleReport.Web.Domain.Identity;
+using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Application.Cargo.Commands.MarkRevisedLoadReceived;
 using EscaleReport.Web.Application.Cargo.Commands.UpdateCargoConsommation;
 using EscaleReport.Web.Application.Cargo.Queries.GetCargoDashboard;
@@ -9,8 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscaleReport.Web.Controllers;
 
 // Module Cargo Control (CDC §10).
-[Authorize]
-public class CargoController(ISender mediator) : Controller
+[Authorize(Roles = RoleAccessGroups.Cargo)]
+public class CargoController(ISender mediator, ICurrentUserService currentUser) : Controller
 {
     public async Task<IActionResult> Index(int page = 1, CancellationToken cancellationToken = default)
     {
@@ -18,7 +20,7 @@ public class CargoController(ISender mediator) : Controller
         return View(rows);
     }
 
-    public async Task<IActionResult> Detail(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Detail(Guid id, string? affichage, CancellationToken cancellationToken)
     {
         var detail = await mediator.Send(new GetCargoDetailQuery(id), cancellationToken);
         if (detail is null)
@@ -26,6 +28,11 @@ public class CargoController(ISender mediator) : Controller
             return NotFound();
         }
 
+        var isAdmin = currentUser.IsInRole(Roles.Administrateur) || currentUser.IsInRole(Roles.AdministrateurIT);
+        ViewData["CargoViewMode"] = isAdmin && affichage is "planning" or "supervision"
+            ? affichage
+            : "operations";
+        ViewData["IsCargoAdmin"] = isAdmin;
         return View(detail);
     }
 

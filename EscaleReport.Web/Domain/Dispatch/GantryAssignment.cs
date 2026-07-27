@@ -13,10 +13,22 @@ public class GantryAssignment : BaseAuditableEntity
     public DateTime? HeureFin { get; set; }
     public string? TacheOuZone { get; set; }
     public AssignmentStatus Statut { get; set; } = AssignmentStatus.EnCours;
+    public TimeSpan? Duree => HeureFin.HasValue ? HeureFin.Value - HeureDebut : null;
 
-    public void Terminer()
+    public void CorrigerHeureDebut(DateTime heureDebut)
+    {
+        HeureDebut = heureDebut;
+        if (HeureFin.HasValue && HeureFin.Value < HeureDebut)
+        {
+            HeureFin = null;
+            Statut = AssignmentStatus.EnCours;
+        }
+    }
+
+    public void Terminer(DateTime? heureFin = null)
     {
         Statut = AssignmentStatus.Terminee;
-        HeureFin ??= DateTime.UtcNow;
+        var fin = heureFin ?? DateTime.UtcNow;
+        HeureFin = fin < HeureDebut ? HeureDebut : fin;
     }
 }

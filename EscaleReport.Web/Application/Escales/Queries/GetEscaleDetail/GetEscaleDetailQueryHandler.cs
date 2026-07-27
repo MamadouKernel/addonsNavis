@@ -8,6 +8,7 @@ using EscaleReport.Web.Application.Escales.Dtos;
 using EscaleReport.Web.Application.VesselPlanning.Dtos;
 using EscaleReport.Web.Domain.Common;
 using EscaleReport.Web.Domain.Identity;
+using EscaleReport.Web.Domain.VesselPlanning;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,12 @@ public class GetEscaleDetailQueryHandler(
             return null;
         }
 
+        var history = await dbContext.AuditLogEntries.AsNoTracking()
+            .Where(a => a.Cible == request.EscaleId.ToString())
+            .OrderByDescending(a => a.DateUtc).Take(100)
+            .Select(a => new EscaleHistoryItemDto(a.DateUtc, a.Action, a.UserName))
+            .ToListAsync(cancellationToken);
+
         var anomalies = await dbContext.ContainerAnomalies
             .AsNoTracking()
             .Where(a => a.EscaleId == request.EscaleId)
@@ -42,6 +49,13 @@ public class GetEscaleDetailQueryHandler(
         var raisons = await dbContext.ReferenceValues
             .AsNoTracking()
             .Where(r => r.ListKey == ReferenceListKeys.AnomalyReason && r.IsActive)
+            .OrderBy(r => r.SortOrder)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+
+        var bays = await dbContext.ReferenceValues
+            .AsNoTracking()
+            .Where(r => r.ListKey == ReferenceListKeys.Bay && r.IsActive)
             .OrderBy(r => r.SortOrder)
             .Select(r => r.Value)
             .ToListAsync(cancellationToken);
@@ -64,6 +78,20 @@ public class GetEscaleDetailQueryHandler(
             .OrderBy(r => r.SortOrder)
             .Select(r => r.Value)
             .ToListAsync(cancellationToken);
+
+        var graviteValues = await dbContext.ReferenceValues
+            .AsNoTracking()
+            .Where(r => r.ListKey == ReferenceListKeys.IncidentSeverity && r.IsActive)
+            .OrderBy(r => r.SortOrder)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+        var gravitesIncident = graviteValues
+            .Select(value => Enum.TryParse<IncidentGravite>(value, true, out var severity)
+                ? (IncidentGravite?)severity
+                : null)
+            .Where(severity => severity.HasValue)
+            .Select(severity => severity!.Value)
+            .ToList();
 
         var additionnels = await dbContext.AdditionalContainers
             .AsNoTracking()
@@ -149,9 +177,11 @@ public class GetEscaleDetailQueryHandler(
 
         return new EscaleDetailDto
         {
+            History = history,
             Escale = EscaleDto.FromEntity(escale),
             Anomalies = PagedResult<ContainerAnomalyDto>.Create(anomaliesDto, request.AnomaliesPage, pageSize),
             RaisonsDisponibles = raisons,
+            BaysDisponibles = bays,
             AnomaliesNonResoluesCount = anomaliesDto.Count(a => a.Statut == Domain.VesselPlanning.AnomalyStatus.NonResolu),
 
             ConteneursVides = PagedResult<EmptyContainerTargetDto>.Create(videsDto, request.VidesPage, pageSize),
@@ -164,7 +194,8 @@ public class GetEscaleDetailQueryHandler(
 
             Incidents = PagedResult<OperationalIncidentDto>.Create(incidentsDto, request.IncidentsPage, pageSize),
             CategoriesIncidentDisponibles = categoriesIncident,
-            IncidentsEnCoursCount = incidentsDto.Count(i => i.Statut == Domain.VesselPlanning.IncidentStatus.EnCours),
+            GravitesIncidentDisponibles = gravitesIncident,
+            IncidentsEnCoursCount = incidentsDto.Count(i => i.Statut == IncidentStatus.EnCours),
 
             ConteneursAdditionnels = PagedResult<AdditionalContainerDto>.Create(additionnelsDto, request.AdditionnelsPage, pageSize),
             AdditionnelsEnAttenteCount = additionnelsDto.Count(c => c.Decision == Domain.VesselPlanning.AdditionalContainerDecision.EnAttente),

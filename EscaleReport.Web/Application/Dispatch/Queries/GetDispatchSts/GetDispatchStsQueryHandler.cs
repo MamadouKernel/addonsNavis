@@ -1,3 +1,4 @@
+using EscaleReport.Web.Application.Dispatch;
 using EscaleReport.Web.Application.Common.Exceptions;
 using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Application.Common.Models;
@@ -21,6 +22,14 @@ public class GetDispatchStsQueryHandler(
         {
             throw new ForbiddenAccessException(Permissions.ConsulterEscales);
         }
+        if (!DispatchAccessControl.CanAccessPoste(currentUser, "STS"))
+        {
+            throw new ForbiddenAccessException(Permissions.ConsulterEscales);
+        }
+
+        var selectedDate = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var dayStart = selectedDate.ToDateTime(TimeOnly.MinValue);
+        var dayEnd = dayStart.AddDays(1);
 
         var gantries = await dbContext.Gantries
             .AsNoTracking()
@@ -32,6 +41,8 @@ public class GetDispatchStsQueryHandler(
             from a in dbContext.GantryAssignments.AsNoTracking()
             join g in dbContext.Gantries.AsNoTracking() on a.GantryId equals g.Id
             join e in dbContext.Escales.AsNoTracking() on a.EscaleId equals e.Id
+            where a.HeureDebut >= dayStart && a.HeureDebut < dayEnd
+                && (string.IsNullOrEmpty(request.Shift) || string.IsNullOrEmpty(e.Shift) || e.Shift == request.Shift)
             orderby a.Statut, a.HeureDebut descending
             select new GantryAssignmentDto
             {
@@ -45,6 +56,12 @@ public class GetDispatchStsQueryHandler(
                 TacheOuZone = a.TacheOuZone,
                 Statut = a.Statut
             }).ToListAsync(cancellationToken);
+        foreach (var assignment in assignments)
+        {
+            assignment.Duree = assignment.HeureFin.HasValue
+                ? assignment.HeureFin.Value - assignment.HeureDebut
+                : null;
+        }
 
         var escalesDisponibles = await dbContext.Escales
             .AsNoTracking()
@@ -56,6 +73,8 @@ public class GetDispatchStsQueryHandler(
         var incidentsRaw = await (
             from i in dbContext.StsIncidents.AsNoTracking()
             join e in dbContext.Escales.AsNoTracking() on i.EscaleId equals e.Id
+            where i.DateDebutUtc >= dayStart && i.DateDebutUtc < dayEnd
+                && (string.IsNullOrEmpty(request.Shift) || string.IsNullOrEmpty(e.Shift) || e.Shift == request.Shift)
             orderby i.DateDebutUtc descending
             select new { i, e.Navire }).ToListAsync(cancellationToken);
 
@@ -64,6 +83,8 @@ public class GetDispatchStsQueryHandler(
         var incidents = incidentsRaw.Select(x => new StsIncidentDto
         {
             Id = x.i.Id,
+            EscaleId = x.i.EscaleId,
+            GantryId = x.i.GantryId,
             Navire = x.Navire,
             GantryCode = x.i.GantryId.HasValue && gantryCodes.TryGetValue(x.i.GantryId.Value, out var code) ? code : null,
             TypeIncident = x.i.TypeIncident,
@@ -76,27 +97,43 @@ public class GetDispatchStsQueryHandler(
             EstResolu = x.i.EstResolu
         }).ToList();
 
-        var typesIncident = await dbContext.ReferenceValues
+        var typesPannePortique = await dbContext.ReferenceValues
             .AsNoTracking()
             .Where(r => r.ListKey == ReferenceListKeys.StsIncidentType && r.IsActive)
             .OrderBy(r => r.SortOrder)
             .Select(r => r.Value)
             .ToListAsync(cancellationToken);
 
+        var typesIncidentNavire = await dbContext.ReferenceValues
+            .AsNoTracking()
+            .Where(r => r.ListKey == ReferenceListKeys.StsVesselIncidentType && r.IsActive)
+            .OrderBy(r => r.SortOrder)
+            .Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+
         var pointeurs = await dbContext.StsPointeurs
             .AsNoTracking()
+            .Where(p => p.HeurePriseDePosteUtc >= dayStart && p.HeurePriseDePosteUtc < dayEnd)
             .OrderByDescending(p => p.HeurePriseDePosteUtc)
             .ToListAsync(cancellationToken);
 
         var ropn = await dbContext.RopnEntries
             .AsNoTracking()
-            .OrderByDescending(r => r.CreatedAtUtc)
+            .Where(r => r.DateDebutUtc >= dayStart && r.DateDebutUtc < dayEnd)
+            .OrderByDescending(r => r.DateDebutUtc)
             .ToListAsync(cancellationToken);
+
+        var ttAssignments = await dbContext.TtVesselAssignments
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+        var tracteursParEscale = ttAssignments
+            .GroupBy(a => a.EscaleId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(a => a.CreatedAtUtc).First().NombreAffecte);
 
         // CDC §6.1 "Sélection du shift" : affichage automatique des navires en cours
         // d'opération ou attendus (ETA) pendant la date/shift sélectionnés.
-        var selectedDate = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow);
-
         var shiftsDisponibles = await dbContext.ReferenceValues
             .AsNoTracking()
             .Where(r => r.ListKey == ReferenceListKeys.Shift && r.IsActive)
@@ -121,7 +158,8 @@ public class GetDispatchStsQueryHandler(
                 Voyage = e.Voyage,
                 Eta = e.Eta,
                 Shift = e.Shift,
-                EnCours = e.StatutOperations == StatutOperations.EnCours
+                EnCours = e.StatutOperations == StatutOperations.EnCours,
+                NombreTracteurs = tracteursParEscale.GetValueOrDefault(e.Id)
             }).ToList();
 
         return new DispatchStsDto
@@ -130,7 +168,8 @@ public class GetDispatchStsQueryHandler(
             Assignments = PagedResult<GantryAssignmentDto>.Create(assignments, request.AssignmentsPage),
             EscalesDisponibles = escalesDisponibles,
             Incidents = PagedResult<StsIncidentDto>.Create(incidents, request.IncidentsPage),
-            TypesIncidentDisponibles = typesIncident,
+            TypesPannePortiqueDisponibles = typesPannePortique,
+            TypesIncidentNavireDisponibles = typesIncidentNavire,
             Pointeurs = PagedResult<StsPointeurDto>.Create(pointeurs.Select(StsPointeurDto.FromEntity).ToList(), request.PointeursPage),
             RopnEntries = PagedResult<RopnEntryDto>.Create(ropn.Select(RopnEntryDto.FromEntity).ToList(), request.RopnPage),
             IncidentsEnCoursCount = incidents.Count(i => !i.EstResolu),

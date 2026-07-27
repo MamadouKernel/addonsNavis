@@ -2,6 +2,7 @@ using EscaleReport.Web.Application.Common.Interfaces;
 using EscaleReport.Web.Domain.Audit;
 using EscaleReport.Web.Infrastructure.Identity;
 using EscaleReport.Web.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +16,13 @@ namespace EscaleReport.Web.Controllers;
 [Authorize]
 public class ProfileController(
     UserManager<ApplicationUser> userManager,
-    SignInManager<ApplicationUser> signInManager,
     IApplicationDbContext dbContext,
     ICurrentUserService currentUser) : Controller
 {
     private static readonly string[] DispatchPosts = ["STS", "TT", "RTG", "Autres engins"];
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -32,7 +32,7 @@ public class ProfileController(
 
         var roles = await userManager.GetRolesAsync(user);
 
-        return View(BuildViewModel(user, roles.FirstOrDefault() ?? ""));
+        return View(await BuildViewModelAsync(user, roles.FirstOrDefault() ?? "", cancellationToken));
     }
 
     [HttpPost]
@@ -59,6 +59,18 @@ public class ProfileController(
 
         if (ModelState.IsValid)
         {
+            var requestedTeam = string.IsNullOrWhiteSpace(model.Equipe) ? null : model.Equipe.Trim();
+            var validTeam = requestedTeam is null || await dbContext.ReferenceValues.AsNoTracking()
+                .AnyAsync(r => r.ListKey == "Equipe" && r.IsActive && r.Value == requestedTeam, cancellationToken);
+            if (!validTeam)
+            {
+                ModelState.AddModelError("UpdateProfile.Equipe", "Cette équipe n'existe pas ou n'est plus active.");
+            }
+        }
+
+        if (ModelState.IsValid)
+        {
+            var previousTeam = user.Equipe;
             user.PosteParDefaut = string.IsNullOrWhiteSpace(model.PosteParDefaut) ? null : model.PosteParDefaut;
             user.Equipe = string.IsNullOrWhiteSpace(model.Equipe) ? null : model.Equipe;
 
@@ -68,6 +80,10 @@ public class ProfileController(
 
             if (result.Succeeded)
             {
+                if (!string.Equals(previousTeam, user.Equipe, StringComparison.OrdinalIgnoreCase))
+                {
+                    await LogAuditAsync($"ChangeTeam:{TeamLabel(previousTeam)}→{TeamLabel(user.Equipe)}", user.Id.ToString(), cancellationToken);
+                }
                 await LogAuditAsync("UpdateOwnProfile", user.Id.ToString(), cancellationToken);
                 TempData["Success"] = "Profil mis à jour.";
                 return RedirectToAction(nameof(Index));
@@ -80,58 +96,40 @@ public class ProfileController(
         }
 
         var roles = await userManager.GetRolesAsync(user);
-        var viewModel = BuildViewModel(user, roles.FirstOrDefault() ?? "");
+        var viewModel = await BuildViewModelAsync(user, roles.FirstOrDefault() ?? "", cancellationToken);
         viewModel.UpdateProfile = model;
         return View(nameof(Index), viewModel);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChangePassword([Bind(Prefix = "ChangePassword")] ChangePasswordViewModel model)
+    private async Task<ProfileViewModel> BuildViewModelAsync(ApplicationUser user, string role, CancellationToken cancellationToken)
     {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
+        var teams = await dbContext.ReferenceValues.AsNoTracking()
+            .Where(r => r.ListKey == "Equipe" && r.IsActive).OrderBy(r => r.SortOrder).Select(r => r.Value)
+            .ToListAsync(cancellationToken);
+        var historyEntries = await dbContext.AuditLogEntries.AsNoTracking()
+            .Where(a => a.Cible == user.Id.ToString() && a.Action.StartsWith("ChangeTeam:"))
+            .OrderByDescending(a => a.DateUtc).Take(10).ToListAsync(cancellationToken);
+        return new ProfileViewModel
         {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-            if (result.Succeeded)
-            {
-                // Le changement de mot de passe régénère le security stamp de l'utilisateur ;
-                // sans ce rafraîchissement, le cookie de session en cours serait invalidé au
-                // prochain contrôle et l'utilisateur serait déconnecté sans préavis.
-                await signInManager.RefreshSignInAsync(user);
-                TempData["Success"] = "Mot de passe modifié avec succès.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("ChangePassword", error.Description);
-            }
-        }
-
-        var roles = await userManager.GetRolesAsync(user);
-        var viewModel = BuildViewModel(user, roles.FirstOrDefault() ?? "");
-        viewModel.ChangePassword = model;
-        return View(nameof(Index), viewModel);
-    }
-
-    private ProfileViewModel BuildViewModel(ApplicationUser user, string role) => new()
-    {
         UserName = user.UserName ?? "",
         Role = role,
         DispatchPosts = DispatchPosts,
+        AvailableTeams = teams,
+        TeamHistory = historyEntries.Select(entry =>
+        {
+            var transition = entry.Action["ChangeTeam:".Length..].Split('→', 2);
+            return new TeamHistoryViewModel { DateUtc = entry.DateUtc, PreviousTeam = transition.ElementAtOrDefault(0), NewTeam = transition.ElementAtOrDefault(1), ChangedBy = entry.UserName ?? "Système" };
+        }).ToList(),
         UpdateProfile = new UpdateProfileViewModel
         {
             Email = user.Email ?? "",
             PosteParDefaut = user.PosteParDefaut,
             Equipe = user.Equipe
         }
-    };
+        };
+    }
+
+    private static string TeamLabel(string? team) => string.IsNullOrWhiteSpace(team) ? "Sans équipe" : team;
 
     // Ces actions passent par UserManager en dehors du pipeline MediatR (AuditLoggingBehaviour
     // ne les voit donc pas) : la traçabilité est posée ici à la main, comme dans UsersController.

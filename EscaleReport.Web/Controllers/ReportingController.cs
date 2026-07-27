@@ -1,3 +1,4 @@
+using EscaleReport.Web.Domain.Identity;
 using EscaleReport.Web.Application.Reporting.Commands.ConfirmPriseDeConnaissance;
 using EscaleReport.Web.Application.Reporting.Commands.UpsertEscalePlanificationNote;
 using EscaleReport.Web.Application.Reporting.Commands.UpsertShiftHandoverNote;
@@ -11,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscaleReport.Web.Controllers;
 
 // Module Rapport de fin de shift (CDC §14.1).
-[Authorize]
+[Authorize(Roles = RoleAccessGroups.Reporting)]
 public class ReportingController(ISender mediator) : Controller
 {
     public async Task<IActionResult> Index(DateOnly? date, string? shift, Guid? escaleId, CancellationToken cancellationToken)

@@ -75,7 +75,7 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
                     ? "Plan validé" : detail.Escale.StatutPlanification == StatutPlanification.Planifie ? "Planifié" : "Non planifié");
             });
 
-            SectionTitle(col, "Conteneurs en anomalie");
+            SectionTitle(col, "1. Conteneurs en anomalie");
             if (detail.Anomalies.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucune anomalie déclarée.");
@@ -93,43 +93,50 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
                 }));
             }
 
-            SectionTitle(col, "Conteneurs vides");
+            SectionTitle(col, "2. Conteneurs vides");
             if (detail.ConteneursVides.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucune cible de conteneurs vides.");
             }
             else
             {
-                Table(col, ["Ligne", "Type", "Souhaitée", "Planifiée", "Embarquée", "Coupée", "Restante"], detail.ConteneursVides.Items.Select(v => new[]
+                Table(col, ["Ligne", "Type", "Souhaitée", "Ajoutée", "Planifiée", "Embarquée", "Coupée", "Restante"], detail.ConteneursVides.Items.Select(v => new[]
                 {
                     v.LigneMaritime,
                     v.TypeConteneur,
                     v.QuantiteSouhaitee.ToString(),
+                    v.QuantiteAjoutee.ToString(),
                     v.QuantitePlanifiee.ToString(),
                     v.QuantiteEmbarquee.ToString(),
                     v.QuantiteCoupee.ToString(),
                     v.QuantiteRestante.ToString()
                 }));
+                col.Item().PaddingTop(5)
+                    .Text($"Totaux — souhaitée {detail.VidesSouhaiteTotal}, ajoutée {detail.VidesAjouteTotal}, planifiée {detail.VidesPlanifieTotal}, embarquée {detail.VidesEmbarqueTotal}, coupée {detail.VidesCoupeTotal}, restante {detail.VidesResteTotal}")
+                    .FontSize(8).Bold();
             }
 
-            SectionTitle(col, "Incidents opérationnels");
+            SectionTitle(col, "3. Incidents opérationnels");
             if (detail.Incidents.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucun incident opérationnel déclaré.");
             }
             else
             {
-                Table(col, ["Catégorie", "Localisation", "Début", "Statut", "Description"], detail.Incidents.Items.Select(i => new[]
+                Table(col, ["Catégorie", "Localisation", "Début", "Fin", "Durée", "Gravité", "Statut", "Description"], detail.Incidents.Items.Select(i => new[]
                 {
                     i.Categorie,
                     i.Localisation ?? "—",
                     i.DateDebutUtc.ToString("dd/MM HH:mm"),
+                    i.DateFinUtc?.ToString("dd/MM HH:mm") ?? "—",
+                    i.Duree.HasValue ? $"{(int)i.Duree.Value.TotalHours}h{i.Duree.Value.Minutes:D2}" : "—",
+                    i.Gravite.ToString(),
                     i.Statut == IncidentStatus.Resolu ? "Résolu" : "En cours",
                     i.Description ?? "—"
                 }));
             }
 
-            SectionTitle(col, "Incidents STS");
+            SectionTitle(col, "3.1 Incidents STS");
             if (detail.IncidentsSts.Count == 0)
             {
                 EmptyNotice(col, "Aucun incident STS déclaré sur ce navire.");
@@ -145,7 +152,7 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
                 }));
             }
 
-            SectionTitle(col, "Conteneurs additionnels");
+            SectionTitle(col, "4. Conteneurs additionnels");
             if (detail.ConteneursAdditionnels.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucun conteneur additionnel déclaré.");
@@ -161,7 +168,7 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
                 }));
             }
 
-            SectionTitle(col, "Conteneurs dangereux");
+            SectionTitle(col, "5. Conteneurs dangereux");
             if (detail.ConteneursDangereux.TotalCount == 0)
             {
                 EmptyNotice(col, "Aucun conteneur dangereux déclaré.");
@@ -174,7 +181,7 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
                     c.ClasseImo ?? "—",
                     BadtLabel(c.StatutBadt),
                     OperationnelLabel(c.StatutOperationnel)
-                }));
+                }), row => row[2].Contains("renouveler", StringComparison.OrdinalIgnoreCase));
             }
 
             SectionTitle(col, "Consommations Cargo et volumes finaux");
@@ -298,7 +305,7 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
     private static string BadtLabel(BadtStatus s) => s switch
     {
         BadtStatus.Pris => "Pris",
-        BadtStatus.ARenouveler => "À renouveler",
+        BadtStatus.ARenouveler => "⚠ À renouveler",
         _ => "Non pris"
     };
 
@@ -315,7 +322,11 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
     private static void EmptyNotice(ColumnDescriptor col, string text) =>
         col.Item().PaddingTop(6).Text(text).Italic().FontColor(Colors.Grey.Medium);
 
-    private static void Table(ColumnDescriptor col, string[] headers, IEnumerable<string[]> rows)
+    private static void Table(
+        ColumnDescriptor col,
+        string[] headers,
+        IEnumerable<string[]> rows,
+        Func<string[], bool>? highlightRow = null)
     {
         col.Item().PaddingTop(6).Table(table =>
         {
@@ -337,9 +348,10 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
 
             foreach (var row in rows)
             {
+                var highlighted = highlightRow?.Invoke(row) == true;
                 foreach (var cell in row)
                 {
-                    BodyCell(table, cell);
+                    BodyCell(table, cell, highlighted);
                 }
             }
         });
@@ -358,8 +370,15 @@ public class QuestPdfEscaleReportGenerator : IEscalePdfReportGenerator
         header.Cell().Background(Colors.Grey.Darken4).Padding(5)
             .Text(text.ToUpperInvariant()).FontSize(7).FontColor(Colors.White).Bold();
 
-    private static void BodyCell(TableDescriptor table, string text) =>
-        table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(text).FontSize(9);
+    private static void BodyCell(TableDescriptor table, string text, bool highlighted = false) =>
+        table.Cell()
+            .Background(highlighted ? Colors.Red.Lighten4 : Colors.White)
+            .BorderBottom(0.5f)
+            .BorderColor(highlighted ? Colors.Red.Lighten2 : Colors.Grey.Lighten2)
+            .Padding(5)
+            .Text(text)
+            .FontSize(9)
+            .FontColor(highlighted ? Colors.Red.Darken2 : Colors.Grey.Darken4);
 
     private static void ComposeFooter(IContainer container)
     {

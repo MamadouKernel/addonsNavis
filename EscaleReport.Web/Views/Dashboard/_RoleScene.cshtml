@@ -1,0 +1,46 @@
+@model string
+@using EscaleReport.Web.Domain.Identity
+@{
+    const string line = "rgba(255,255,255,.72)";
+    const string soft = "rgba(255,255,255,.16)";
+    const string sea = "#43d7cf";
+    const string amber = "#f5b84b";
+}
+@switch (Model)
+{
+    case Roles.YardPlanner:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Parc à conteneurs animé avec RTG et tracteur">
+            <defs><linearGradient id="yardSky" x2="0" y2="1"><stop stop-color="#0d5d68"/><stop offset="1" stop-color="#073942"/></linearGradient></defs>
+            <rect width="620" height="280" fill="url(#yardSky)"/><path d="M0 225h620v55H0z" fill="#092f35"/><path d="M0 244h620M0 267h620" stroke="@soft" stroke-width="2" stroke-dasharray="18 12"/>
+            <g opacity=".92"><g fill="@sea"><rect x="42" y="174" width="72" height="23" rx="2"/><rect x="118" y="174" width="72" height="23" rx="2"/><rect x="80" y="147" width="72" height="23" rx="2"/></g><g fill="@amber"><rect x="430" y="175" width="67" height="22" rx="2"/><rect x="501" y="175" width="67" height="22" rx="2"/><rect x="465" y="149" width="67" height="22" rx="2"/></g></g>
+            <g class="scene-sway" fill="none" stroke="@line" stroke-width="7" stroke-linecap="round"><path d="M210 211V75h178v136M226 92h146M250 92v89M348 92v89"/><path d="M240 74l28-22h62l28 22" stroke-width="5"/></g>
+            <g class="scene-lift"><path d="M274 105v62M344 105v62" stroke="@amber" stroke-width="3"/><rect x="270" y="164" width="79" height="25" rx="3" fill="@amber"/></g>
+            <g class="scene-drift"><rect x="12" y="222" width="85" height="28" rx="7" fill="@sea"/><path d="M75 210h28l18 40H75z" fill="#d7fbf8"/><circle class="scene-wheel" cx="32" cy="254" r="9" fill="#071f24" stroke="@line" stroke-width="3"/><circle class="scene-wheel" cx="94" cy="254" r="9" fill="#071f24" stroke="@line" stroke-width="3"/></g>
+            <g fill="#fff" opacity=".7" font-family="Segoe UI,Arial" font-size="11" font-weight="700"><text x="47" y="190">A01</text><text x="436" y="191">B12</text><text x="260" y="32">YARD LIVE MAP</text></g>
+        </svg>
+        break;
+    case Roles.VesselPlanner:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Navire et portiques animés"><rect width="620" height="280" fill="#0b5661"/><path d="M0 230q80-18 160 0t160 0t160 0t160 0v50H0z" fill="#43d7cf" opacity=".35"/><g class="scene-drift"><path d="M100 178h360l-45 67H160z" fill="#f5f8f8"/><path d="M190 133h150v45H190z" fill="@sea"/><rect x="215" y="105" width="74" height="28" fill="#fff"/><path d="M290 105V68h8v37" fill="@line"/><path d="M298 73l34 15h-34" fill="@amber"/></g><g stroke="@line" stroke-width="6" fill="none"><path d="M490 220V70h96v150M500 86h76M538 86v92"/></g><g class="scene-lift"><path d="M538 110v70" stroke="@amber" stroke-width="3"/><rect x="516" y="177" width="46" height="22" fill="@amber"/></g></svg>
+        break;
+    case Roles.Dispatcher:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Dispatch de portiques et tracteurs"><rect width="620" height="280" fill="#0b505b"/><path d="M0 235h620" stroke="@line" stroke-width="3"/><g fill="none" stroke="@line" stroke-width="7"><path d="M70 225V70h150v155M90 88h110M145 88v92"/><path d="M350 225V95h130v130M368 112h94M414 112v72"/></g><g class="scene-lift"><rect x="116" y="170" width="58" height="24" fill="@amber"/></g><g class="scene-drift"><rect x="240" y="207" width="92" height="30" rx="7" fill="@sea"/><circle cx="260" cy="241" r="9" fill="#082a30"/><circle cx="310" cy="241" r="9" fill="#082a30"/></g><circle class="scene-pulse" cx="530" cy="82" r="28" fill="none" stroke="@amber" stroke-width="4"/><path d="M530 60v22l15 10" stroke="@amber" stroke-width="4" fill="none"/></svg>
+        break;
+    case Roles.CargoController:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Contrôle cargo et scanner de conteneurs"><rect width="620" height="280" fill="#0b505b"/><g fill="@sea"><rect x="86" y="164" width="120" height="48" rx="4"/><rect x="214" y="164" width="120" height="48" rx="4"/><rect x="150" y="108" width="120" height="48" rx="4"/></g><g stroke="@line" stroke-width="7" fill="none"><path d="M385 222V72h150v150M402 91h116"/></g><path class="scene-scan" d="M395 145h130" stroke="@amber" stroke-width="5"/><g class="scene-pulse"><circle cx="460" cy="155" r="27" fill="@soft"/><path d="m447 155 9 9 19-22" fill="none" stroke="#fff" stroke-width="6"/></g></svg>
+        break;
+    case Roles.IttController:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Flux de transfert ITT animé"><rect width="620" height="280" fill="#0a515c"/><path class="scene-route" d="M25 220C160 110 340 300 595 112" fill="none" stroke="@sea" stroke-width="5"/><g class="scene-drift"><rect x="170" y="155" width="130" height="55" rx="5" fill="@amber"/><path d="M300 170h48l30 40h-78z" fill="#d7fbf8"/><circle cx="205" cy="216" r="13" fill="#082a30"/><circle cx="335" cy="216" r="13" fill="#082a30"/></g><g class="scene-pulse" fill="none" stroke="@line" stroke-width="4"><circle cx="480" cy="95" r="18"/><circle cx="480" cy="95" r="38" opacity=".5"/></g></svg>
+        break;
+    case Roles.CoordinateurControlRoom:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Centre de coordination avec radar animé"><rect width="620" height="280" fill="#083f49"/><g transform="translate(440 140)" fill="none" stroke="@sea"><circle r="90" opacity=".25"/><circle r="60" opacity=".4"/><circle r="30" opacity=".6"/><path d="M-90 0h180M0-90v180" opacity=".25"/><path class="scene-sway" d="M0 0 75-48" stroke="@amber" stroke-width="5"/></g><g fill="@soft"><rect x="45" y="70" width="250" height="34" rx="8"/><rect x="45" y="119" width="210" height="34" rx="8"/><rect x="45" y="168" width="230" height="34" rx="8"/></g><circle class="scene-blink" cx="70" cy="87" r="7" fill="@amber"/><circle class="scene-blink" cx="70" cy="136" r="7" fill="@sea"/><circle class="scene-blink" cx="70" cy="185" r="7" fill="#ff7f7f"/></svg>
+        break;
+    case Roles.ShiftManager:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Indicateurs et relève de shift animés"><rect width="620" height="280" fill="#0a4b55"/><path d="M65 220h500M85 220V55" stroke="@line" stroke-width="3"/><g fill="@sea"><rect class="scene-lift" x="125" y="150" width="58" height="70" rx="5"/><rect x="225" y="110" width="58" height="110" rx="5"/><rect class="scene-pulse" x="325" y="75" width="58" height="145" rx="5"/></g><path d="m110 125 105-45 100 25 130-65" fill="none" stroke="@amber" stroke-width="6"/><circle class="scene-pulse" cx="445" cy="40" r="10" fill="@amber"/></svg>
+        break;
+    case Roles.AdministrateurIT:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Administration IT et cybersécurité"><rect width="620" height="280" fill="#073943"/><g fill="@soft" stroke="@line" stroke-width="2"><rect x="55" y="55" width="220" height="170" rx="16"/><rect x="330" y="55" width="220" height="170" rx="16"/></g><g fill="@sea"><rect x="82" y="83" width="166" height="30" rx="5"/><rect x="82" y="126" width="166" height="30" rx="5"/><rect x="82" y="169" width="166" height="30" rx="5"/></g><g class="scene-pulse"><path d="M440 78c35 21 60 20 60 20v52c0 39-26 63-60 78-34-15-60-39-60-78V98s25 1 60-20z" fill="@amber"/><path d="m416 151 17 17 33-43" fill="none" stroke="#073943" stroke-width="9"/></g><circle class="scene-blink" cx="230" cy="98" r="6" fill="#fff"/></svg>
+        break;
+    default:
+        <svg viewBox="0 0 620 280" role="img" aria-label="Administration des utilisateurs et indicateurs"><rect width="620" height="280" fill="#0b505b"/><g class="scene-pulse" fill="@sea"><circle cx="175" cy="105" r="34"/><circle cx="275" cy="105" r="34"/><path d="M112 220c5-56 31-83 63-83s58 27 63 83z"/><path d="M212 220c5-56 31-83 63-83s58 27 63 83z"/></g><g fill="@soft"><rect x="390" y="64" width="170" height="35" rx="8"/><rect x="390" y="120" width="140" height="35" rx="8"/><rect x="390" y="176" width="155" height="35" rx="8"/></g><circle class="scene-blink" cx="410" cy="81" r="7" fill="@amber"/></svg>
+        break;
+}

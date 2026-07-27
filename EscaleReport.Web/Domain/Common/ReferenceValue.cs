@@ -17,8 +17,10 @@ public static class ReferenceListKeys
 {
     public const string AnomalyReason = "AnomalyReason";
     public const string IncidentCategory = "IncidentCategory";
+    public const string IncidentSeverity = "IncidentSeverity";
     public const string CutReason = "CutReason";
     public const string StsIncidentType = "StsIncidentType";
+    public const string StsVesselIncidentType = "StsVesselIncidentType";
     public const string YardZone = "YardZone";
     public const string Shift = "Shift";
     public const string Quai = "Quai";
@@ -30,8 +32,10 @@ public static class ReferenceListKeys
     {
         [AnomalyReason] = "Raisons d'anomalie",
         [IncidentCategory] = "Catégories d'incident",
+        [IncidentSeverity] = "Gravités d'incident",
         [CutReason] = "Motifs de coupure",
-        [StsIncidentType] = "Types de panne STS",
+        [StsIncidentType] = "Types de panne portique STS",
+        [StsVesselIncidentType] = "Types d'incident navire STS",
         [YardZone] = "Zones Yard",
         [Shift] = "Shifts",
         [Quai] = "Quais",
