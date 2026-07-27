@@ -408,11 +408,17 @@ body{
   /* Socle universel : les vues historiques et les formulaires compacts héritent du
      même langage visuel, même lorsqu'ils n'utilisent pas encore .input-field. */
   form :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),select,textarea):not(.input-field) {
-    min-height:2.55rem; border:1px solid color-mix(in srgb,var(--line) 90%,var(--text-soft)); border-radius:.75rem; background:color-mix(in srgb,var(--card) 94%,var(--surface)); color:var(--text); transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+    width:100%; min-width:0; min-height:2.75rem; padding:.68rem .85rem; border:1px solid color-mix(in srgb,var(--line) 90%,var(--text-soft)); border-radius:.8rem; background:color-mix(in srgb,var(--card) 94%,var(--surface)); color:var(--text); line-height:1.35; box-shadow:inset 0 1px 2px rgba(4,38,42,.035); transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease,transform .18s ease;
   }
   form :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),select,textarea):not(.input-field):hover { border-color:color-mix(in srgb,var(--sea) 55%,var(--line)); }
   form :where(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),select,textarea):not(.input-field):focus { outline:none; border-color:var(--sea); background:var(--card); box-shadow:0 0 0 4px color-mix(in srgb,var(--sea) 16%,transparent); }
-  form textarea.input-field { min-height:6.5rem; resize:vertical; line-height:1.55; }
+  form :where(input:not([type="hidden"]),select,textarea):not(.input-field):focus { transform:translateY(-1px); }
+  form :where(input,textarea)::placeholder { color:var(--text-soft); opacity:.72; }
+  form :where(select):not(.input-field) { cursor:pointer; padding-right:2.25rem; }
+  form :where(textarea):not(.input-field) { min-height:6.5rem; resize:vertical; line-height:1.55; }
+  form :where(input[type="date"],input[type="time"],input[type="datetime-local"],input[type="number"]) { font-variant-numeric:tabular-nums; }
+  form :where(input[type="file"]) { padding:.42rem; }
+  form :where(input[type="file"])::file-selector-button { margin-right:.7rem; border:0; border-radius:.6rem; padding:.48rem .7rem; background:color-mix(in srgb,var(--sea) 14%,var(--card)); color:var(--steel); font-size:.72rem; font-weight:750; cursor:pointer; }  form textarea.input-field { min-height:6.5rem; resize:vertical; line-height:1.55; }
   form select.input-field { cursor:pointer; padding-right:2.25rem; }
   form input[type="date"].input-field,form input[type="time"].input-field,form input[type="datetime-local"].input-field { font-variant-numeric:tabular-nums; }
   form input[type="checkbox"],form input[type="radio"] { width:1.05rem; height:1.05rem; flex:none; cursor:pointer; accent-color:var(--sea); }
@@ -421,6 +427,16 @@ body{
   form :where(.field-validation-error,[data-valmsg-for]):not(:empty) { display:block; margin-top:.4rem; font-size:.72rem; font-weight:650; color:var(--coral); animation:toast-in .22s ease-out both; }
   form .validation-summary-valid { display:none; }
   form .validation-summary-errors { margin-bottom:1rem; }
+  form .validation-summary-errors ul { display:grid; gap:.3rem; margin:0; padding:.8rem 1rem .8rem 2rem; border:1px solid color-mix(in srgb,var(--coral) 35%,var(--line)); border-radius:.8rem; background:color-mix(in srgb,var(--coral) 8%,var(--card)); color:var(--coral); font-size:.78rem; }
+  form :where(fieldset) { min-width:0; border:1px solid var(--line); border-radius:1rem; padding:1rem; }
+  form :where(legend) { padding:0 .45rem; color:var(--ink); font-size:.78rem; font-weight:800; }
+  form :where(label) { color:var(--text-soft); }
+  form :where(button[type="submit"],input[type="submit"]):not(.btn-primary):not(.btn-secondary):not(.btn-danger):not(.icon-action) { min-height:2.65rem; border-radius:.78rem; padding:.62rem 1rem; background:linear-gradient(135deg,var(--sea),color-mix(in srgb,var(--sea) 70%,var(--steel))); color:#032f34; font-size:.78rem; font-weight:800; box-shadow:0 8px 20px -12px var(--sea); transition:transform .18s ease,box-shadow .18s ease,filter .18s ease; }
+  form :where(button[type="submit"],input[type="submit"]):not(.btn-primary):not(.btn-secondary):not(.btn-danger):not(.icon-action):hover { filter:saturate(1.08); box-shadow:0 12px 24px -12px var(--sea); transform:translateY(-1px); }
+  form :where(button[type="submit"],input[type="submit"]):disabled { cursor:not-allowed; opacity:.55; transform:none; }
+  form[method="get"] :where(button[type="submit"],input[type="submit"]):not(.btn-primary):not(.btn-secondary) { background:var(--card); border:1px solid var(--line); color:var(--steel); box-shadow:none; }
+  .table-modern form :where(input,select,textarea):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]) { max-width:100%; }
+  .table-modern form :where(button[type="submit"],input[type="submit"]):not(.btn-primary):not(.btn-secondary):not(.btn-danger):not(.icon-action) { min-height:2.35rem; padding:.48rem .72rem; white-space:nowrap; }
   form:focus-within.card { border-color:color-mix(in srgb,var(--sea) 32%,var(--line)); box-shadow:var(--shadow-soft-lg); }
   dialog form { position:relative; }
 
