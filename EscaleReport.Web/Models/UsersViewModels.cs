@@ -46,6 +46,9 @@ public class CreateUserInput
     [Required(ErrorMessage = "Identifiant requis.")]
     public string UserName { get; set; } = string.Empty;
 
+    [EmailAddress(ErrorMessage = "Adresse e-mail invalide.")]
+    public string? Email { get; set; }
+
     [Required(ErrorMessage = "Mot de passe requis.")]
     [DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;

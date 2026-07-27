@@ -16,6 +16,7 @@ public class DashboardController(ICurrentUserService currentUser) : Controller
         var all = BuildAllowedActions();
         var primaryControllers = role switch
         {
+            Roles.AdministrateurIT => new[] { "Users", "Parametrage", "Audit", "Statistics" },
             Roles.Administrateur => new[] { "Users", "Parametrage", "Audit", "Statistics" },
             Roles.VesselPlanner => new[] { "Escales", "Notifications" },
             Roles.Dispatcher => new[] { "Dispatch", "Account" },
@@ -76,6 +77,7 @@ public class DashboardController(ICurrentUserService currentUser) : Controller
     };
     private static string Heading(string role) => role switch
     {
+        Roles.AdministrateurIT => "Administration technique et sécurité",
         Roles.Administrateur => "Centre de contrôle de l’application",
         Roles.CoordinateurControlRoom => "Supervision des opérations",
         Roles.ShiftManager => "Pilotage du shift",
@@ -84,6 +86,7 @@ public class DashboardController(ICurrentUserService currentUser) : Controller
     };
     private static string Introduction(string role) => role switch
     {
+        Roles.AdministrateurIT => "Supervisez toute l’application, les accès, la sécurité et les opérations avec une traçabilité renforcée.",
         Roles.Administrateur => "Accédez à la gouvernance, aux équipes et aux indicateurs tout en gardant la possibilité d’ouvrir chaque module métier.",
         Roles.Dispatcher => "Retrouvez en priorité les écrans du poste sélectionné et changez de poste lorsque l’organisation du shift évolue.",
         Roles.CoordinateurControlRoom => "Concentrez-vous sur les alertes, les incidents transverses et la continuité du shift.",

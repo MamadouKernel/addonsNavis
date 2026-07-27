@@ -73,6 +73,15 @@ builder.Services.AddRateLimiter(options =>
             Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0
         }));
+
+    options.AddPolicy("mfa", context => RateLimitPartition.GetFixedWindowLimiter(
+        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        factory: _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(5),
+            QueueLimit = 0
+        }));
 });
 
 QuestPDF.Settings.License = LicenseType.Community;

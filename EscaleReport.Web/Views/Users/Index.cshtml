@@ -69,6 +69,7 @@
     <h2 class="card-title mb-4">Créer un compte</h2>
     <form asp-controller="Users" asp-action="Create" method="post" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <div><label class="field-label">Identifiant</label><input name="UserName" required class="input-field" /></div>
+        <div><label class="field-label">E-mail</label><input type="email" name="Email" class="input-field" placeholder="prenom.nom@entreprise.ci" /></div>
         <div><label class="field-label">Mot de passe</label><input type="password" name="Password" required class="input-field" /></div>
         <div>
             <label class="field-label">Rôle</label>
@@ -99,7 +100,7 @@
 <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
 @foreach (var u in Model.Users)
 {
-    var isAdmin = u.Role == Roles.Administrateur;
+    var isAdmin = u.Role is Roles.Administrateur or Roles.AdministrateurIT;
     <section class="card">
         <div class="mb-3 flex items-start justify-between gap-2">
             <div>

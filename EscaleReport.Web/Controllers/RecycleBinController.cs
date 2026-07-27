@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace EscaleReport.Web.Controllers;
-[Authorize(Roles = Roles.Administrateur)]
+[Authorize(Roles = RoleAccessGroups.Administration)]
 public sealed class RecycleBinController(IApplicationDbContext dbContext, ICurrentUserService currentUser) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)

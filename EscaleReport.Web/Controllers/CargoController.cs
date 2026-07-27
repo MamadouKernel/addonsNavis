@@ -28,7 +28,7 @@ public class CargoController(ISender mediator, ICurrentUserService currentUser) 
             return NotFound();
         }
 
-        var isAdmin = currentUser.IsInRole(Roles.Administrateur);
+        var isAdmin = currentUser.IsInRole(Roles.Administrateur) || currentUser.IsInRole(Roles.AdministrateurIT);
         ViewData["CargoViewMode"] = isAdmin && affichage is "planning" or "supervision"
             ? affichage
             : "operations";

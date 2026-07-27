@@ -10,6 +10,7 @@ namespace EscaleReport.Web.Application.Dispatch;
 public static class DispatchAccessControl
 {
     public static bool CanAccessPoste(ICurrentUserService currentUser, string poste) =>
+        currentUser.IsInRole(Roles.AdministrateurIT) ||
         currentUser.IsInRole(Roles.Administrateur) ||
         (currentUser.IsInRole(Roles.Dispatcher) &&
          string.Equals(currentUser.Poste, poste, StringComparison.OrdinalIgnoreCase));

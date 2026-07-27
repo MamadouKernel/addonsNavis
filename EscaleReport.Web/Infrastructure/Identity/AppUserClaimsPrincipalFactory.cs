@@ -23,7 +23,8 @@ public class AppUserClaimsPrincipalFactory(
     {
         var identity = await base.GenerateClaimsAsync(user);
 
-        var isAdmin = await UserManager.IsInRoleAsync(user, Roles.Administrateur);
+        var isAdmin = await UserManager.IsInRoleAsync(user, Roles.Administrateur)
+            || await UserManager.IsInRoleAsync(user, Roles.AdministrateurIT);
 
         var permissionKeys = isAdmin
             ? Permissions.All

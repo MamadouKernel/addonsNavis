@@ -36,6 +36,7 @@ public static class Permissions
 // Rôles principaux prévus au CDC §2.2 (au-delà du rôle Admin transverse "Administrator" d'Identity).
 public static class Roles
 {
+    public const string AdministrateurIT = "AdministrateurIT";
     public const string Administrateur = "Administrateur";
     public const string VesselPlanner = "VesselPlanner";
     public const string Dispatcher = "Dispatcher";
@@ -47,20 +48,20 @@ public static class Roles
 
     public static readonly IReadOnlyList<string> All = new[]
     {
-        Administrateur, VesselPlanner, Dispatcher, CargoController,
+        AdministrateurIT, Administrateur, VesselPlanner, Dispatcher, CargoController,
         YardPlanner, IttController, CoordinateurControlRoom, ShiftManager
     };
 }
 public static class RoleAccessGroups
 {
-    public const string Escales = Roles.Administrateur + "," + Roles.VesselPlanner + "," + Roles.Dispatcher + "," + Roles.CargoController + "," + Roles.CoordinateurControlRoom;
-    public const string Dispatch = Roles.Administrateur + "," + Roles.Dispatcher;
-    public const string Cargo = Roles.Administrateur + "," + Roles.CargoController;
-    public const string Yard = Roles.Administrateur + "," + Roles.YardPlanner;
-    public const string Itt = Roles.Administrateur + "," + Roles.IttController;
-    public const string Coordination = Roles.Administrateur + "," + Roles.CoordinateurControlRoom;
-    public const string Reporting = Roles.Administrateur + "," + Roles.CoordinateurControlRoom + "," + Roles.ShiftManager;
-    public const string Notifications = Roles.Administrateur + "," + Roles.VesselPlanner + "," + Roles.CargoController + "," + Roles.CoordinateurControlRoom;
-    public const string Statistics = Roles.Administrateur + "," + Roles.ShiftManager;
-    public const string Administration = Roles.Administrateur;
+    public const string Escales = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.VesselPlanner + "," + Roles.Dispatcher + "," + Roles.CargoController + "," + Roles.CoordinateurControlRoom;
+    public const string Dispatch = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.Dispatcher;
+    public const string Cargo = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.CargoController;
+    public const string Yard = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.YardPlanner;
+    public const string Itt = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.IttController;
+    public const string Coordination = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.CoordinateurControlRoom;
+    public const string Reporting = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.CoordinateurControlRoom + "," + Roles.ShiftManager;
+    public const string Notifications = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.VesselPlanner + "," + Roles.CargoController + "," + Roles.CoordinateurControlRoom;
+    public const string Statistics = Roles.AdministrateurIT + "," + Roles.Administrateur + "," + Roles.ShiftManager;
+    public const string Administration = Roles.AdministrateurIT + "," + Roles.Administrateur;
 }
