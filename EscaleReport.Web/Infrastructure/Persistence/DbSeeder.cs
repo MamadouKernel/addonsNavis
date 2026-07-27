@@ -156,11 +156,28 @@ public static class DbSeeder
         var email = configuration["SeedItAdmin:Email"];
         var password = configuration["SeedItAdmin:Password"];
         var userName = configuration["SeedItAdmin:UserName"] ?? "itadmin";
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)
-            || await userManager.FindByNameAsync(userName) is not null) return;
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password)) return;
+
+        var enableTwoFactor = configuration.GetValue("Security:RequireItAdminMfa", true);
+        var existing = await userManager.FindByNameAsync(userName);
+        if (existing is not null)
+        {
+            if (!enableTwoFactor)
+            {
+                existing.Email = email;
+                existing.EmailConfirmed = true;
+                existing.TwoFactorEnabled = false;
+                await userManager.UpdateAsync(existing);
+                if (!await userManager.IsInRoleAsync(existing, Roles.AdministrateurIT))
+                    await userManager.AddToRoleAsync(existing, Roles.AdministrateurIT);
+                var resetToken = await userManager.GeneratePasswordResetTokenAsync(existing);
+                await userManager.ResetPasswordAsync(existing, resetToken, password);
+            }
+            return;
+        }
 
         await SeedUserAsync(userManager, dbContext, logger, configuration,
-            "SeedItAdmin", userName, Roles.AdministrateurIT, [], email: email, enableTwoFactor: true);
+            "SeedItAdmin", userName, Roles.AdministrateurIT, [], email: email, enableTwoFactor: enableTwoFactor);
     }
 
     private static async Task SeedAnomalyReasonsAsync(IApplicationDbContext dbContext)

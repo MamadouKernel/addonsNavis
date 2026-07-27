@@ -52,4 +52,6 @@ SeedItAdmin__Password=<mot de passe initial robuste>
 
 Le compte initial n'est créé en développement que si ses trois valeurs `SeedItAdmin` sont fournies. Ensuite, seul un Administrateur IT peut créer ou modifier un autre compte de ce niveau.
 
+En développement local uniquement, `Security__RequireItAdminMfa=false` permet de tester le compte IT sans serveur SMTP. Ne définissez jamais cette valeur à `false` en recette ou en production : l'absence de configuration conserve la valeur sécurisée par défaut (`true`).
+
 Pour Microsoft 365 en relais SMTP sur le port 25, utilisez le point de terminaison MX de votre domaine (`*.mail.protection.outlook.com`) et autorisez l'adresse IP publique du serveur EscaleReport dans le connecteur Exchange Online. Laissez `UserName` et `Password` vides pour un relais authentifié par adresse IP. `EnableSsl=true` active STARTTLS.

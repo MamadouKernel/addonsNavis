@@ -14,6 +14,7 @@ public class AccountController(
     UserManager<ApplicationUser> userManager,
     IApplicationDbContext dbContext,
     IAuthenticationEmailSender emailSender,
+    IConfiguration configuration,
     ILogger<AccountController> logger) : Controller
 {
     [HttpGet]
@@ -38,7 +39,8 @@ public class AccountController(
             return View(model);
         }
 
-        if (await userManager.IsInRoleAsync(user, Domain.Identity.Roles.AdministrateurIT))
+        var requireItAdminMfa = configuration.GetValue("Security:RequireItAdminMfa", true);
+        if (requireItAdminMfa && await userManager.IsInRoleAsync(user, Domain.Identity.Roles.AdministrateurIT))
         {
             if (string.IsNullOrWhiteSpace(user.Email) || !user.EmailConfirmed)
             {
