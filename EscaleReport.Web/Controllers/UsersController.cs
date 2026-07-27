@@ -30,6 +30,7 @@ public class UsersController(
     {
         EnsureAdmin();
 
+        var isItAdministrator = currentUser.IsInRole(Roles.AdministrateurIT);
         var users = await userManager.Users.OrderBy(u => u.UserName).ToListAsync(cancellationToken);
         var allPermissionRows = await dbContext.UserPermissions.AsNoTracking().ToListAsync(cancellationToken);
         var teams = await dbContext.ReferenceValues.AsNoTracking()
@@ -47,6 +48,10 @@ public class UsersController(
         foreach (var user in users)
         {
             var roles = await userManager.GetRolesAsync(user);
+            if (!isItAdministrator && roles.Contains(Roles.AdministrateurIT))
+            {
+                continue;
+            }
             rows.Add(new UserRowViewModel
             {
                 Id = user.Id,
@@ -70,7 +75,9 @@ public class UsersController(
         return View(new UsersIndexViewModel
         {
             Users = rows,
-            Roles = Roles.All,
+            Roles = isItAdministrator
+                ? Roles.All
+                : Roles.All.Where(role => role != Roles.AdministrateurIT).ToArray(),
             AllPermissions = Permissions.All,
             DispatchPosts = DispatchPosts,
             Teams = teams.Select(team => new TeamRowViewModel
