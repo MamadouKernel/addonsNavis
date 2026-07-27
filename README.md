@@ -38,8 +38,8 @@ Le rôle `AdministrateurIT` possède tous les accès fonctionnels et techniques.
 Les secrets ne doivent pas être ajoutés aux fichiers `appsettings*.json`. Configurez-les avec les variables d'environnement suivantes (syntaxe ASP.NET Core avec `__`) :
 
 ```text
-AuthenticationEmail__Host=smtp.exemple.ci
-AuthenticationEmail__Port=587
+AuthenticationEmail__Host=votre-domaine-com.mail.protection.outlook.com
+AuthenticationEmail__Port=25
 AuthenticationEmail__EnableSsl=true
 AuthenticationEmail__FromAddress=escalereport@exemple.ci
 AuthenticationEmail__FromName=EscaleReport
@@ -51,3 +51,5 @@ SeedItAdmin__Password=<mot de passe initial robuste>
 ```
 
 Le compte initial n'est créé en développement que si ses trois valeurs `SeedItAdmin` sont fournies. Ensuite, seul un Administrateur IT peut créer ou modifier un autre compte de ce niveau.
+
+Pour Microsoft 365 en relais SMTP sur le port 25, utilisez le point de terminaison MX de votre domaine (`*.mail.protection.outlook.com`) et autorisez l'adresse IP publique du serveur EscaleReport dans le connecteur Exchange Online. Laissez `UserName` et `Password` vides pour un relais authentifié par adresse IP. `EnableSsl=true` active STARTTLS.
