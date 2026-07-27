@@ -111,7 +111,8 @@ public class UsersController(
         {
             UserName = input.UserName,
             Email = string.IsNullOrWhiteSpace(input.Email) ? $"{input.UserName}@escalereport.local" : input.Email.Trim(),
-            EmailConfirmed = true,`r`n            TwoFactorEnabled = input.Role == Roles.AdministrateurIT,
+            EmailConfirmed = true,
+            TwoFactorEnabled = input.Role == Roles.AdministrateurIT,
             Matricule = input.Matricule.Trim(), Nom = input.Nom.Trim(), Prenoms = input.Prenoms.Trim(),
             PhoneNumber = input.PhoneNumber?.Trim(), Fonction = input.Fonction.Trim(), Service = input.Service.Trim(),
             Societe = input.Societe?.Trim(), SiteAffectation = input.SiteAffectation?.Trim(),
