@@ -743,14 +743,23 @@
     </form>
 </section>
 
+<section class="card mt-6">
+ <h2 class="card-title">Historique de l’escale</h2>
+ <p class="card-subtitle mb-4">Les 100 dernières actions enregistrées sur cette escale.</p>
+ <ol class="team-history">
+ @if (!Model.History.Any()) { <li><span class="text-sm text-slate-400">Aucune action historisée.</span></li> }
+ @foreach (var h in Model.History) { <li><i aria-hidden="true"></i><div><strong>@h.Action.Replace("Command", "")</strong><small>@h.DateUtc.ToString("dd/MM/yyyy HH:mm") UTC · @(h.UserName ?? "Système")</small></div></li> }
+ </ol>
+</section>
+
 @if (CurrentUser.HasPermission(Permissions.SupprimerEscale))
 {
 <section class="card mt-6 border border-rose-200">
  <h2 class="card-title text-rose-700">Supprimer l'escale</h2>
- <p class="card-subtitle mb-4">Cette action supprime également les registres rattachés.</p>
- <form asp-controller="Escales" asp-action="Delete" method="post" onsubmit="return confirm('Confirmer la suppression définitive de cette escale et de tous ses registres ?');">
+ <p class="card-subtitle mb-4">L’escale sera masquée mais restera récupérable dans la corbeille Administrateur.</p>
+ <form asp-controller="Escales" asp-action="Delete" method="post" onsubmit="return confirm('Placer cette escale dans la corbeille ?');">
   <input type="hidden" name="id" value="@Model.Escale.Id" />
-  <button type="submit" class="btn-secondary text-rose-700">Supprimer</button>
+  <button type="submit" class="btn-secondary text-rose-700">Mettre à la corbeille</button>
  </form>
 </section>
 }

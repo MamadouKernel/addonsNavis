@@ -283,6 +283,7 @@
                                 @if (ModuleAccess.CanViewSettings(CurrentUser)) { <a asp-controller="Parametrage" asp-action="Index" class="dropdown-item">Paramétrage</a> }
                                 @if (ModuleAccess.CanViewUsers(CurrentUser)) { <a asp-controller="Users" asp-action="Index" class="dropdown-item">Comptes &amp; permissions</a> }
                                 @if (ModuleAccess.CanViewAudit(CurrentUser)) { <a asp-controller="Audit" asp-action="Index" class="dropdown-item">Journal d'audit</a> }
+                                @if (ModuleAccess.CanViewAudit(CurrentUser)) { <a asp-controller="RecycleBin" asp-action="Index" class="dropdown-item">Corbeille</a> }
                             </div>
                         </div>
                     }

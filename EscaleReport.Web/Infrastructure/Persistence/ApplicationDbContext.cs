@@ -16,6 +16,7 @@ using EscaleReport.Web.Infrastructure.Persistence.Interceptors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace EscaleReport.Web.Infrastructure.Persistence;
 
@@ -82,5 +83,14 @@ public abstract class ApplicationDbContext(
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        foreach (var entityType in builder.Model.GetEntityTypes()
+                     .Where(t => typeof(BaseAuditableEntity).IsAssignableFrom(t.ClrType)))
+        {
+            var parameter = Expression.Parameter(entityType.ClrType, "entity");
+            var isDeleted = Expression.Property(parameter, nameof(BaseAuditableEntity.IsDeleted));
+            var filter = Expression.Lambda(Expression.Equal(isDeleted, Expression.Constant(false)), parameter);
+            builder.Entity(entityType.ClrType).HasQueryFilter(filter);
+        }
     }
 }

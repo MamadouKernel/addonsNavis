@@ -51,3 +51,16 @@ public static class Roles
         YardPlanner, IttController, CoordinateurControlRoom, ShiftManager
     };
 }
+public static class RoleAccessGroups
+{
+    public const string Escales = Roles.Administrateur + "," + Roles.VesselPlanner + "," + Roles.Dispatcher + "," + Roles.CargoController + "," + Roles.CoordinateurControlRoom;
+    public const string Dispatch = Roles.Administrateur + "," + Roles.Dispatcher;
+    public const string Cargo = Roles.Administrateur + "," + Roles.CargoController;
+    public const string Yard = Roles.Administrateur + "," + Roles.YardPlanner;
+    public const string Itt = Roles.Administrateur + "," + Roles.IttController;
+    public const string Coordination = Roles.Administrateur + "," + Roles.CoordinateurControlRoom;
+    public const string Reporting = Roles.Administrateur + "," + Roles.CoordinateurControlRoom + "," + Roles.ShiftManager;
+    public const string Notifications = Roles.Administrateur + "," + Roles.VesselPlanner + "," + Roles.CargoController + "," + Roles.CoordinateurControlRoom;
+    public const string Statistics = Roles.Administrateur + "," + Roles.ShiftManager;
+    public const string Administration = Roles.Administrateur;
+}

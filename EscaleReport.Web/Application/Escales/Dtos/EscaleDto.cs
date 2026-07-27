@@ -13,11 +13,15 @@ public class EscaleDto
     public DateTime Eta { get; set; }
     public DateTime? Ata { get; set; }
     public DateTime? Etc { get; set; }
+    public string? Shift { get; set; }
+    public string? Planificateur { get; set; }
     public StatutOperations StatutOperations { get; set; }
     public StatutPlanification StatutPlanification { get; set; }
     public bool IsDraft { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
     public string? UpdatedBy { get; set; }
+    public int AnomaliesNonResoluesCount { get; set; }
+    public int AdditionnelsCount { get; set; }
 
     public static EscaleDto FromEntity(Escale e) => new()
     {
@@ -30,6 +34,8 @@ public class EscaleDto
         Eta = e.Eta,
         Ata = e.Ata,
         Etc = e.Etc,
+        Shift = e.Shift,
+        Planificateur = e.Planificateur,
         StatutOperations = e.StatutOperations,
         StatutPlanification = e.StatutPlanification,
         IsDraft = e.IsDraft,

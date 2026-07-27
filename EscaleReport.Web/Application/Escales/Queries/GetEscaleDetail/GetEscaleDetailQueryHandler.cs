@@ -34,6 +34,12 @@ public class GetEscaleDetailQueryHandler(
             return null;
         }
 
+        var history = await dbContext.AuditLogEntries.AsNoTracking()
+            .Where(a => a.Cible == request.EscaleId.ToString())
+            .OrderByDescending(a => a.DateUtc).Take(100)
+            .Select(a => new EscaleHistoryItemDto(a.DateUtc, a.Action, a.UserName))
+            .ToListAsync(cancellationToken);
+
         var anomalies = await dbContext.ContainerAnomalies
             .AsNoTracking()
             .Where(a => a.EscaleId == request.EscaleId)
@@ -171,6 +177,7 @@ public class GetEscaleDetailQueryHandler(
 
         return new EscaleDetailDto
         {
+            History = history,
             Escale = EscaleDto.FromEntity(escale),
             Anomalies = PagedResult<ContainerAnomalyDto>.Create(anomaliesDto, request.AnomaliesPage, pageSize),
             RaisonsDisponibles = raisons,

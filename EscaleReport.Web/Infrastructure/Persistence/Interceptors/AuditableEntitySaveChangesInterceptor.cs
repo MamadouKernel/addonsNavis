@@ -32,6 +32,14 @@ public class AuditableEntitySaveChangesInterceptor(ICurrentUserService currentUs
 
         foreach (EntityEntry<BaseAuditableEntity> entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
         {
+            if (entry.State == EntityState.Deleted)
+            {
+                entry.State = EntityState.Modified;
+                entry.Entity.IsDeleted = true;
+                entry.Entity.DeletedAtUtc = now;
+                entry.Entity.DeletedBy = userName;
+            }
+
             if (entry.State == EntityState.Added)
             {
                 entry.Entity.CreatedAtUtc = now;

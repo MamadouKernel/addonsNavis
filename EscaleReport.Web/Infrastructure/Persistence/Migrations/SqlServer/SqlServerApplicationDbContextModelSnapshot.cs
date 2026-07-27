@@ -68,6 +68,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Disch20Pieds")
                         .HasColumnType("int");
 
@@ -97,6 +103,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("LoadEnCommunication")
                         .HasColumnType("int");
@@ -188,6 +197,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -221,6 +239,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("DisponibleAutres")
                         .HasColumnType("int");
 
@@ -229,6 +253,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<int>("DisponibleReachStackers")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("UpdatedAtUtc")
                         .IsConcurrencyToken()
@@ -260,10 +287,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateRetourUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Engin")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Motif")
                         .HasMaxLength(1000)
@@ -306,10 +342,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Engin")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Probleme")
                         .IsRequired()
@@ -348,6 +393,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Statut")
                         .HasColumnType("int");
 
@@ -378,6 +432,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -389,6 +449,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<DateTime?>("HeureFin")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Statut")
                         .HasColumnType("int");
@@ -440,6 +503,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ProblemeRencontre")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -479,10 +551,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime>("DateHeureUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("EnginQuitte")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NouvelEngin")
                         .IsRequired()
@@ -530,10 +611,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DifficulteRencontree")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Nom")
                         .IsRequired()
@@ -581,6 +671,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -590,6 +686,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Lieu")
                         .IsRequired()
@@ -623,11 +722,20 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Disponible")
                         .HasColumnType("int");
 
                     b.Property<int>("EnPanne")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Retire")
                         .HasColumnType("int");
@@ -669,10 +777,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Engin")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Raison")
                         .HasMaxLength(1000)
@@ -719,11 +836,20 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("GantryId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("RetirePortiqueEffectif")
                         .HasColumnType("bit");
@@ -761,11 +887,20 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("HeureFinUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("HeurePriseDePosteUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NavireOuZone")
                         .HasMaxLength(200)
@@ -814,6 +949,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateRetourUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("NumeroTt")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -850,8 +994,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Designes")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("RaisonNonDesignation")
                         .HasMaxLength(300)
@@ -887,8 +1040,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("NombreAffecte")
                         .HasColumnType("int");
@@ -932,11 +1094,20 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Eta")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("Etc")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDraft")
                         .HasColumnType("bit");
@@ -1006,8 +1177,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Recipients")
                         .IsRequired()
@@ -1085,10 +1265,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Engin")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("RetireEffectif")
                         .HasColumnType("bit");
@@ -1117,6 +1306,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Disponible")
                         .HasColumnType("int");
 
@@ -1125,6 +1320,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<int>("Engage")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Observations")
                         .HasMaxLength(1000)
@@ -1153,6 +1351,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NavireConnexion")
                         .IsRequired()
@@ -1206,10 +1413,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateFinUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DifficulteOuObjet")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
@@ -1243,8 +1459,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("UpdatedAtUtc")
                         .IsConcurrencyToken()
@@ -1282,6 +1507,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PointsATransmettre")
                         .HasMaxLength(2000)
@@ -1336,6 +1570,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Libelle")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -1376,7 +1619,16 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("EstVisible")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("UpdatedAtUtc")
@@ -1416,9 +1668,18 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DestinatairesParDefaut")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Sujet")
                         .IsRequired()
@@ -1451,6 +1712,15 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NomSociete")
                         .HasMaxLength(200)
@@ -1498,8 +1768,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<int>("Decision")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LigneMaritime")
                         .HasMaxLength(200)
@@ -1554,8 +1833,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateResolutionUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LigneMaritime")
                         .HasMaxLength(200)
@@ -1626,8 +1914,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateValiditeBadt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LigneMaritime")
                         .HasMaxLength(200)
@@ -1674,8 +1971,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LigneMaritime")
                         .IsRequired()
@@ -1751,6 +2057,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
@@ -1760,6 +2072,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<int>("Gravite")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Localisation")
                         .HasMaxLength(200)
@@ -1800,10 +2115,19 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<DateTime?>("DateRealisation")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
@@ -1857,6 +2181,12 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DetailOuDestination")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -1866,6 +2196,9 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
 
                     b.Property<DateTime?>("HeureFin")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("NombreConteneurs")
                         .HasColumnType("int");
@@ -1897,8 +2230,17 @@ namespace EscaleReport.Web.Infrastructure.Persistence.Migrations.SqlServer
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("EscaleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Observations")
                         .HasMaxLength(1000)

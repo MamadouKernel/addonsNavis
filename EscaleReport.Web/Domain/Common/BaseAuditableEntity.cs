@@ -9,4 +9,8 @@ public abstract class BaseAuditableEntity
 
     public DateTime UpdatedAtUtc { get; set; }
     public string? UpdatedBy { get; set; }
+
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
+    public string? DeletedBy { get; set; }
 }

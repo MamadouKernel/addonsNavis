@@ -10,6 +10,7 @@ namespace EscaleReport.Web.Application.Escales.Queries.GetEscaleDetail;
 
 public class EscaleDetailDto
 {
+    public IReadOnlyList<EscaleHistoryItemDto> History { get; set; } = [];
     public EscaleDto Escale { get; set; } = null!;
 
     public PagedResult<ContainerAnomalyDto> Anomalies { get; set; } = new();
@@ -48,3 +49,4 @@ public class EscaleDetailDto
     public IReadOnlyList<TtVesselAssignmentDto> RessourcesTt { get; set; } = [];
     public IReadOnlyList<StsIncidentDto> IncidentsSts { get; set; } = [];
 }
+public sealed record EscaleHistoryItemDto(DateTime DateUtc, string Action, string? UserName);
