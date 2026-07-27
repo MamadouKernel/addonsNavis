@@ -67,10 +67,18 @@
 
 <section class="card mb-6">
     <h2 class="card-title mb-4">Créer un compte</h2>
-    <form asp-controller="Users" asp-action="Create" method="post" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <form asp-controller="Users" asp-action="Create" method="post" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div><label class="field-label">Matricule</label><input name="Matricule" required class="input-field" /></div>
+        <div><label class="field-label">Nom</label><input name="Nom" required class="input-field" /></div>
+        <div><label class="field-label">Prénoms</label><input name="Prenoms" required class="input-field" /></div>
+        <div><label class="field-label">E-mail professionnel</label><input type="email" name="Email" required class="input-field" /></div>
         <div><label class="field-label">Identifiant</label><input name="UserName" required class="input-field" /></div>
         <div><label class="field-label">E-mail</label><input type="email" name="Email" class="input-field" placeholder="prenom.nom@entreprise.ci" /></div>
         <div><label class="field-label">Mot de passe</label><input type="password" name="Password" required class="input-field" /></div>
+        <div><label class="field-label">Téléphone</label><input type="tel" name="PhoneNumber" class="input-field" /></div>
+        <div><label class="field-label">Fonction</label><input name="Fonction" required class="input-field" /></div>
+        <div><label class="field-label">Service</label><input name="Service" required class="input-field" /></div>
+        <div><label class="field-label">Société</label><input name="Societe" class="input-field" /></div>
         <div>
             <label class="field-label">Rôle</label>
             <select name="Role" required class="input-field">
@@ -91,7 +99,11 @@
             </select>
         </div>
         <div><label class="field-label">Équipe</label><select name="Equipe" class="input-field"><option value="">Sans équipe</option>@foreach (var team in Model.Teams.Where(t => t.IsActive)) { <option value="@team.Name">@team.Name</option> }</select></div>
-        <div class="sm:col-span-2 lg:col-span-5">
+        <div><label class="field-label">Site d'affectation</label><input name="SiteAffectation" class="input-field" /></div>
+        <div><label class="field-label">Responsable</label><input name="ResponsableHierarchique" class="input-field" /></div>
+        <div><label class="field-label">Date d'entrée</label><input type="date" name="DateEntree" class="input-field" /></div>
+        <div><label class="field-label">Expiration du compte</label><input type="datetime-local" name="DateExpirationCompteUtc" class="input-field" /></div>
+        <div class="sm:col-span-2 lg:col-span-4">
             <button type="submit" class="btn-primary">Créer le compte</button>
         </div>
     </form>
@@ -105,7 +117,7 @@
         <div class="mb-3 flex items-start justify-between gap-2">
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="font-semibold text-slate-900">@u.UserName</span>
+                    <span class="font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(u.NomComplet) ? u.UserName : u.NomComplet)</span>
                     @if (!u.IsActive)
                     {
                         <span class="badge-neutral opacity-60">désactivé</span>
@@ -115,7 +127,8 @@
                         <span class="badge-neutral" style="color:#b91c1c">verrouillé</span>
                     }
                 </div>
-                <div class="text-xs text-slate-500">@u.Email</div>
+                <div class="text-xs text-slate-500">@u.Matricule · @u.UserName · @u.Email</div>
+                <div class="text-xs text-slate-500">@u.Fonction · @u.Service @(!string.IsNullOrWhiteSpace(u.Societe) ? "· " + u.Societe : "")</div>
             </div>
             <a asp-controller="Audit" asp-action="Index" asp-route-userName="@u.UserName" class="btn-link text-xs whitespace-nowrap">Historique</a>
         </div>

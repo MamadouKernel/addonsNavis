@@ -30,7 +30,6 @@ public class UsersController(
     {
         EnsureAdmin();
 
-        var isItAdministrator = currentUser.IsInRole(Roles.AdministrateurIT);
         var users = await userManager.Users.OrderBy(u => u.UserName).ToListAsync(cancellationToken);
         var allPermissionRows = await dbContext.UserPermissions.AsNoTracking().ToListAsync(cancellationToken);
         var teams = await dbContext.ReferenceValues.AsNoTracking()
@@ -48,15 +47,16 @@ public class UsersController(
         foreach (var user in users)
         {
             var roles = await userManager.GetRolesAsync(user);
-            if (!isItAdministrator && roles.Contains(Roles.AdministrateurIT))
-            {
-                continue;
-            }
             rows.Add(new UserRowViewModel
             {
                 Id = user.Id,
                 UserName = user.UserName ?? string.Empty,
                 Email = user.Email,
+                Matricule = user.Matricule,
+                NomComplet = string.Join(" ", new[] { user.Prenoms, user.Nom }.Where(x => !string.IsNullOrWhiteSpace(x))),
+                Fonction = user.Fonction,
+                Service = user.Service,
+                Societe = user.Societe,
                 Role = roles.FirstOrDefault(),
                 PosteParDefaut = user.PosteParDefaut,
                 Equipe = user.Equipe,
@@ -75,9 +75,7 @@ public class UsersController(
         return View(new UsersIndexViewModel
         {
             Users = rows,
-            Roles = isItAdministrator
-                ? Roles.All
-                : Roles.All.Where(role => role != Roles.AdministrateurIT).ToArray(),
+            Roles = Roles.All,
             AllPermissions = Permissions.All,
             DispatchPosts = DispatchPosts,
             Teams = teams.Select(team => new TeamRowViewModel
@@ -102,14 +100,6 @@ public class UsersController(
             return RedirectToAction(nameof(Index));
         }
 
-        if (input.Role == Roles.AdministrateurIT && !currentUser.IsInRole(Roles.AdministrateurIT))
-            throw new ForbiddenAccessException("Seul un Administrateur IT peut créer un autre Administrateur IT.");
-        if (input.Role == Roles.AdministrateurIT && string.IsNullOrWhiteSpace(input.Email))
-        {
-            TempData["Error"] = "Une adresse e-mail réelle est obligatoire pour recevoir le code MFA Administrateur IT.";
-            return RedirectToAction(nameof(Index));
-        }
-
         var normalizedTeam = await GetActiveTeamAsync(input.Equipe, cancellationToken);
         if (!string.IsNullOrWhiteSpace(input.Equipe) && normalizedTeam is null)
         {
@@ -121,8 +111,12 @@ public class UsersController(
         {
             UserName = input.UserName,
             Email = string.IsNullOrWhiteSpace(input.Email) ? $"{input.UserName}@escalereport.local" : input.Email.Trim(),
-            EmailConfirmed = true,
-            TwoFactorEnabled = input.Role == Roles.AdministrateurIT,
+            EmailConfirmed = true,`r`n            TwoFactorEnabled = input.Role == Roles.AdministrateurIT,
+            Matricule = input.Matricule.Trim(), Nom = input.Nom.Trim(), Prenoms = input.Prenoms.Trim(),
+            PhoneNumber = input.PhoneNumber?.Trim(), Fonction = input.Fonction.Trim(), Service = input.Service.Trim(),
+            Societe = input.Societe?.Trim(), SiteAffectation = input.SiteAffectation?.Trim(),
+            ResponsableHierarchique = input.ResponsableHierarchique?.Trim(), DateEntree = input.DateEntree,
+            DateExpirationCompteUtc = input.DateExpirationCompteUtc,
             IsActive = true,
             PosteParDefaut = string.IsNullOrWhiteSpace(input.PosteParDefaut) ? null : input.PosteParDefaut,
             Equipe = normalizedTeam
@@ -148,7 +142,6 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is not null)
         {
-            await EnsureCanManageAsync(user);
             user.IsActive = !user.IsActive;
             await userManager.UpdateAsync(user);
 
@@ -178,7 +171,6 @@ public class UsersController(
         {
             return RedirectToAction(nameof(Index));
         }
-        await EnsureCanManageAsync(user);
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
         var result = await userManager.ResetPasswordAsync(user, token, newPassword);
@@ -208,15 +200,6 @@ public class UsersController(
             return RedirectToAction(nameof(Index));
         }
 
-        await EnsureCanManageAsync(user);
-        if (role == Roles.AdministrateurIT && !currentUser.IsInRole(Roles.AdministrateurIT))
-            throw new ForbiddenAccessException("Seul un Administrateur IT peut attribuer ce rôle.");
-        if (role == Roles.AdministrateurIT && (string.IsNullOrWhiteSpace(user.Email) || user.Email.EndsWith("@escalereport.local", StringComparison.OrdinalIgnoreCase)))
-        {
-            TempData["Error"] = "Configurez une adresse e-mail réelle avant d'attribuer le rôle Administrateur IT.";
-            return RedirectToAction(nameof(Index));
-        }
-
         var currentRoles = await userManager.GetRolesAsync(user);
         if (currentRoles.Count > 0)
         {
@@ -224,10 +207,6 @@ public class UsersController(
         }
 
         await userManager.AddToRoleAsync(user, role);
-        user.TwoFactorEnabled = role == Roles.AdministrateurIT;
-        user.EmailConfirmed = role == Roles.AdministrateurIT || user.EmailConfirmed;
-        await userManager.UpdateAsync(user);
-        await userManager.UpdateSecurityStampAsync(user);
         await LogAuditAsync("ChangeRole:" + role, id.ToString(), cancellationToken);
         return RedirectToAction(nameof(Index));
     }
@@ -240,7 +219,6 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is not null)
         {
-            await EnsureCanManageAsync(user);
             var previousTeam = user.Equipe;
             var normalizedTeam = string.Equals(user.Equipe, equipe?.Trim(), StringComparison.OrdinalIgnoreCase)
                 ? user.Equipe
@@ -324,10 +302,6 @@ public class UsersController(
             return RedirectToAction(nameof(Index));
         }
 
-        var target = await userManager.FindByIdAsync(id.ToString());
-        if (target is null) return RedirectToAction(nameof(Index));
-        await EnsureCanManageAsync(target);
-
         var existing = await dbContext.UserPermissions
             .FirstOrDefaultAsync(p => p.UserId == id && p.PermissionKey == permissionKey, cancellationToken);
 
@@ -351,13 +325,6 @@ public class UsersController(
         {
             throw new ForbiddenAccessException(Permissions.AdministrerUtilisateurs);
         }
-    }
-
-    private async Task EnsureCanManageAsync(ApplicationUser target)
-    {
-        if (await userManager.IsInRoleAsync(target, Roles.AdministrateurIT)
-            && !currentUser.IsInRole(Roles.AdministrateurIT))
-            throw new ForbiddenAccessException("Un Administrateur classique ne peut pas modifier un compte Administrateur IT.");
     }
 
     private async Task<string?> GetActiveTeamAsync(string? requested, CancellationToken cancellationToken)

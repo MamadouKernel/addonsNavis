@@ -84,6 +84,8 @@ public abstract class ApplicationDbContext(
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
+        // Une règle unique protège tous les modules, y compris les entités qui seront ajoutées
+        // plus tard : toute entité métier auditable est masquée après suppression logique.
         foreach (var entityType in builder.Model.GetEntityTypes()
                      .Where(t => typeof(BaseAuditableEntity).IsAssignableFrom(t.ClrType)))
         {
@@ -91,6 +93,10 @@ public abstract class ApplicationDbContext(
             var isDeleted = Expression.Property(parameter, nameof(BaseAuditableEntity.IsDeleted));
             var filter = Expression.Lambda(Expression.Equal(isDeleted, Expression.Constant(false)), parameter);
             builder.Entity(entityType.ClrType).HasQueryFilter(filter);
+            builder.Entity(entityType.ClrType).Property(nameof(BaseAuditableEntity.Version)).IsConcurrencyToken();
+            builder.Entity(entityType.ClrType).Property(nameof(BaseAuditableEntity.DataSource)).HasMaxLength(40);
+            builder.Entity(entityType.ClrType).Property(nameof(BaseAuditableEntity.LifecycleStatus)).HasMaxLength(40);
+            builder.Entity(entityType.ClrType).Property(nameof(BaseAuditableEntity.DeletionReason)).HasMaxLength(500);
         }
     }
 }

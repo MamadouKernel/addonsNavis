@@ -32,6 +32,11 @@ public class UserRowViewModel
     public Guid Id { get; init; }
     public string UserName { get; init; } = string.Empty;
     public string? Email { get; init; }
+    public string? Matricule { get; init; }
+    public string? NomComplet { get; init; }
+    public string? Fonction { get; init; }
+    public string? Service { get; init; }
+    public string? Societe { get; init; }
     public string? Role { get; init; }
     public string? PosteParDefaut { get; init; }
     public string? Equipe { get; init; }
@@ -43,6 +48,18 @@ public class UserRowViewModel
 
 public class CreateUserInput
 {
+    [Required] public string Matricule { get; set; } = string.Empty;
+    [Required] public string Nom { get; set; } = string.Empty;
+    [Required] public string Prenoms { get; set; } = string.Empty;
+    [Required, EmailAddress] public string Email { get; set; } = string.Empty;
+    public string? PhoneNumber { get; set; }
+    [Required] public string Fonction { get; set; } = string.Empty;
+    [Required] public string Service { get; set; } = string.Empty;
+    public string? Societe { get; set; }
+    public string? SiteAffectation { get; set; }
+    public string? ResponsableHierarchique { get; set; }
+    public DateOnly? DateEntree { get; set; }
+    public DateTime? DateExpirationCompteUtc { get; set; }
     [Required(ErrorMessage = "Identifiant requis.")]
     public string UserName { get; set; } = string.Empty;
 

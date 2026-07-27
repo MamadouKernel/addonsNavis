@@ -56,6 +56,7 @@ public class AuditableEntitySaveChangesInterceptor(ICurrentUserService currentUs
             {
                 entry.Entity.UpdatedAtUtc = now;
                 entry.Entity.UpdatedBy = userName;
+                entry.Entity.Version = entry.State == EntityState.Added ? 1 : entry.Entity.Version + 1;
             }
 
             var changes = BuildChanges(entry, originalState);
