@@ -30,6 +30,7 @@ public class DashboardController(ICurrentUserService currentUser) : Controller
 
         var model = new RoleDashboardViewModel
         {
+            SceneKey = role,
             RoleLabel = RoleLabel(role),
             Heading = Heading(role),
             Introduction = Introduction(role),

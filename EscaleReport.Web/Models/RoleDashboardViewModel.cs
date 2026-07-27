@@ -10,6 +10,7 @@ public sealed record RoleDashboardAction(
 
 public sealed class RoleDashboardViewModel
 {
+    public required string SceneKey { get; init; }
     public required string RoleLabel { get; init; }
     public required string Heading { get; init; }
     public required string Introduction { get; init; }
